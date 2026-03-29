@@ -9,7 +9,13 @@ RUN apt-get update && apt-get install -y unzip git curl \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader
 
-# CMD php artisan serve --host=0.0.0.0 --port=10000
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
+# Fix permissions (IMPORTANT)
+RUN chmod -R 775 storage bootstrap/cache
+
+# Clear cache (IMPORTANT)
+RUN php artisan config:clear && php artisan cache:clear
+
+# Run migration safely + start server
+CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=10000
