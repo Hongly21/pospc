@@ -11,11 +11,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Fix permissions (IMPORTANT)
+# Fix permissions
 RUN chmod -R 775 storage bootstrap/cache
 
-# Clear cache (IMPORTANT)
-RUN php artisan config:clear && php artisan cache:clear
-
-# Run migration safely + start server
+# Start app + run migration
 CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=10000
