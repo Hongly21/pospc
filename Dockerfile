@@ -14,5 +14,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Fix permissions
 RUN chmod -R 775 storage bootstrap/cache
 
-# Start app + run migration
-CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=10000
+# Run migrations, seeders, and storage link before starting the server
+CMD php artisan migrate --force || true \
+    && php artisan db:seed --class=RBACSeeder || true \
+    && php artisan db:seed --class=AdminSeeder || true \
+    && php artisan storage:link || true \
+    && php artisan serve --host=0.0.0.0 --port=10000
