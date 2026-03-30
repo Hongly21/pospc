@@ -462,7 +462,6 @@
                     success: function(res) {
                         if (res.status === 'success') {
 
-                            // បិទ Modal ដោយសុវត្ថិភាព
                             var myModal = bootstrap.Modal.getInstance(document.getElementById(
                                 'paymentModal'));
                             if (myModal) {
@@ -488,7 +487,7 @@
                         }
                     },
                     error: function(err) {
-                        Swal.fire("Error", "Something went wrong", "error");
+                        Swal.fire("Error", "Something went wrong" . err.message, "error");
                         $("#btnConfirmPayment").prop('disabled', false).html(
                             '<i class="fas fa-check me-2"></i> បញ្ជាក់');
                     }
