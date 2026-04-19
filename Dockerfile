@@ -1,8 +1,8 @@
 FROM php:8.2-fpm
 
-# Install system dependencies
+# 1. Install system dependencies AND Node.js/npm for frontend build
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev nodejs npm
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
@@ -16,8 +16,14 @@ WORKDIR /var/www
 # Copy project files
 COPY . .
 
-# Install dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# ---------------------------------------------------
+# 2. THE FIX: Install Node packages and Build CSS
+# ---------------------------------------------------
+RUN npm install
+RUN npm run build
 
 # Set permissions
 RUN chmod -R 777 storage bootstrap/cache
