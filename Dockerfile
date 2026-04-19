@@ -22,8 +22,13 @@ RUN composer install --no-dev --optimize-autoloader
 # Set permissions
 RUN chmod -R 777 storage bootstrap/cache
 
+# Generate storage link (for images)
+RUN php artisan storage:link || true
+
 # Expose port
 EXPOSE 8000
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# Start Laravel + run migrations automatically
+CMD php artisan config:clear && \
+    php artisan migrate --force && \
+    php artisan serve --host=0.0.0.0 --port=8000
