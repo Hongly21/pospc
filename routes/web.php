@@ -16,8 +16,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
-
-
+use App\Http\Controllers\ChatbotController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
@@ -47,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pos/history', [OrderController::class, 'history'])->name('pos.history');
 
     Route::post('/customers/ajax', [CustomerController::class, 'storeAjax'])->name('customers.store.ajax');
+    Route::post('/chatbot', [ChatbotController::class, 'chat'])->name('chatbot.chat');
     Route::get('/pos/customer-debt/{id}', [OrderController::class, 'checkCustomerDebt']);
     Route::post('/pos/order/{id}/pay-debt', [OrderController::class, 'payDebt'])->name('pos.payDebt');
 
@@ -54,6 +54,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    // Generate KHQR code for a given amount
+    Route::post('/pos/khqr/generate', [OrderController::class, 'generateKhqr'])->name('pos.khqr.generate');
+
+    // Poll to check if QR payment was received
+    Route::post('/pos/khqr/check', [OrderController::class, 'checkKhqrPayment'])->name('pos.khqr.check');
 });
 
 Route::middleware(['auth', 'role:Admin,Manager'])->group(function () {
@@ -113,3 +118,14 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
+
+
+
+
+// Add this to routes/web.php
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'kh'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');

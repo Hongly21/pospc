@@ -32,4 +32,9 @@ class Product extends Model
     {
         return $this->hasOne(Inventory::class, 'ProductID');
     }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'ProductID');
+    }
 }

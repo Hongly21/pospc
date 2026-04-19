@@ -1,0 +1,186 @@
+/* ============================================
+   Auth Pages (Login & Register)
+   ============================================ */
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    background-color: #fff;
+    font-family: 'Kantumruy Pro', sans-serif;
+}
+
+/* --- Layout Container --- */
+.login-wrapper {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+/* --- Left Side (Branding) --- */
+.brand-side {
+    flex: 1;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.c1 {
+    width: 300px;
+    height: 300px;
+    top: -10px;
+    left: -20px;
+}
+.c1 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.1;
+
+}
+
+.c2 {
+    width: 500px;
+    height: 500px;
+    bottom: -100px;
+    right: -100px;
+}
+
+.brand-content {
+    z-index: 2;
+    text-align: center;
+    padding: 40px;
+}
+
+.brand-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    color: #38bdf8;
+    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Right Side (Form) --- */
+.form-side {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 60px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+/* --- Form Elements --- */
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.login-header p {
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.input-group-text {
+    background: transparent;
+    border-right: none;
+    color: #94a3b8;
+}
+
+.form-control {
+    border-left: none;
+    padding-left: 0;
+    padding: 12px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #cbd5e1;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    border-radius: 6px;
+}
+
+.input-group:focus-within .input-group-text {
+    color: #38bdf8;
+    border-color: #cbd5e1;
+}
+
+.toggle-password {
+    background: transparent;
+    border-left: none;
+    color: #94a3b8;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: #38bdf8;
+}
+
+.btn-primary {
+    background: #38bdf8;
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: #0ea5e9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+/* --- Responsive Mobile --- */
+@media (max-width: 900px) {
+    .brand-side {
+        display: none;
+    }
+
+    .form-side {
+        width: 100%;
+        padding: 30px;
+    }
+
+    body {
+        overflow: auto;
+    }
+}
+
+/* ============================================
+   Forgot Password & Reset Password Pages
+   ============================================ */
+body.auth-centered {
+    font-family: 'Kantumruy Pro', sans-serif;
+    background: #f1f5f9;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.auth-centered .card {
+    width: 100%;
+    max-width: 400px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}

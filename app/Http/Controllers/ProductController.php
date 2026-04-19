@@ -6,19 +6,18 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
-use Illuminate\Support\Facades\File;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'inventory']);
+        $query = Product::with(['category', 'inventory'])->withCount('orderDetails');
 
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
+
         if ($request->filled('CategoryID')) {
             $query->where('CategoryID', $request->CategoryID);
         }
@@ -26,13 +25,12 @@ class ProductController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('Name', 'LIKE', "%{$search}%")
-                    ->orWhere('Barcode', 'LIKE', "%{$search}%");
+                $q->where('Name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('Barcode', 'LIKE', '%' . $search . '%');
             });
         }
 
         $products = $query->orderBy('ProductID', 'desc')->paginate(15);
-
         $categories = Category::where('status', 1)->get();
 
         return view('products.index', compact('products', 'categories'));
@@ -43,20 +41,19 @@ class ProductController extends Controller
         $request->validate([
             'Name' => 'required|string|max:255',
             'CategoryID' => 'required|exists:categories,CategoryID',
-            'CostPrice' => 'required|numeric',
-            'SellPrice' => 'required|numeric',
+            'CostPrice' => 'required|numeric|min:0',
+            'SellPrice' => 'required|numeric|min:0',
             'StockQuantity' => 'required|integer|min:0',
-            'WarrantyMonths' => 'nullable|integer',
+            'WarrantyMonths' => 'nullable|integer|min:0',
             'Image' => 'nullable|image|max:2048',
-            'Barcode' => 'required|unique:products,Barcode',
+            'Barcode' => 'required|string|max:100|unique:products,Barcode',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('Image')) {
             $file = $request->file('Image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('Uploads/products'), $filename);
-            $imagePath = 'Uploads/products/' . $filename;
+            $imagePath = $file->storeAs('products', $filename, 'public');
         }
 
         $product = Product::create([
@@ -76,11 +73,9 @@ class ProductController extends Controller
             'ProductID' => $product->ProductID,
             'Quantity' => $request->StockQuantity,
             'ReorderLevel' => 5,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        return redirect()->route('products.index')->with('success', 'ទំនិញបានបង្កើតដោយជោគជ័យ!');
+        return redirect()->route('products.index')->with('success', __('products.msg_created'));
     }
 
     public function update(Request $request, $id)
@@ -90,60 +85,46 @@ class ProductController extends Controller
         $request->validate([
             'Name' => 'required|string|max:255',
             'CategoryID' => 'required|exists:categories,CategoryID',
-            'CostPrice' => 'required|numeric',
-            'SellPrice' => 'required|numeric',
-            'WarrantyMonths' => 'nullable|integer',
+            'CostPrice' => 'required|numeric|min:0',
+            'SellPrice' => 'required|numeric|min:0',
+            'WarrantyMonths' => 'nullable|integer|min:0',
             'Image' => 'nullable|image|max:2048',
             'status' => 'required|boolean',
-            'Barcode' => 'required|unique:products,Barcode,' . $id . ',ProductID',
+            'Barcode' => 'required|string|max:100|unique:products,Barcode,' . $id . ',ProductID',
         ]);
 
         $data = $request->except(['Image', 'StockQuantity']);
 
         if ($request->hasFile('Image')) {
-            // if has image delete old image
-            if ($product->Image && File::exists(public_path($product->Image))) {
-                File::delete(public_path($product->Image));
+            if ($product->Image && Storage::disk('public')->exists($product->Image)) {
+                Storage::disk('public')->delete($product->Image);
             }
 
             $file = $request->file('Image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('Uploads/products'), $filename);
-            $data['Image'] = 'Uploads/products/' . $filename;
+            $data['Image'] = $file->storeAs('products', $filename, 'public');
         }
 
         $product->update($data);
 
-        return redirect()->back()->with('success', 'បានកែប្រែ Product ដោយជោគជ័យ!');
+        return redirect()->back()->with('success', __('products.msg_updated'));
     }
 
-    // public function destroy($id)
-    // {
-    //     $product = Product::findOrFail($id);
-
-    //     if ($product->Image && File::exists(public_path($product->Image))) {
-    //         File::delete(public_path($product->Image));
-    //     }
-
-    //     $product->delete();
-    //     return redirect()->back()->with('success', 'ទំនិញត្រូវបានលុបដោយជោគជ័យ!');
-    // }
     public function destroy($id)
     {
-        try {
-            $product = Product::findOrFail($id);
+        $product = Product::findOrFail($id);
 
-            if ($product->Image && File::exists(public_path($product->Image))) {
-                File::delete(public_path($product->Image));
-            }
-
-            $product->delete();
-            return redirect()->back()->with('success', 'ទំនិញត្រូវបានលុបដោយជោគជ័យ!');
-        } catch (QueryException $e) {
-            if ($e->getCode() == "23000") {
-                return redirect()->back()->with('error', 'មិនអាចលុបបានទេ! ទំនិញនេះមានប្រវត្តិលក់រួចហើយ។ សូមប្តូរស្ថានភាពទៅជា "ផ្អាក" ជំនួសវិញ។');
-            }
-            return redirect()->back()->with('error', 'មានបញ្ហាក្នុងការលុបទិន្នន័យ។');
+        if ($product->orderDetails()->exists()) {
+            return redirect()->back()->with('error', __('products.msg_cannot_delete'));
         }
+
+        if ($product->Image && Storage::disk('public')->exists($product->Image)) {
+            Storage::disk('public')->delete($product->Image);
+        }
+
+        $product->inventory()->delete();
+        $product->delete();
+
+        return redirect()->back()->with('success', __('products.msg_deleted'));
     }
 }

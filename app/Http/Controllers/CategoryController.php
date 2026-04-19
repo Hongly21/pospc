@@ -9,15 +9,14 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::query();
+        $query = Category::withCount('products');
 
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('Name', 'LIKE', "%{$search}%");
+            $query->where('Name', 'LIKE', '%' . $request->search . '%');
         }
 
         $categories = $query->orderBy('CategoryID', 'desc')->paginate(15);
@@ -28,52 +27,43 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Name' => 'required|string|max:255',
+            'Name' => 'required|string|max:255|unique:categories,Name',
         ]);
 
         Category::create([
             'Name' => $request->Name,
         ]);
 
-        return redirect()->back()->with('success', 'បានបង្កើត Category ជោគជ័យ!');
+        return redirect()->back()->with('success', __('categories.msg_created'));
     }
 
-    // UPDATE (Edit Existing)
     public function update(Request $request, $id)
     {
+        $category = Category::findOrFail($id);
+
         $request->validate([
-            'Name' => 'required|string|max:255',
-            'status' => 'required',
+            'Name' => 'required|string|max:255|unique:categories,Name,' . $id . ',CategoryID',
+            'status' => 'required|boolean',
         ]);
 
-        $category = Category::findOrFail($id);
         $category->update([
             'Name' => $request->Name,
-            'status' => $request->status
+            'status' => $request->status,
         ]);
 
-        return redirect()->back()->with('success', 'បានកែប្រែ Category ជោគជ័យ!');
+        return redirect()->back()->with('success', __('categories.msg_updated'));
     }
-
-    // DELETE
-    // public function destroy($id)
-    // {
-    //     Category::findOrFail($id)->delete();
-    //     return redirect()->back()->with('success', 'ត្រូវបានលុបដោយជោគជ័យ!');
-    // }
 
     public function destroy($id)
     {
-        try {
-            $category = \App\Models\Category::findOrFail($id);
-            $category->delete();
+        $category = Category::findOrFail($id);
 
-            return redirect()->back()->with('success', 'ប្រភេទទំនិញត្រូវបានលុបដោយជោគជ័យ!');
-        } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == "23000") {
-                return redirect()->back()->with('error', 'មិនអាចលុបបានទេ! ប្រភេទទំនិញនេះកំពុងមានទំនិញនៅខាងក្នុង។ សូមប្តូរស្ថានភាពទៅជា "ផ្អាក" ជំនួសវិញ។');
-            }
-            return redirect()->back()->with('error', 'មានបញ្ហាក្នុងការលុបទិន្នន័យ។');
+        if ($category->products()->exists()) {
+            return redirect()->back()->with('error', __('categories.msg_cannot_delete'));
         }
+
+        $category->delete();
+
+        return redirect()->back()->with('success', __('categories.msg_deleted'));
     }
 }

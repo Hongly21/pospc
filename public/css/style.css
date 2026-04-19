@@ -199,3 +199,175 @@ body {
     display: table;
     clear: both;
 }
+
+/* ===== DASHBOARD ===== */
+.chart-box {
+    height: 300px;
+}
+
+@media (max-width: 768px) {
+    .chart-box {
+        height: 220px !important;
+    }
+}
+
+/* ===== PRODUCT IMAGE PLACEHOLDER ===== */
+.product-img-placeholder {
+    width: 40px;
+    height: 40px;
+}
+
+.product-img-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* ===== POS LAYOUT ===== */
+.pos-panel-body {
+    height: 70vh;
+}
+
+.pos-product-card {
+    cursor: pointer;
+}
+
+/* ===== DARK MODE OVERRIDES ===== */
+[data-theme="dark"] .custom-tabs {
+    background: var(--bg-card);
+    box-shadow: 0 5px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .nav-tabs {
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .nav-tabs .nav-link {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .nav-tabs .nav-link:hover {
+    background-color: var(--table-hover-bg);
+    color: var(--accent-color);
+}
+
+[data-theme="dark"] .nav-tabs .nav-link.active {
+    color: var(--accent-color);
+}
+
+[data-theme="dark"] .nav-tabs .nav-link.active::after {
+    background-color: var(--accent-color);
+}
+
+[data-theme="dark"] .tab-content {
+    background-color: var(--bg-card);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+[data-theme="dark"] .tab-pane table {
+    background: var(--bg-card);
+    box-shadow: 0 2px 12px var(--shadow-color);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .tab-pane table th {
+    background: var(--table-header-bg);
+    color: var(--text-secondary);
+    border-bottom-color: var(--border-color);
+    border-right-color: var(--border-color);
+}
+
+[data-theme="dark"] .tab-pane table td {
+    border-bottom-color: var(--border-color);
+    border-right-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .tab-pane table tr:hover {
+    background-color: var(--table-hover-bg);
+}
+
+/* ===== PRINT STYLES (Sales Report) ===== */
+@media print {
+    .navbar,
+    .topbar,
+    header,
+    footer,
+    .sidebar,
+    .no-print {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .row.g-3 {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        margin-bottom: 20px !important;
+    }
+
+    .col-xl-3 {
+        width: 25% !important;
+        flex: 0 0 25% !important;
+        max-width: 25% !important;
+        padding: 0 5px !important;
+    }
+
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .card-body {
+        padding: 10px !important;
+    }
+
+    .h4 {
+        font-size: 14pt !important;
+        margin: 0 !important;
+    }
+
+    .text-xs {
+        font-size: 9pt !important;
+        color: #000 !important;
+    }
+
+    .fa-2x {
+        display: none !important;
+    }
+
+    table th:last-child,
+    table td:last-child {
+        display: none !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 20px !important;
+    }
+
+    table th,
+    table td {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        font-size: 11pt !important;
+        color: #000 !important;
+    }
+
+    body {
+        background-color: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .badge {
+        border: none !important;
+        color: #000 !important;
+        font-weight: bold !important;
+        padding: 0 !important;
+    }
+}

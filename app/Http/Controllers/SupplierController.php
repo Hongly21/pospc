@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Supplier;
-use Illuminate\Database\QueryException;
 
 class SupplierController extends Controller
 {
     public function index(Request $request)
     {
 
-        $query = Supplier::orderBy('SupplierID', 'desc');
+        $query = Supplier::withCount('purchases')->orderBy('SupplierID', 'desc');
         if ($request->filled('search')) {
             $search = $request->search;
 
@@ -67,19 +66,16 @@ class SupplierController extends Controller
         return redirect()->route('suppliers.index')->with('success', 'កែប្រែអ្នកផ្គត់ផ្គងជោគជ័យ!');
     }
 
-public function destroy($id)
+    public function destroy($id)
     {
-        try {
-            $supplier = \App\Models\Supplier::findOrFail($id);
-            $supplier->delete();
+        $supplier = Supplier::findOrFail($id);
 
-            return redirect()->back()->with('success', 'អ្នកផ្គត់ផ្គង់ត្រូវបានលុបដោយជោគជ័យ!');
-
-        } catch (QueryException $e) {
-            if($e->getCode() == "23000") {
-                return redirect()->back()->with('error', 'មិនអាចលុបបានទេ! អ្នកផ្គត់ផ្គង់នេះមានប្រវត្តិទិញទំនិញចូលរួចហើយ។ សូមប្តូរស្ថានភាពទៅជា "ផ្អាក" ជំនួសវិញ។');
-            }
-            return redirect()->back()->with('error', 'មានបញ្ហាក្នុងការលុបទិន្នន័យ។');
+        if ($supplier->purchases()->exists()) {
+            return redirect()->back()->with('error', __('suppliers.msg_cannot_delete'));
         }
+
+        $supplier->delete();
+
+        return redirect()->back()->with('success', __('suppliers.msg_deleted'));
     }
 }

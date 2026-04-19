@@ -1,17 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'ប្រវត្តិនៃការបញ្ចាទិញចូលស្តុក')
+@section('title', __('Purchase History'))
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    @include('partials.alerts')
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-table me-2"></i> ការបញ្ចាទិញចូលស្តុក</span>
+            <span><i class="fas fa-table me-2"></i> {{ __('Stock Purchase History') }}</span>
             <a href="{{ route('purchases.create') }}" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-plus"></i> បញ្ចាទិញ
+                <i class="fas fa-plus"></i> {{ __('Purchase') }}
             </a>
         </div>
         <div class="card-body">
@@ -19,12 +17,12 @@
                 <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                     <thead class="table-light">
                         <tr>
-                            <th>លេខសំគាល់</th>
-                            <th>កាលបរិច្ឆេទ</th>
-                            <th>អ្នកផ្គត់ផ្គង់</th>
-                            <th>ចំនួនទឺកប្រាក់សរុប</th>
-                            <th>ស្ថានភាព</th>
-                            <th>Action</th>
+                            <th>{{ __('Reference ID') }}</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Supplier') }}</th>
+                            <th>{{ __('Total Amount') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,21 +32,23 @@
 
                                 <td>{{ \Carbon\Carbon::parse($purchase->Date)->format('d M Y') }}</td>
 
-                                <td>{{ $purchase->supplier->Name ?? 'Unknown' }}</td>
+                                <td>{{ $purchase->supplier->Name ?? __('Unknown') }}</td>
 
                                 <td class="text-success fw-bold">${{ number_format($purchase->Total, 2) }}</td>
 
-                                <td><span class="badge bg-success">រួចរាល់</span></td>
+                                <td><span class="badge bg-success">{{ __('Completed') }}</span></td>
                                 <td>
                                     <a href="{{ route('purchases.show', $purchase->PurchaseID) }}"
                                         class="btn btn-sm btn-info text-white">
-                                        <i class="fas fa-eye"></i> មើល
+                                        <i class="fas fa-eye"></i> {{ __('View') }}
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">No purchase history found.</td>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    {{ __('No purchase history found.') }}
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -56,6 +56,4 @@
             </div>
         </div>
     </div>
-
-
 @endsection

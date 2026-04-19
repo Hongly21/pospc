@@ -22,7 +22,7 @@ class UserController extends Controller
                     ->orWhere('Email', 'LIKE', "%{$search}%");
             });
         }
-        
+
         if ($request->filled('role_id')) {
             $query->where('RoleID', $request->role_id);
         }
@@ -81,7 +81,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json(['status' => 'success', 'message' => 'អ្នកត្រូវបានកែប្រែ']);
+        return redirect()->back()->with('success', 'អ្នកត្រូវបានកែប្រែ');
     }
     public function logout(Request $request)
     {
