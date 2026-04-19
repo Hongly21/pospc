@@ -67,7 +67,7 @@
                                 <td class="text-muted small">{{ \Illuminate\Support\Str::limit($exp->note, 30) }}</td>
                                 <td class="text-end fw-bold text-danger">-${{ number_format($exp->amount, 2) }}</td>
                                 <td class="text-center pe-3">
-                                    <button class="btn btn-sm btn-outline-warning mb-1 " data-bs-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-warning mb-1" data-bs-toggle="modal"
                                         data-bs-target="#editExpenseModal{{ $exp->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>

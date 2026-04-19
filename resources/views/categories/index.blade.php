@@ -69,7 +69,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-warning mb-1" data-bs-toggle="modal"
                                         data-bs-target="#editCategoryModal{{ $category->CategoryID }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -77,14 +77,14 @@
                                     @if ($category->products_count > 0)
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled
                                                 title="{{ __('categories.msg_cannot_delete') }}">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash  mb-1"></i>
                                         </button>
                                     @else
                                         <form action="{{ route('categories.destroy', $category->CategoryID) }}" method="POST"
                                             class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete mb-1">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
