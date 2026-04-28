@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password; // <-- 1. Added this import!
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -16,6 +18,10 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
@@ -26,15 +32,15 @@ class AuthController extends Controller
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
 
             if ($user->Status === 'Pending') {
-                return back()->withErrors(['email' => 'គណនីរបស់អ្នកកំពុងរង់ចាំការយល់ព្រមពីអ្នកគ្រប់គ្រង']);
+                return back()->withErrors(['email' => __('auth.account_pending')]);
             }
 
             if ($user->Status === 'Reject') {
-                return back()->withErrors(['email' => 'គណនីរបស់អ្នកត្រូវបានបដិសេធ']);
+                return back()->withErrors(['email' => __('auth.account_rejected')]);
             }
 
             if ($user->Status !== 'Approved') {
-                return back()->withErrors(['email' => 'គណនីរបស់អ្នកមិនត្រូវបានអនុញ្ញាតទេ សូមទាក់ទងអ្នកគ្រប់គ្រង']);
+                return back()->withErrors(['email' => __('auth.account_unauthorized')]);
             }
 
             Auth::login($user);
@@ -50,27 +56,41 @@ class AuthController extends Controller
             return redirect()->route('pos.index');
         }
 
-        return back()->withErrors(['email' => 'ព័ត៌មានផ្ទៀងផ្ទាត់ដែលបានផ្តល់ឱ្យមិនត្រូវគ្នានឹងកំណត់ត្រារបស់យើងទេ']);
+        return back()->withErrors(['email' => __('auth.invalid_credentials')]);
     }
 
     public function register(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,Email',
-            'password' => 'required|min:6|confirmed'
+        $request->merge([
+            'username' => trim((string) $request->input('username')),
+            'email' => strtolower(trim((string) $request->input('email'))),
         ]);
-        
+
+        // 2. Updated the validation array here!
+        $request->validate([
+            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'Username')],
+            'email' => ['required', 'email', Rule::unique('users', 'Email')],
+            'password' => [
+                'required',
+                'confirmed', // This checks that it matches the password_confirmation input
+                Password::min(8) // Must be at least 8 characters
+                    ->letters()  // Must contain letters
+                    ->mixedCase()// Must contain uppercase and lowercase
+                    ->numbers()  // Must contain numbers
+                    ->symbols()  // Must contain symbols (like @, #, !, etc.)
+            ]
+        ]);
+
         try {
             User::create([
                 'Username' => $request->username,
                 'Email' => $request->email,
                 'PasswordHash' => Hash::make($request->password),
-                'RoleID' => 3,
+                'RoleID' => 3, // Default role for new registrations
                 'Status' => 'Pending'
             ]);
 
-            return redirect()->route('login')->with('success', 'ការចុះឈ្មោះបានជោគជ័យ! សូមរង់ចាំការយល់ព្រមពីអ្នកគ្រប់គ្រង');
+            return redirect()->route('login')->with('success', __('auth.registration_success'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Error: ' . $e->getMessage()]);
         }

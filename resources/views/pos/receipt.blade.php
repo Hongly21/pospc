@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #{{ $order->OrderID }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
@@ -76,8 +76,13 @@
             <tbody>
                 @foreach ($order->details as $index => $detail)
                     <tr class="{{ $loop->last ? 'last-row' : '' }}">
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td class="text-start">{{ $detail->product->Name }}</td>
+                        <td class="text-center" style="vertical-align: top;">{{ $index + 1 }}</td>
+                        <td class="text-start">
+                            {{ $detail->product->Name }}
+                            @if ($detail->product && $detail->product->attributes->isNotEmpty())
+                                <div style="font-size: 11px; color: #666;">{{ $detail->product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}</div>
+                            @endif
+                        </td>
                         <td class="text-center">{{ $detail->Quantity }}</td>
                         <td class="text-center">${{ number_format($detail->Quantity > 0 ? $detail->Subtotal / $detail->Quantity : 0, 2) }}</td>
                         <td class="text-end">${{ number_format($detail->Subtotal, 2) }}</td>

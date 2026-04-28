@@ -2,7 +2,7 @@
 
 @section('title', __('POS Terminal'))
 
-@section('content')
+@section('content') 
     <div class="row h-100">
         {{-- =================== LEFT: PRODUCT GRID =================== --}}
         <div class="col-md-8">
@@ -45,11 +45,22 @@
                                 <div class="card h-100 border-0 shadow-sm btn-add-cart" style="cursor: pointer;"
                                     data-id="{{ $product->ProductID }}" data-name="{{ $product->Name }}"
                                     data-price="{{ $product->SellPrice }}"
-                                    data-stock="{{ $product->inventory->Quantity }}">
+                                    data-stock="{{ $product->inventory->Quantity }}"
+                                    data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
                                     <div class="card-body text-center p-2">
                                         <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
                                             class="img-fluid mb-2">
                                         <h6 class="card-title fw-bold">{{ $product->Name }}</h6>
+                                        @if ($product->attributes->isNotEmpty())
+                                            <small class="text-muted d-block mb-1">
+                                                @foreach ($product->attributes->take(2) as $attribute)
+                                                    <span>{{ $attribute->AttributeName }}: {{ $attribute->AttributeValue }}</span>@if (!$loop->last), @endif
+                                                @endforeach
+                                                @if ($product->attributes->count() > 2)
+                                                    <span>...</span>
+                                                @endif
+                                            </small>
+                                        @endif
                                         <div class="text-primary">{{ __('pos.price') }}:
                                             ${{ number_format($product->SellPrice, 2) }}</div>
                                         <small class="text-muted">{{ __('pos.stock') }}:
@@ -259,7 +270,7 @@
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 900,
+                timer: 3000,
                 timerProgressBar: true,
                 didOpen: t => {
                     t.onmouseenter = Swal.stopTimer;
@@ -275,6 +286,7 @@
                 let name = $(this).data("name");
                 let price = parseFloat($(this).data("price"));
                 let stock = parseInt($(this).data("stock"));
+                let attributes = $(this).data("attributes");
 
                 if (stock <= 0) {
                     Toast.fire({
@@ -304,7 +316,8 @@
                         name,
                         price,
                         qty: 1,
-                        stock
+                        stock,
+                        attributes
                     });
                     Toast.fire({
                         icon: "success",
@@ -323,8 +336,9 @@
                 cart.forEach((item, index) => {
                     let sub = item.price * item.qty;
                     total += sub;
+                    let attrHtml = item.attributes ? `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` : '';
                     html += `<tr>
-                    <td>${item.name}<br><small>$${item.price}</small></td>
+                    <td>${item.name}${attrHtml}<br><small>$${item.price}</small></td>
                     <td class="text-center">x${item.qty}</td>
                     <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
                     <td><button class="btn btn-sm text-danger btn-remove" data-index="${index}">X</button></td>
@@ -348,7 +362,7 @@
                 if (!name || !phone) {
                     Toast.fire({
                         icon: "warning",
-                        title: "Please fill in all fields"
+                        title: "{{ __('pos.fill_all_fields') }}"
                     });
                     return;
                 }
@@ -372,7 +386,7 @@
                         });
                     },
                     error(xhr) {
-                        Swal.fire('Error', xhr.responseJSON?.message || 'Error', 'error');
+                        Swal.fire("{{ __('pos.error') }}", xhr.responseJSON?.message || "{{ __('pos.error') }}", 'error');
                     }
                 });
             });
@@ -386,10 +400,10 @@
                 $.get(`/pos/customer-debt/${id}`, function(res) {
                     if (res.has_debt) {
                         Swal.fire({
-                            title: 'អតិថិជននេះមានជំពាក់ប្រាក់!',
+                            title: "{{ __('pos.customer_has_debt') }}",
                             text: res.message,
                             icon: 'warning',
-                            confirmButtonText: 'យល់ព្រម',
+                            confirmButtonText: "{{ __('pos.ok') }}",
                             confirmButtonColor: '#d33'
                         });
                     }
@@ -403,7 +417,7 @@
                 if (cart.length === 0) {
                     Toast.fire({
                         icon: "warning",
-                        title: "មិនមានទំនិញ"
+                        title: "{{ __('pos.no_items') }}"
                     });
                     return;
                 }
@@ -439,11 +453,11 @@
                 let received = parseFloat($(this).val()) || 0;
                 let diff = received - currentTotal;
                 if (diff < 0) {
-                    $("#changeLabel").text("ជំពាក់ប្រាក់ (Debt) $");
+                    $("#changeLabel").text("{{ __('pos.debt_amount') }} $");
                     $("#txtChangeAmount").val(Math.abs(diff).toFixed(2)).addClass('text-danger')
                         .removeClass('text-success');
                 } else {
-                    $("#changeLabel").text("លុយអាប់ (Change) $");
+                    $("#changeLabel").text("{{ __('pos.change_amount') }} $");
                     $("#txtChangeAmount").val(diff.toFixed(2)).removeClass('text-danger').addClass(
                         'text-success');
                 }
@@ -478,11 +492,11 @@
                             renderQrCanvas(res.qr);
                             startPolling();
                         } else {
-                            showQrError(res.message || 'មិនអាចបង្កើត QR');
+                            showQrError(res.message || "{{ __('pos.cannot_generate_qr') }}");
                         }
                     },
                     error() {
-                        showQrError('Server error — could not generate QR');
+                        showQrError("{{ __('pos.server_error_qr') }}");
                     }
                 });
             }
@@ -497,7 +511,7 @@
                     width: 240,
                     margin: 2
                 }, function(err) {
-                    if (err) showQrError('QR render failed');
+                    if (err) showQrError("{{ __('pos.qr_render_failed') }}");
                 });
             }
 
@@ -581,7 +595,7 @@
                     if (!qrConfirmed) {
                         Toast.fire({
                             icon: "warning",
-                            title: "សូមរង់ចាំការទូទាត់ KHQR!"
+                            title: "{{ __('pos.wait_khqr_payment') }}"
                         });
                         return;
                     }
@@ -592,19 +606,19 @@
                 if (received < currentTotal && !customerId) {
                     Toast.fire({
                         icon: "error",
-                        title: "ជ្រើសរើសអតិថិជន ដើម្បីកត់ត្រាការជំពាក់!"
+                        title: "{{ __('pos.select_customer_for_debt') }}"
                     });
                     return;
                 }
 
                 if (received < currentTotal) {
                     Swal.fire({
-                        title: 'ទូទាត់មិនគ្រប់?',
-                        text: `អតិថិជននឹងជំពាក់ $${(currentTotal - received).toFixed(2)}`,
+                        title: "{{ __('pos.insufficient_payment') }}",
+                        text: `{{ __('pos.customer_will_owe') }} $${(currentTotal - received).toFixed(2)}`,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'បាទ/ចាស លក់ជំពាក់',
-                        cancelButtonText: 'បោះបង់'
+                        confirmButtonText: "{{ __('pos.yes_sell_debt') }}",
+                        cancelButtonText: "{{ __('pos.cancel') }}"
                     }).then(r => {
                         if (r.isConfirmed) processCheckout(payType, received, customerId, false);
                     });
@@ -618,7 +632,7 @@
             // ─────────────────────────────────────────────────────────
             function processCheckout(paymentType, receivedAmount, customerId, paymentConfirmed) {
                 $("#btnConfirmPayment").prop('disabled', true)
-                    .html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+                    .html('<i class="fas fa-spinner fa-spin"></i> {{ __('pos.processing') }}');
 
                 $.ajax({
                     url: "{{ route('pos.store') }}",
@@ -637,9 +651,9 @@
                             cancelQrPolling();
                             bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
                             Swal.fire({
-                                title: 'ជោគជ័យ',
+                                title: "{{ __('pos.success') }}",
                                 text: res.message + (res.payment_status === 'Partial' ?
-                                    ' (ជំពាក់)' : ''),
+                                    " ({{ __('pos.debt') }})" : ''),
                                 icon: 'success',
                                 timer: 2000,
                                 showConfirmButton: false
@@ -649,15 +663,15 @@
                                 location.reload();
                             });
                         } else {
-                            Swal.fire("Error", res.message, "error");
+                            Swal.fire("{{ __('pos.error') }}", res.message, "error");
                             $("#btnConfirmPayment").prop('disabled', false)
-                                .html('<i class="fas fa-check me-2"></i> បញ្ជាក់');
+                                .html('<i class="fas fa-check me-2"></i> {{ __('pos.confirm') }}');
                         }
                     },
                     error() {
-                        Swal.fire("Error", "Something went wrong", "error");
+                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.something_went_wrong') }}", "error");
                         $("#btnConfirmPayment").prop('disabled', false)
-                            .html('<i class="fas fa-check me-2"></i> បញ្ជាក់');
+                            .html('<i class="fas fa-check me-2"></i> {{ __('pos.confirm') }}');
                     }
                 });
             }

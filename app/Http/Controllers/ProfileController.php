@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -22,10 +24,15 @@ class ProfileController extends Controller
     {
         $user = User::find(Auth::id());
 
+        $request->merge([
+            'username' => trim((string) $request->input('username')),
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'phone' => $request->filled('phone') ? trim((string) $request->input('phone')) : null,
+        ]);
 
         $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,Email,' . $user->UserID . ',UserID',
+            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'Username')->ignore($user->UserID, 'UserID')],
+            'email' => ['required', 'email', Rule::unique('users', 'Email')->ignore($user->UserID, 'UserID')],
             'phone' => 'nullable|string|max:20',
             'user_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -52,13 +59,16 @@ class ProfileController extends Controller
 
         if ($request->filled('password')) {
             $request->validate([
-                'password' => 'min:6|confirmed'
+                'password' => [
+                    'confirmed',
+                    Password::min(8)->letters()->mixedCase()->numbers()->symbols(),
+                ],
             ]);
             $user->PasswordHash = Hash::make($request->password);
         }
 
         $user->save();
 
-        return back()->with('success', 'ប្រតិបត្តិរបស់អ្នកបានបានកែប្រែការជោគជ័យ');
+        return back()->with('success', __('profile.msg_updated'));
     }
 }

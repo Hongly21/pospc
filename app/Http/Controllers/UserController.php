@@ -7,8 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
-
-
+use Illuminate\Validation\Rules\Password; // <-- Added this import!
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -37,6 +37,7 @@ class UserController extends Controller
 
         return view('users.index', compact('users', 'roles'));
     }
+
     public function approve($id)
     {
         $user = User::where('UserID', $id)->firstOrFail();
@@ -47,9 +48,8 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', 'អ្នកត្រូវបានអនុម័ត');
+        return redirect()->back()->with('success', __('users.msg_approved'));
     }
-
 
     public function reject($id)
     {
@@ -60,14 +60,29 @@ class UserController extends Controller
         $user->ActionAt = now();
         $user->save();
 
-        return redirect()->back()->with('success', 'អ្នកត្រូវបានបដិសេធ');
+        return redirect()->back()->with('success', __('users.msg_rejected'));
     }
+
     public function update(Request $request)
     {
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+        ]);
+
         $request->validate([
             'id' => 'required',
-            'name' => 'required|string|max:50',
+            'name' => ['required', 'string', 'max:50', Rule::unique('users', 'Username')->ignore($request->id, 'UserID')],
             'role_id' => 'required|exists:roles,RoleID',
+            'password' => [
+                'nullable', // Optional during update
+                Password::min(8) // But must be strong if provided!
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+        ], [
+            'name.unique' => 'Username already exists.',
         ]);
 
         $user = User::where('UserID', $request->id)->firstOrFail();
@@ -81,8 +96,9 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', 'អ្នកត្រូវបានកែប្រែ');
+        return redirect()->back()->with('success', __('users.msg_updated'));
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
@@ -91,13 +107,30 @@ class UserController extends Controller
 
         return redirect()->route('login');
     }
+
     public function store(Request $request)
     {
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
-            'name' => 'required|string|max:50',
-            'email' => 'required|email|unique:users,Email',
-            'password' => 'required|min:6',
-            'role' => 'required'
+            'name' => ['required', 'string', 'max:50', Rule::unique('users', 'Username')],
+            'email' => ['required', 'email', Rule::unique('users', 'Email')],
+            'role' => 'required',
+            'password' => [
+                'required',
+                'confirmed', // Checks against password_confirmation from the view
+                Password::min(8) // Must be at least 8 chars long
+                    ->letters()  // Must have letters
+                    ->mixedCase() // Must have Upper and Lower case
+                    ->numbers()   // Must have numbers
+                    ->symbols()   // Must have symbols (@, #, $, etc.)
+            ],
+        ], [
+            'name.unique' => 'Username already exists.',
+            'email.unique' => 'Email already exists.',
         ]);
 
         $user = new User();
@@ -110,6 +143,7 @@ class UserController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
     public function destroy(Request $request)
     {
         try {

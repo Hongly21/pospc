@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="{{ asset('css/sidemenu.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app-theme.css') }}">
     <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}">
-    {{-- Prevent flash of wrong theme --}}
     <script>
         (function() {
             var theme = localStorage.getItem('theme') || 'light';
@@ -25,9 +24,31 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.3); /* Softer, darker overlay instead of stark white */
+            backdrop-filter: blur(5px); /* Modern glass-blur effect */
+            -webkit-backdrop-filter: blur(5px); /* Safari support */
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Global Loading Spinner -->
+    <div id="global-loader">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 
     @include('layouts.sidebar')
 
@@ -49,12 +70,12 @@
                     </div>
                     @if (Auth::user()->UserImage)
                         <img src="{{ asset('storage/' . Auth::user()->UserImage) }}"
-                            class="rounded-circle shadow-sm border border-2 border-white" width="45"
-                            height="45" style="object-fit: cover;" alt="Profile Image">
+                            class="rounded-circle shadow-sm border border-2 border-white" width="45" height="45"
+                            style="object-fit: cover;" alt="Profile Image">
                     @else
                         <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->Username ?? 'User') }}&background=38bdf8&color=fff&bold=true"
-                            class="rounded-circle shadow-sm border border-2 border-white" width="45"
-                            height="45" alt="Avatar">
+                            class="rounded-circle shadow-sm border border-2 border-white" width="45" height="45"
+                            alt="Avatar">
                     @endif
                 </a>
 
@@ -132,15 +153,15 @@
         <i class="fas fa-robot text-white fa-lg"></i>
     </div>
 
-    <div id="chat-window" class="card shadow-lg d-none">
+    <div id="chat-window" class="card d-none">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><i class="fas fa-robot mr-2"></i> {{ __('POS AI Assistant') }}</h6>
             <button type="button" class="close text-white" id="close-chat">&times;</button>
         </div>
-        <div class="card-body" id="chat-content" style="height: 300px; overflow-y: auto; background-color: #f4f7f6;">
+        <div class="card-body" id="chat-content">
             <div class="message-ai mb-3">
                 <small class="text-muted d-block">{{ __('AI Assistant') }}</small>
-                <div class="bg-white p-2 rounded shadow-sm d-inline-block border" style="max-width: 85%;">
+                <div class="bg-white p-2 rounded shadow-sm d-inline-block border">
                     {{ __('Hello! I can help you check stock, sales, or answer questions. What do you need?') }}
                 </div>
             </div>
@@ -164,6 +185,23 @@
 </html>
 
 <script>
+    // Hide the loader when the page is fully loaded
+    $(window).on('load', function() {
+        $('#global-loader').fadeOut(300);
+    });
+
+    // Show the loader when navigating away or refreshing
+    $(window).on('beforeunload', function() {
+        $('#global-loader').show();
+    });
+
+    // Handle browser Back/Forward cache to prevent stuck spinner
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            $('#global-loader').hide();
+        }
+    });
+
     $(document).ready(function() {
         $('#chat-bubble').click(function() {
             $('#chat-window').toggleClass('d-none');
@@ -179,7 +217,7 @@
 
             // Show user message
             $('#chat-content').append(`<div class="message-user mb-3 text-right">
-                <div class="bg-primary text-white p-2 rounded d-inline-block" style="max-width:85%;">${$('<div>').text(message).html()}</div>
+                <div class="bg-primary text-white p-2 rounded d-inline-block">${$('<div>').text(message).html()}</div>
             </div>`);
             $('#user-input').val('');
             $('#chat-content').scrollTop($('#chat-content')[0].scrollHeight);
@@ -213,7 +251,7 @@
 
                     $('#chat-content').append(`<div class="message-ai mb-3">
                         <small class="text-muted d-block">{{ __('AI Assistant') }}</small>
-                        <div class="bg-white p-2 rounded shadow-sm d-inline-block border" style="max-width:85%;">${reply}</div>
+                        <div class="bg-white p-2 rounded shadow-sm d-inline-block border">${reply}</div>
                     </div>`);
                     $('#chat-content').scrollTop($('#chat-content')[0].scrollHeight);
                 },
@@ -225,7 +263,7 @@
                     }
                     $('#chat-content').append(`<div class="message-ai mb-3">
                         <small class="text-muted d-block">{{ __('AI Assistant') }}</small>
-                        <div class="bg-white p-2 rounded shadow-sm d-inline-block border border-danger text-danger" style="max-width:85%;">${errMsg}</div>
+                        <div class="bg-white p-2 rounded shadow-sm d-inline-block border border-danger text-danger">${errMsg}</div>
                     </div>`);
                     $('#chat-content').scrollTop($('#chat-content')[0].scrollHeight);
                 },

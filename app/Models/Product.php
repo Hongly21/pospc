@@ -20,7 +20,7 @@ class Product extends Model
         'Barcode',
         'Description',
         'WarrantyMonths',
-        'status',
+        'Status',
     ];
 
     public function category()
@@ -36,5 +36,10 @@ class Product extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class, 'ProductID');
+    }
+
+    public function attributes()
+    {
+        return $this->hasMany(ProductAttribute::class, 'ProductID', 'ProductID');
     }
 }

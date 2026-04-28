@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -26,8 +27,14 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'Name' => preg_replace('/\s+/', ' ', trim((string) $request->input('Name'))),
+        ]);
+
         $request->validate([
-            'Name' => 'required|string|max:255|unique:categories,Name',
+            'Name' => ['required', 'string', 'max:255', Rule::unique('categories', 'Name')],
+        ], [
+            'Name.unique' => 'Category name already exists.',
         ]);
 
         Category::create([
@@ -41,9 +48,15 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
 
+        $request->merge([
+            'Name' => preg_replace('/\s+/', ' ', trim((string) $request->input('Name'))),
+        ]);
+
         $request->validate([
-            'Name' => 'required|string|max:255|unique:categories,Name,' . $id . ',CategoryID',
+            'Name' => ['required', 'string', 'max:255', Rule::unique('categories', 'Name')->ignore($id, 'CategoryID')],
             'status' => 'required|boolean',
+        ], [
+            'Name.unique' => 'Category name already exists.',
         ]);
 
         $category->update([

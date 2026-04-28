@@ -1,186 +1,314 @@
 /* ============================================
-   Auth Pages (Login & Register)
+   Auth UI - Cold Advanced POS Theme
    ============================================ */
-body {
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-    overflow: hidden;
-    margin: 0;
-    background-color: #fff;
-    font-family: 'Kantumruy Pro', sans-serif;
+:root {
+    --auth-bg-main: #050d1f;
+    --auth-bg-mid: #0a1b39;
+    --auth-bg-soft: #132a53;
+    --auth-text-main: #e2edff;
+    --auth-text-secondary: #8aa1c2;
+    --auth-panel-bg: #ffffff;
+    --auth-input-bg: #f7faff;
+    --auth-border: #d6e2f5;
+    --auth-border-focus: #4ba8ff;
+    --auth-primary: #1f7aec;
+    --auth-primary-soft: #4fc3ff;
+    --auth-shadow: 0 24px 50px rgba(6, 16, 37, 0.25);
 }
 
-/* --- Layout Container --- */
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Kantumruy Pro', 'Inter', sans-serif;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(83, 196, 255, 0.2), transparent 32%),
+        radial-gradient(circle at 85% 85%, rgba(63, 113, 240, 0.22), transparent 40%),
+        linear-gradient(140deg, var(--auth-bg-main) 0%, var(--auth-bg-mid) 58%, var(--auth-bg-soft) 100%);
+}
+
+/* --- Split Layout --- */
 .login-wrapper {
     display: flex;
-    height: 100%;
     width: 100%;
+    min-height: 100vh;
 }
 
-/* --- Left Side (Branding) --- */
 .brand-side {
+    position: relative;
     flex: 1;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: white;
-    position: relative;
     overflow: hidden;
+    color: var(--auth-text-main);
+    background: linear-gradient(145deg, rgba(8, 22, 48, 0.86), rgba(11, 33, 68, 0.72));
+    border-right: 1px solid rgba(129, 177, 255, 0.25);
 }
 
 .circle {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(138, 196, 255, 0.28);
+    background: radial-gradient(circle, rgba(114, 189, 255, 0.25) 0%, rgba(114, 189, 255, 0.05) 58%, transparent 100%);
+    backdrop-filter: blur(2px);
 }
 
 .c1 {
-    width: 300px;
-    height: 300px;
-    top: -10px;
-    left: -20px;
+    width: 340px;
+    height: 340px;
+    top: -90px;
+    left: -80px;
 }
+
 .c1 img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0.1;
-
+    object-fit: contain;
+    opacity: 0.14;
+    mix-blend-mode: screen;
 }
 
 .c2 {
-    width: 500px;
-    height: 500px;
-    bottom: -100px;
-    right: -100px;
+    width: 540px;
+    height: 540px;
+    right: -180px;
+    bottom: -170px;
 }
 
 .brand-content {
+    position: relative;
     z-index: 2;
+    max-width: 560px;
+    padding: 48px;
     text-align: center;
-    padding: 40px;
+}
+
+.brand-content h1 {
+    color: #f2f7ff;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.85rem;
+}
+
+.brand-content p {
+    color: rgba(215, 233, 255, 0.78) !important;
 }
 
 .brand-icon {
-    font-size: 5rem;
-    margin-bottom: 20px;
-    color: #38bdf8;
-    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    font-size: 4.25rem;
+    margin-bottom: 1.35rem;
+    color: #54c6ff;
+    text-shadow: 0 16px 28px rgba(8, 17, 33, 0.55);
 }
 
-/* --- Right Side (Form) --- */
+/* --- Form Panel --- */
 .form-side {
-    width: 500px;
+    width: min(100%, 540px);
+    padding: 3.4rem 3.2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 60px;
-    background-color: #fff;
     overflow-y: auto;
+    background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+    box-shadow: var(--auth-shadow);
 }
 
-/* --- Form Elements --- */
 .login-header {
-    margin-bottom: 30px;
+    margin-bottom: 1.75rem;
 }
 
 .login-header h2 {
+    margin-bottom: 0.35rem;
     font-weight: 700;
-    color: #1e293b;
+    color: #1a2845;
+    letter-spacing: 0.2px;
 }
 
 .login-header p {
-    color: #64748b;
-    margin-top: 5px;
+    margin: 0;
+    color: #6c819e;
 }
 
-.input-group-text {
-    background: transparent;
-    border-right: none;
-    color: #94a3b8;
+/* --- Inputs / Labels --- */
+.form-label {
+    margin-bottom: 0.45rem;
+    color: #5f7494 !important;
+    font-size: 0.74rem;
+    letter-spacing: 0.85px;
+}
+
+.input-group .form-control,
+.input-group .input-group-text,
+.form-control {
+    border: 1px solid var(--auth-border);
+    background-color: var(--auth-input-bg);
+    min-height: 48px;
+}
+
+.input-group .form-control {
+    border-right: 0;
+}
+
+.input-group .input-group-text {
+    border-left: 0;
 }
 
 .form-control {
-    border-left: none;
-    padding-left: 0;
-    padding: 12px;
+    border-radius: 10px;
+    color: #183152;
+    font-size: 0.96rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.input-group .form-control {
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+}
+
+.input-group .input-group-text,
+.input-group .toggle-password {
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+    color: #7f95b7;
 }
 
 .form-control:focus {
-    box-shadow: none;
-    border-color: #cbd5e1;
+    border-color: var(--auth-border-focus);
+    background: #fbfdff;
+    box-shadow: 0 0 0 4px rgba(74, 168, 255, 0.17);
 }
 
-.input-group:focus-within {
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-    border-radius: 6px;
-}
-
-.input-group:focus-within .input-group-text {
-    color: #38bdf8;
-    border-color: #cbd5e1;
+.input-group:focus-within .input-group-text,
+.toggle-password:hover {
+    color: var(--auth-primary);
+    background: #f3f8ff;
 }
 
 .toggle-password {
-    background: transparent;
-    border-left: none;
-    color: #94a3b8;
-    transition: color 0.2s;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.toggle-password:hover {
-    color: #38bdf8;
+.form-check-input {
+    border-color: #9bb7da;
 }
 
-.btn-primary {
-    background: #38bdf8;
-    border: none;
-    padding: 12px;
+.form-check-input:checked {
+    background-color: var(--auth-primary);
+    border-color: var(--auth-primary);
+}
+
+.form-check-label,
+.text-muted {
+    color: #6f839f !important;
+}
+
+.text-primary {
+    color: var(--auth-primary) !important;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: 10px;
+    min-height: 46px;
     font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.3s;
+    letter-spacing: 0.2px;
 }
 
-.btn-primary:hover {
-    background: #0ea5e9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+.btn-outline-primary,
+.btn-primary {
+    border: 1px solid transparent;
+    color: #fff;
+    background: linear-gradient(92deg, #1d70dd 0%, #1f8ef2 58%, #56c6ff 100%);
+    box-shadow: 0 10px 20px rgba(31, 120, 228, 0.24);
 }
 
-/* --- Responsive Mobile --- */
+.btn-outline-primary:hover,
+.btn-primary:hover,
+.btn-outline-primary:focus,
+.btn-primary:focus {
+    color: #fff;
+    background: linear-gradient(92deg, #175fbe 0%, #197bd1 58%, #3db3f1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(23, 99, 194, 0.28);
+}
+
+.btn-outline-primary:active,
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* --- Alerts --- */
+.alert {
+    border-radius: 10px;
+    border: 0;
+    font-size: 0.93rem;
+}
+
+.alert-success {
+    background: #dff3ea;
+    color: #186647;
+}
+
+.alert-danger {
+    background: #fde8e8;
+    color: #852525;
+}
+
+/* ============================================
+   Centered Cards (Forgot / Reset Password)
+   ============================================ */
+body.auth-centered {
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+
+body.auth-centered .card {
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid rgba(169, 195, 230, 0.34);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(251, 253, 255, 0.98) 0%, rgba(243, 248, 255, 0.96) 100%);
+    box-shadow: var(--auth-shadow);
+    backdrop-filter: blur(8px);
+}
+
+body.auth-centered h3 {
+    color: #1a2b49;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1080px) {
+    .brand-content {
+        padding: 2.4rem;
+    }
+
+    .brand-icon {
+        font-size: 3.8rem;
+    }
+
+    .form-side {
+        padding: 2.8rem 2.4rem;
+    }
+}
+
 @media (max-width: 900px) {
+    body {
+        overflow: auto;
+    }
+
     .brand-side {
         display: none;
     }
 
     .form-side {
         width: 100%;
-        padding: 30px;
+        min-height: 100vh;
+        padding: 2rem 1.25rem;
+        box-shadow: none;
+        background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
     }
-
-    body {
-        overflow: auto;
-    }
-}
-
-/* ============================================
-   Forgot Password & Reset Password Pages
-   ============================================ */
-body.auth-centered {
-    font-family: 'Kantumruy Pro', sans-serif;
-    background: #f1f5f9;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-body.auth-centered .card {
-    width: 100%;
-    max-width: 400px;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }

@@ -24,7 +24,8 @@ class PurchaseController extends Controller
     {
         $suppliers = Supplier::where('status', 1)->get();
 
-        $products = Product::where('status', 1)->with('inventory')->get();
+        // $products = Product::where('status', 1)->with('inventory')->get();
+        $products= Product::where('Status', 1)->with('inventory')->get();
 
         return view('purchases.create', compact('suppliers', 'products'));
     }
@@ -40,6 +41,9 @@ class PurchaseController extends Controller
             'SupplierID' => 'required|exists:suppliers,SupplierID',
             'PurchaseDate' => 'required|date',
             'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,ProductID',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.cost' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -77,7 +81,7 @@ class PurchaseController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('purchases.index')->with('success', 'បានបញ្ជាទិញដោយជោគជ័យ!');
+            return redirect()->route('purchases.index')->with('success', __('purchases.msg_created'));
         } catch (\Exception $e) {
             DB::rollBack();
             dd($e->getMessage());

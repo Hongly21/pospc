@@ -25,7 +25,7 @@ class OrderController extends Controller
         $query = Product::where('status', 1)
             ->whereHas('inventory', function ($q) {
                 $q->where('Quantity', '>', 0);
-            })->with(['inventory', 'category']);
+            })->with(['inventory', 'category', 'attributes']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -114,7 +114,7 @@ class OrderController extends Controller
         if ($request->payment_type === 'QR' && !$request->payment_confirmed) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'ការទូទាត់តាម QR មិនទាន់បានផ្ទៀងផ្ទាត់! (QR payment not confirmed)',
+                'message' => __('pos.qr_payment_not_confirmed'),
             ]);
         }
 
@@ -129,7 +129,7 @@ class OrderController extends Controller
                     DB::rollBack();
                     return response()->json([
                         'status'  => 'error',
-                        'message' => "សុំទោស! ទំនិញ '{$item['name']}' មិនមានស្តុកគ្រប់គ្រាន់ (សល់ " . ($inventory->Quantity ?? 0) . ")",
+                        'message' => __('pos.insufficient_stock', ['name' => $item['name'], 'qty' => $inventory->Quantity ?? 0]),
                     ]);
                 }
 
@@ -192,7 +192,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'status'         => 'success',
-                'message'        => 'ការលក់ជោគជ័យ (Sale complete)!',
+                'message'        => __('pos.sale_complete'),
                 'order_id'       => $order->OrderID,
                 'payment_status' => $status,
             ]);
@@ -208,7 +208,7 @@ class OrderController extends Controller
 
     public function showReceipt($id)
     {
-        $order   = Order::with(['details.product', 'user', 'customer', 'receipts'])->findOrFail($id);
+        $order   = Order::with(['details.product.attributes', 'user', 'customer', 'receipts'])->findOrFail($id);
 
         // Only admin (RoleID=1) can view any receipt; others can only view their own
         if (Auth::user()->RoleID != 1 && $order->UserID != Auth::id()) {
@@ -264,7 +264,7 @@ class OrderController extends Controller
                 return response()->json([
                     'has_debt'   => true,
                     'total_debt' => $totalDebt,
-                    'message'    => 'អតិថិជននេះមានជំពាក់ប្រាក់សរុប $' . number_format($totalDebt, 2),
+                    'message'    => __('pos.customer_debt_msg', ['amount' => number_format($totalDebt, 2)]),
                 ]);
             }
         }
@@ -287,7 +287,7 @@ class OrderController extends Controller
             $remaining   = max(0, $order->TotalAmount - $alreadyPaid);
 
             if ($remaining <= 0) {
-                return response()->json(['status' => 'error', 'message' => 'វិក្កយបត្រនេះត្រូវបានទូទាត់រួចរាល់ហើយ!']);
+                return response()->json(['status' => 'error', 'message' => __('pos.bill_already_paid')]);
             }
 
             $payAmount     = $request->paid_amount;
@@ -311,7 +311,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'status'     => 'success',
-                'message'    => 'ការទូទាត់ប្រាក់ជំពាក់ទទួលបានជោគជ័យ!',
+                'message'    => __('pos.debt_payment_success'),
                 'new_status' => $order->Status,
             ]);
         } catch (\Exception $e) {

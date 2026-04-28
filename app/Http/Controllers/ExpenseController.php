@@ -47,7 +47,7 @@ class ExpenseController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('expenses.index')->with('success', 'បានកត់ត្រាចំណាយដោយជោគជ័យ!');
+        return redirect()->route('expenses.index')->with('success', __('expenses.msg_created'));
     }
 
     public function update(Request $request, $id)
@@ -61,12 +61,12 @@ class ExpenseController extends Controller
         $expense = Expense::findOrFail($id);
         $expense->update($request->all());
 
-        return redirect()->route('expenses.index')->with('success', 'ព័ត៌មានចំណាយត្រូវបានកែប្រែ!');
+        return redirect()->route('expenses.index')->with('success', __('expenses.msg_updated'));
     }
 
     public function destroy($id)
     {
         Expense::findOrFail($id)->delete();
-        return redirect()->route('expenses.index')->with('success', 'ទិន្នន័យចំណាយត្រូវបានលុប!');
+        return redirect()->route('expenses.index')->with('success', __('expenses.msg_deleted'));
     }
 }

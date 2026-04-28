@@ -2,7 +2,7 @@
 
 @section('title', __('Sales History'))
 
-@section('content')
+@section('content') 
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -96,7 +96,7 @@
                                             $debt = max(0, $order->TotalAmount - $paidAlready);
                                         @endphp
                                         <button type="button" class="btn btn-sm btn-outline-warning mb-1 text-dark"
-                                            onclick="openDebtModal({{ $order->OrderID }}, {{ $debt }}, '{{ $order->customer->Name ?? __('General Customer') }}')">
+                                            onclick="openDebtModal({{ $order->OrderID }}, {{ $debt }}, '{{ addslashes($order->customer->Name ?? __('General Customer')) }}')">
                                             <i class="fas fa-hand-holding-usd fa-sm me-2"></i> {{ __('Pay Debt') }}
                                         </button>
                                     @endif
@@ -142,7 +142,7 @@
                         <label class="form-label small fw-bold">{{ __('Payment Method') }}</label>
                         <select id="debtPaymentMethod" class="form-select">
                             <option value="Cash">{{ __('Cash') }}</option>
-                            <option value="QR">QR Scan</option>
+                            <option value="QR">{{ __('QR Scan') }}</option>
                             <option value="Card">{{ __('Credit Card') }}</option>
                         </select>
                     </div>
@@ -196,13 +196,17 @@
                         bootstrap.Modal.getInstance(document.getElementById('payDebtModal')).hide();
                         Swal.fire({
                             title: "{{ __('Success!') }}",
-                            text: res.message,
+                            html: res.message,
                             icon: 'success',
                             timer: 2000,
                             showConfirmButton: false
                         }).then(() => { location.reload(); });
                     } else {
-                        Swal.fire('Error', res.message, 'error');
+                        Swal.fire({
+                            title: "{{ __('Error') }}",
+                            html: res.message,
+                            icon: 'error'
+                        });
                         $('#btnSubmitDebtPayment').prop('disabled', false).text("{{ __('Confirm Payment') }}");
                     }
                 }

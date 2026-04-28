@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Supplier;
+use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
@@ -26,10 +27,18 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'Name' => trim((string) $request->input('Name')),
+            'Contact' => trim((string) $request->input('Contact')),
+        ]);
+
         $request->validate([
-            'Name' => 'required|string|max:150',
-            'Contact' => 'required|string|max:100',
+            'Name' => ['required', 'string', 'max:150', Rule::unique('suppliers', 'Name')],
+            'Contact' => ['required', 'string', 'max:100', Rule::unique('suppliers', 'Contact')],
             'Address' => 'nullable|string|max:255',
+        ], [
+            'Name.unique' => 'Supplier name already exists.',
+            'Contact.unique' => 'Supplier contact already exists.',
         ]);
 
         Supplier::create([
@@ -38,16 +47,24 @@ class SupplierController extends Controller
             'Address' => $request->Address,
         ]);
 
-        return redirect()->route('suppliers.index')->with('success', 'បន្ថែមអ្នកផ្គត់ផ្គងជោគជ័យ!');
+        return redirect()->route('suppliers.index')->with('success', __('suppliers.msg_created'));
     }
 
     public function update(Request $request, $id)
     {
+        $request->merge([
+            'Name' => trim((string) $request->input('Name')),
+            'Contact' => trim((string) $request->input('Contact')),
+        ]);
+
         $request->validate([
-            'Name' => 'required|string|max:150',
-            'Contact' => 'required|string|max:100',
+            'Name' => ['required', 'string', 'max:150', Rule::unique('suppliers', 'Name')->ignore($id, 'SupplierID')],
+            'Contact' => ['required', 'string', 'max:100', Rule::unique('suppliers', 'Contact')->ignore($id, 'SupplierID')],
             'Address' => 'nullable|string|max:255',
             'status' => 'required|boolean',
+        ], [
+            'Name.unique' => 'Supplier name already exists.',
+            'Contact.unique' => 'Supplier contact already exists.',
         ]);
 
         $supplier = Supplier::findOrFail($id);
@@ -60,10 +77,10 @@ class SupplierController extends Controller
         ]);
 
         if (!$updated) {
-            return redirect()->back()->with('error', 'មានបញ្ហាក្នុងការកែប្រែទិន្នន័យ!');
+            return redirect()->back()->with('error', __('suppliers.msg_update_error'));
         }
 
-        return redirect()->route('suppliers.index')->with('success', 'កែប្រែអ្នកផ្គត់ផ្គងជោគជ័យ!');
+        return redirect()->route('suppliers.index')->with('success', __('suppliers.msg_updated'));
     }
 
     public function destroy($id)

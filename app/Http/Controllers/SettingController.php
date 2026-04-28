@@ -22,6 +22,6 @@ class SettingController extends Controller
         $setting->shop_address = $request->shop_address;
         $setting->save();
 
-        return back()->with('success', 'បានកែប្រែដោយជោគជ័យ');
+        return back()->with('success', __('settings.msg_updated'));
     }
 }

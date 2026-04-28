@@ -2,7 +2,7 @@
 
 @section('title', __('New Purchase (Stock-In)'))
 
-@section('content')
+@section('content') 
     <form action="{{ route('purchases.store') }}" method="POST">
         @csrf
         <div class="card shadow mb-4">
@@ -16,6 +16,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
+                        {{-- choose supplier --}}
                         <label class="fw-bold mb-2">{{ __('Supplier') }}</label>
                         <select name="SupplierID" class="form-select" required>
                             <option value=""> {{ __('Select Supplier') }} </option>
@@ -65,7 +66,7 @@
                                             @endphp
 
                                             <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}">
-                                                {{ $p->Name }} - {{ $statusText }} ({{ __('Qty') }}: {{ $qty }})
+                                                {{ $p->Name }} @if($p->attributes->isNotEmpty()) ({{ $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}) @endif - {{ $statusText }} ({{ __('Qty') }}: {{ $qty }})
                                             </option>
                                         @endforeach
                                     </select>

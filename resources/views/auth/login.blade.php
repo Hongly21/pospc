@@ -7,7 +7,6 @@
     <div class="login-wrapper">
         <div class="brand-side">
             <div class="circle c1">
-                <img src="{{ asset('Uploads/products/Yotta_Icon.png') }}" alt="POS Logo">
             </div>
 
             <div class="circle c2"></div>

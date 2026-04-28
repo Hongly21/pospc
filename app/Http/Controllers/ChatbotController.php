@@ -73,6 +73,7 @@ class ChatbotController extends Controller
                 'stock' => $p->inventory->Quantity ?? 0,
                 'barcode' => $p->Barcode ?? 'N/A',
                 'brand' => $p->Brand ?? 'N/A',
+                'attributes' => $p->attributes->isNotEmpty() ? $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') : 'None',
             ])
             ->toArray();
 
@@ -123,7 +124,7 @@ class ChatbotController extends Controller
 
         $productListText = '';
         foreach ($products as $p) {
-            $productListText .= "- {$p['name']} | Category: {$p['category']} | Price: {$p['price']} | Stock: {$p['stock']} | Brand: {$p['brand']}\n";
+            $productListText .= "- {$p['name']} | Category: {$p['category']} | Price: {$p['price']} | Stock: {$p['stock']} | Brand: {$p['brand']} | Attributes: {$p['attributes']}\n";
         }
 
         $categoriesText = implode("\n", $categories);
@@ -158,7 +159,7 @@ Do NOT make up product names or stock numbers — only use the data provided bel
 === TOP 5 BEST SELLERS (THIS MONTH) ===
 {$topSellersText}
 
-=== FULL PRODUCT LIST (name | category | price | stock | brand) ===
+=== FULL PRODUCT LIST (name | category | price | stock | brand | attributes) ===
 {$productListText}
 PROMPT;
     }

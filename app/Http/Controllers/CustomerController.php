@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
 
     public function storeAjax(Request $request)
     {
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+            'phone' => trim((string) $request->input('phone')),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:100',
             'phone' => 'required|string|max:20|unique:customers,PhoneNumber'
@@ -68,9 +74,15 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+            'phone' => trim((string) $request->input('phone')),
+        ]);
+
         $request->validate([
-            'name' => 'required',
-            'phone' => 'required|unique:customers,PhoneNumber'
+            'name' => 'required|string|max:100',
+            'phone' => 'required|string|max:20|unique:customers,PhoneNumber',
+            'status' => 'nullable|boolean',
         ]);
 
         Customer::create([
@@ -81,7 +93,7 @@ class CustomerController extends Controller
             'Points' => 0
         ]);
 
-        return redirect()->route('customers.index')->with('success', 'បានបន្ថែមអតិថិជនថ្មីដោយជោគជ័យ។');
+        return redirect()->route('customers.index')->with('success', __('customers.msg_created'));
     }
 
 
@@ -89,9 +101,15 @@ class CustomerController extends Controller
     {
         $customer = Customer::findOrFail($id);
 
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+            'phone' => trim((string) $request->input('phone')),
+        ]);
+
         $request->validate([
-            'name' => 'required',
-            'phone' => 'required|unique:customers,PhoneNumber,' . $id . ',CustomerID'
+            'name' => 'required|string|max:100',
+            'phone' => ['required', 'string', 'max:20', Rule::unique('customers', 'PhoneNumber')->ignore($id, 'CustomerID')],
+            'status' => 'nullable|boolean',
         ]);
 
         $customer->Name = $request->name;
@@ -104,7 +122,7 @@ class CustomerController extends Controller
 
         $customer->save();
 
-        return redirect()->route('customers.index')->with('success', 'ព័ត៌មានអតិថិជនត្រូវបានកែប្រែជោគជ័យ។');
+        return redirect()->route('customers.index')->with('success', __('customers.msg_updated'));
     }
 
 
@@ -117,6 +135,6 @@ class CustomerController extends Controller
 
         $statusText = $customer->status == 1 ? 'Active (ដំណើរការ)' : 'Inactive (ផ្អាក)';
 
-        return redirect()->back()->with('success', 'ស្ថានភាពអតិថិជនត្រូវបានប្តូរទៅជា "' . $statusText . '" ដោយជោគជ័យ។');
+        return redirect()->back()->with('success', __('customers.msg_status_changed', ['status' => $statusText]));
     }
 }

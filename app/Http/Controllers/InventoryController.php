@@ -56,7 +56,7 @@ class InventoryController extends Controller
             $inventory->Quantity += $request->quantity;
         } else {
             if ($inventory->Quantity < $request->quantity) {
-                return redirect()->back()->with('error', 'Cannot subtract more than current stock!');
+                return redirect()->back()->with('error', __('inventory.msg_cannot_subtract'));
             }
             $inventory->Quantity -= $request->quantity;
         }
@@ -72,7 +72,7 @@ class InventoryController extends Controller
             'Reason' => $request->reason,
         ]);
 
-        return redirect()->back()->with('success', 'ស្តុកបានកែប្រែដោយជោគជ័យ');
+        return redirect()->back()->with('success', __('inventory.msg_stock_updated'));
     }
 
     //update only reorder
@@ -92,7 +92,7 @@ class InventoryController extends Controller
 
         $inventory->save();
 
-        return redirect()->back()->with('success', 'ស្តុកបានកែប្រែដោយជោគជ័យ');
+        return redirect()->back()->with('success', __('inventory.msg_stock_updated'));
     }
 
     public function history(Request $request)

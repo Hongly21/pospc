@@ -53,6 +53,9 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-muted text-uppercase">{{ __('auth.password_label') }}</label>
+                    <div class="form-text small mb-2 text-muted" style="line-height: 1.2;">
+                        {{ __('auth.password_requirements') }}
+                    </div>
                     <div class="input-group">
                         <input type="password" name="password" id="reg-password" class="form-control" required>
                         <span class="input-group-text toggle-password" onclick="toggleField('reg-password', 'reg-toggle-icon')" style="cursor: pointer; border-left: none;">
@@ -70,17 +73,14 @@
                         </span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-outline-primary w-100 mb-3">{{ __('auth.register_btn') }}</button>
+
+                <input type="hidden" name="role" value="2"> <button type="submit" class="btn btn-outline-primary w-100 mb-3">{{ __('auth.register_btn') }}</button>
             </form>
 
             <div class="text-center">
                 <span class="text-muted small">{{ __('auth.has_account') }}</span>
                 <a href="{{ route('login') }}" class="fw-bold text-dark text-decoration-none ms-1">{{ __('auth.login_link') }}</a>
             </div>
-            {{--
-            <div class="text-center mt-4 text-muted small">
-                &copy; {{ date('Y') }} ប្រព័ន្ធ POS. រក្សាសិទ្ធិគ្រប់យ៉ាង។
-            </div> --}}
         </div>
     </div>
 

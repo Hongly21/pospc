@@ -262,6 +262,41 @@ body {
     color: var(--text-primary);
 }
 
+/* SweetAlert2 popup in dark mode */
+[data-theme="dark"] .swal2-popup {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .swal2-title,
+[data-theme="dark"] .swal2-html-container,
+[data-theme="dark"] .swal2-content,
+[data-theme="dark"] .swal2-icon .swal2-icon-content {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .swal2-input,
+[data-theme="dark"] .swal2-textarea,
+[data-theme="dark"] .swal2-select,
+[data-theme="dark"] .swal2-file {
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--input-border) !important;
+}
+
+[data-theme="dark"] .swal2-validation-message {
+    background-color: #111827 !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .swal2-confirm,
+[data-theme="dark"] .swal2-cancel,
+[data-theme="dark"] .swal2-deny {
+    box-shadow: none !important;
+}
+
 [data-theme="dark"] .modal-header {
     border-bottom-color: var(--border-color) !important;
 }
