@@ -37,4 +37,6 @@ EXPOSE 8000
 # Start Laravel + run migrations automatically
 CMD php artisan config:clear && \
     php artisan migrate --force && \
+    php artisan db:seed --class=RBACSeeder --force && \
+    php artisan db:seed --class=AdminSeeder --force && \
     php artisan serve --host=0.0.0.0 --port=8000
