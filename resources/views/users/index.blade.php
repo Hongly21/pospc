@@ -358,8 +358,8 @@
                         $.post("{{ route('users.delete') }}", {
                             id: id
                         }, function(res) {
-                            Swal.fire("{{ __('deleted') }}",
-                                    "{{ __('success_delete') }}", 'success')
+                            Swal.fire("{{ __('users.msg_deleted') }}",
+                                    "{{ __('users.msg_deleted') }}", 'success')
                                 .then(() => location.reload());
                         });
                     }

@@ -1,314 +1,186 @@
 /* ============================================
-   Auth UI - Cold Advanced POS Theme
+   Auth UI - Real World Premium POS Theme
    ============================================ */
 :root {
-    --auth-bg-main: #050d1f;
-    --auth-bg-mid: #0a1b39;
-    --auth-bg-soft: #132a53;
-    --auth-text-main: #e2edff;
-    --auth-text-secondary: #8aa1c2;
-    --auth-panel-bg: #ffffff;
-    --auth-input-bg: #f7faff;
-    --auth-border: #d6e2f5;
-    --auth-border-focus: #4ba8ff;
-    --auth-primary: #1f7aec;
-    --auth-primary-soft: #4fc3ff;
-    --auth-shadow: 0 24px 50px rgba(6, 16, 37, 0.25);
+    --bg-dark: #0f172a; /* Deep slate */
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --input-bg: #ffffff;
+    --border-color: #cbd5e1;
+    --primary: #0284c7; /* Cold icy blue */
+    --primary-hover: #0369a1;
+    --focus-ring: rgba(2, 132, 199, 0.25);
 }
 
 body {
     margin: 0;
     min-height: 100vh;
-    overflow: hidden;
     font-family: 'Kantumruy Pro', 'Inter', sans-serif;
-    background:
-        radial-gradient(circle at 15% 15%, rgba(83, 196, 255, 0.2), transparent 32%),
-        radial-gradient(circle at 85% 85%, rgba(63, 113, 240, 0.22), transparent 40%),
-        linear-gradient(140deg, var(--auth-bg-main) 0%, var(--auth-bg-mid) 58%, var(--auth-bg-soft) 100%);
+    background-color: #f8fafc;
+    color: var(--text-main);
 }
 
-/* --- Split Layout --- */
+/* --- Split Layout (Login / Register) --- */
 .login-wrapper {
     display: flex;
-    width: 100%;
     min-height: 100vh;
+    width: 100%;
 }
 
 .brand-side {
     position: relative;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    color: var(--auth-text-main);
-    background: linear-gradient(145deg, rgba(8, 22, 48, 0.86), rgba(11, 33, 68, 0.72));
-    border-right: 1px solid rgba(129, 177, 255, 0.25);
+    flex: 1.2;
+    display: none; /* Hidden on mobile for responsiveness */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--bg-dark);
 }
 
-.circle {
+.brand-overlay {
     position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(138, 196, 255, 0.28);
-    background: radial-gradient(circle, rgba(114, 189, 255, 0.25) 0%, rgba(114, 189, 255, 0.05) 58%, transparent 100%);
-    backdrop-filter: blur(2px);
-}
-
-.c1 {
-    width: 340px;
-    height: 340px;
-    top: -90px;
-    left: -80px;
-}
-
-.c1 img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    opacity: 0.14;
-    mix-blend-mode: screen;
-}
-
-.c2 {
-    width: 540px;
-    height: 540px;
-    right: -180px;
-    bottom: -170px;
-}
-
-.brand-content {
-    position: relative;
-    z-index: 2;
-    max-width: 560px;
-    padding: 48px;
-    text-align: center;
-}
-
-.brand-content h1 {
-    color: #f2f7ff;
-    letter-spacing: 0.3px;
-    margin-bottom: 0.85rem;
-}
-
-.brand-content p {
-    color: rgba(215, 233, 255, 0.78) !important;
-}
-
-.brand-icon {
-    font-size: 4.25rem;
-    margin-bottom: 1.35rem;
-    color: #54c6ff;
-    text-shadow: 0 16px 28px rgba(8, 17, 33, 0.55);
-}
-
-/* --- Form Panel --- */
-.form-side {
-    width: min(100%, 540px);
-    padding: 3.4rem 3.2rem;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.4) 100%);
+    backdrop-filter: blur(4px); /* Premium frosted glass effect */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow-y: auto;
-    background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
-    box-shadow: var(--auth-shadow);
+    padding: 10%;
+    color: white;
+}
+
+.brand-overlay h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.brand-overlay p {
+    font-size: 1.25rem;
+    color: #e2e8f0;
+    max-width: 90%;
+    line-height: 1.6;
+}
+
+.form-side {
+    flex: 1;
+    max-width: 600px;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ffffff;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+    z-index: 2;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
 }
 
 .login-header {
-    margin-bottom: 1.75rem;
+    margin-bottom: 2.5rem;
 }
 
 .login-header h2 {
-    margin-bottom: 0.35rem;
-    font-weight: 700;
-    color: #1a2845;
-    letter-spacing: 0.2px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--bg-dark);
+    margin-bottom: 0.5rem;
 }
 
-.login-header p {
-    margin: 0;
-    color: #6c819e;
-}
-
-/* --- Inputs / Labels --- */
+/* --- Inputs & Forms --- */
 .form-label {
-    margin-bottom: 0.45rem;
-    color: #5f7494 !important;
-    font-size: 0.74rem;
-    letter-spacing: 0.85px;
-}
-
-.input-group .form-control,
-.input-group .input-group-text,
-.form-control {
-    border: 1px solid var(--auth-border);
-    background-color: var(--auth-input-bg);
-    min-height: 48px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
 }
 
 .input-group .form-control {
-    border-right: 0;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    color: var(--text-main);
+    border-right: none;
+    border-radius: 0.375rem 0 0 0.375rem;
 }
 
 .input-group .input-group-text {
-    border-left: 0;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    color: var(--text-muted);
+    border-radius: 0 0.375rem 0.375rem 0;
 }
 
-.form-control {
-    border-radius: 10px;
-    color: #183152;
-    font-size: 0.96rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+/* Seamless focus states */
+.input-group:focus-within {
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    border-radius: 0.375rem;
 }
-
-.input-group .form-control {
-    border-top-left-radius: 10px !important;
-    border-bottom-left-radius: 10px !important;
+.input-group:focus-within .form-control,
+.input-group:focus-within .input-group-text {
+    border-color: var(--primary);
 }
-
-.input-group .input-group-text,
-.input-group .toggle-password {
-    border-top-right-radius: 10px !important;
-    border-bottom-right-radius: 10px !important;
-    color: #7f95b7;
-}
-
 .form-control:focus {
-    border-color: var(--auth-border-focus);
-    background: #fbfdff;
-    box-shadow: 0 0 0 4px rgba(74, 168, 255, 0.17);
-}
-
-.input-group:focus-within .input-group-text,
-.toggle-password:hover {
-    color: var(--auth-primary);
-    background: #f3f8ff;
-}
-
-.toggle-password {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.form-check-input {
-    border-color: #9bb7da;
-}
-
-.form-check-input:checked {
-    background-color: var(--auth-primary);
-    border-color: var(--auth-primary);
-}
-
-.form-check-label,
-.text-muted {
-    color: #6f839f !important;
-}
-
-.text-primary {
-    color: var(--auth-primary) !important;
+    outline: none;
+    box-shadow: none;
 }
 
 /* --- Buttons --- */
-.btn {
-    border-radius: 10px;
-    min-height: 46px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-}
-
-.btn-outline-primary,
 .btn-primary {
-    border: 1px solid transparent;
-    color: #fff;
-    background: linear-gradient(92deg, #1d70dd 0%, #1f8ef2 58%, #56c6ff 100%);
-    box-shadow: 0 10px 20px rgba(31, 120, 228, 0.24);
+    background-color: var(--primary);
+    border-color: var(--primary);
+    padding: 0.875rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
 }
 
-.btn-outline-primary:hover,
-.btn-primary:hover,
-.btn-outline-primary:focus,
-.btn-primary:focus {
-    color: #fff;
-    background: linear-gradient(92deg, #175fbe 0%, #197bd1 58%, #3db3f1 100%);
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 14px 24px rgba(23, 99, 194, 0.28);
-}
-
-.btn-outline-primary:active,
-.btn-primary:active {
-    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
 /* --- Alerts --- */
 .alert {
-    border-radius: 10px;
-    border: 0;
-    font-size: 0.93rem;
+    border-radius: 0.375rem;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
-.alert-success {
-    background: #dff3ea;
-    color: #186647;
-}
-
-.alert-danger {
-    background: #fde8e8;
-    color: #852525;
-}
-
-/* ============================================
-   Centered Cards (Forgot / Reset Password)
-   ============================================ */
+/* --- Centered Layouts (Forgot/Reset Password) --- */
 body.auth-centered {
-    overflow: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.25rem;
+    padding: 1.5rem;
 }
 
 body.auth-centered .card {
     width: 100%;
-    max-width: 440px;
-    border: 1px solid rgba(169, 195, 230, 0.34);
-    border-radius: 16px;
-    background: linear-gradient(180deg, rgba(251, 253, 255, 0.98) 0%, rgba(243, 248, 255, 0.96) 100%);
-    box-shadow: var(--auth-shadow);
-    backdrop-filter: blur(8px);
-}
-
-body.auth-centered h3 {
-    color: #1a2b49;
+    max-width: 480px;
+    border: none;
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }
 
 /* --- Responsive --- */
-@media (max-width: 1080px) {
-    .brand-content {
-        padding: 2.4rem;
-    }
-
-    .brand-icon {
-        font-size: 3.8rem;
-    }
-
-    .form-side {
-        padding: 2.8rem 2.4rem;
-    }
+@media (min-width: 992px) {
+    .brand-side { display: flex; }
 }
-
-@media (max-width: 900px) {
-    body {
-        overflow: auto;
-    }
-
-    .brand-side {
-        display: none;
-    }
-
-    .form-side {
-        width: 100%;
-        min-height: 100vh;
-        padding: 2rem 1.25rem;
-        box-shadow: none;
-        background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
-    }
+@media (max-width: 991px) {
+    .form-side { max-width: 100%; padding: 2rem; box-shadow: none; }
 }

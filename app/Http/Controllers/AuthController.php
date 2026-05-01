@@ -16,7 +16,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+public function login(Request $request)
     {
         $request->merge([
             'email' => strtolower(trim((string) $request->input('email'))),
@@ -29,6 +29,7 @@ class AuthController extends Controller
 
         $user = User::with('role')->where('Email', $request->email)->first();
 
+        // ONLY triggers if the password is correct
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
 
             if ($user->Status === 'Pending') {
@@ -44,18 +45,23 @@ class AuthController extends Controller
             }
 
             Auth::login($user);
-
             $request->session()->regenerate();
 
             $roleName = strtolower($user->role->RoleName ?? '');
 
-            if ($roleName === 'admin' || $roleName === 'manager') {
-                return redirect()->route('dashboard');
-            }
+            // Determine where the user should go
+            $targetUrl = ($roleName === 'admin' || $roleName === 'manager')
+                            ? route('dashboard')
+                            : route('pos.index');
 
-            return redirect()->route('pos.index');
+            // Return the login view with a success flag to trigger the SweetAlert
+            return view('auth.login', [
+                'login_success' => true,
+                'redirect_url' => $targetUrl
+            ]);
         }
 
+        // If password is wrong, return normal error
         return back()->withErrors(['email' => __('auth.invalid_credentials')]);
     }
 

@@ -27,6 +27,7 @@
     "You will be logged out of the system.": "អ្នកនឹងត្រូវចាកចេញពីប្រព័ន្ធ។",
     "Logout": "ចាកចេញ",
     "Cancel": "បោះបង់",
+    "purchases.msg_created": "បានការបញ្ជាទិញចូលស្តុកដោយជោគជ័យ",
 
     "_comment_topbar": "===== របារខាងលើ / ទម្រង់អ្នកប្រើ =====",
     "Language": "ភាសា",
@@ -62,7 +63,7 @@
     "Action": "សកម្មភាព",
     "Low Stock": "ជិតអស់ស្តុក",
     "Out of Stock": "អស់ពីស្តុក",
-    "Restock Now": "បញ្ជាទិញបន្ថែម",
+    "Restock Now": "បញ្ជាទិញ",
     "No low stock items. All stock levels are safe!": "មិនមានទំនិញជិតអស់ពីស្តុកឡើយ។ ស្តុកទាំងអស់មានសុវត្ថិភាពល្អ!",
 
     "_comment_pos_history": "===== ប្រវត្តិការលក់ =====",
@@ -97,6 +98,9 @@
     "Please enter a valid amount!": "សូមបញ្ចូលចំនួនប្រាក់ឱ្យបានត្រឹមត្រូវ!",
     "Processing...": "កំពុងដំណើរការ...",
     "Success!": "ជោគជ័យ!",
+    "customers.msg_created": "បានបញ្ចូលអតិថិជនថ្មីដោយជោគជ័យ",
+    "customers.msg_updated": "បានកែតម្រូវអតិថិជនដោយជោគជ័យ",
+    "customers.msg_status_changed": "បានកែតម្រូវស្ថានភាពអតិថិជនដោយជោគជ័យ",
 
     "_comment_pos_index": "===== ផ្ទាំងលក់ =====",
     "pos.search_placeholder": "ស្វែងរកតាមឈ្មោះ ឬ Barcode...",
@@ -141,6 +145,18 @@
     "pos.added": "បានបន្ថែម",
     "pos.add_product": "បន្ថែមទំនិញ",
     "pos.image_selected": "រូបថតបានជ្រើសរើសរួច",
+    "pos.success":"បានទូទាត់ប្រាក់ជោគជ័យ",
+    "pos.sale_complete":"ការលក់បានជោគជ័យ",
+    "pos.processing":"កំពុងដំណើរការ...",
+    "pos.customer_has_debt":"អតិថិជនមានបំណុល",
+    "pos.customer_debt_msg":"អតិថិជនមានបំណុល",
+    "pos.ok":"ព្រម",
+
+
+    "expenses.msg_created": "បានបញ្ចូលចំណាយដោយជោគជ័យ!",
+    "expenses.msg_updated": "បានកែតម្រូវចំណាយដោយជោគជ័យ!",
+    "expenses.msg_deleted": "បានលុបចំណាយដោយជោគជ័យ!",
+    "expenses.msg_cannot_delete": "មិនអាចលុបបានទេ! ចំណាយនេះមានប្រវត្តិទិញទំនិញចូលរួចហើយ។ សូមប្តូរស្ថានភាពទៅជា \"ផ្អាក\" ជំនួសវិញ។",
 
     "_comment_purchases": "===== ការបញ្ជាទិញ =====",
     "Purchase History": "ប្រវត្តិនៃការបញ្ជាទិញចូលស្តុក",
@@ -228,7 +244,7 @@
     "role": "តួនាទី",
     "actions": "សកម្មភាព",
     "search_btn": "ស្វែងរក",
-    "filter": "ចម្រោះ",
+    "filter": "ស្វែងរក",
     "all_roles": "តួនាទីទាំងអស់",
     "all_status": "ស្ថានភាពទាំងអស់",
     "choose_role": "ជ្រើសរើសតួនាទី",
@@ -250,6 +266,11 @@
     "error_add": "មានបញ្ហាក្នុងការបន្ថែមអ្នកប្រើប្រាស់",
     "success_delete": "បានលុបអ្នកប្រើប្រាស់ដោយជោគជ័យ",
     "cancel": "បោះបង់",
+
+    "users.msg_updated": "បានកែតម្រូវអ្នកប្រើប្រាស់ដោយជោគជ័យ",
+    "users.msg_deleted": "បានលុបអ្នកប្រើប្រាស់ដោយជោគជ័យ",
+    "users.msg_approved": "បានអនុម័តអ្នកប្រើប្រាស់ដោយជោគជ័យ",
+    "users.msg_rejected": "បានបដិសេធអ្នកប្រើប្រាស់ដោយជោគជ័យ",
 
     "_comment_reports": "===== របាយការណ៍លក់ =====",
     "sales_report_title": "របាយការណ៍នៃការលក់",
@@ -294,6 +315,9 @@
     "Payroll": "ប្រាក់ខែបុគ្គលិក",
     "Supplies": "ទិញសម្ភារៈ",
     "Others": "ផ្សេងៗ",
+    "settings.msg_updated": "បានកែតម្រូវការកែប្រែដោយជោគជ័យ!",
+    "profile.msg_updated": "បានកែតម្រូវប្រវត្តិរូបរបស់ខ្ញុំដោយជោគជ័យ!",
+
 
     "_comment_suppliers": "===== អ្នកផ្គត់ផ្គង់ =====",
     "suppliers.title": "អ្នកផ្គត់ផ្គង់",
@@ -319,6 +343,9 @@
     "suppliers.clear_btn": "សម្អាត",
     "suppliers.msg_deleted": "អ្នកផ្គត់ផ្គង់ត្រូវបានលុបដោយជោគជ័យ!",
     "suppliers.msg_cannot_delete": "មិនអាចលុបបានទេ! អ្នកផ្គត់ផ្គង់នេះមានប្រវត្តិទិញទំនិញចូលរួចហើយ។ សូមប្តូរស្ថានភាពទៅជា \"ផ្អាក\" ជំនួសវិញ។",
+    "suppliers.msg_created": "អ្នកផ្គត់ផ្គង់ត្រូវបានបញ្ចូលដោយជោគជ័យ!",
+    "suppliers.msg_updated": "អ្នកផ្គត់ផ្គង់ត្រូវបានកែតម្រូវដោយជោគជ័យ!",
+    
 
     "_comment_inventory": "===== ស្តុក =====",
     "inventory.page_title": "ការកែតម្រូវស្តុក",
@@ -357,6 +384,8 @@
     "inventory.history_col_admin": "អ្នកកែប្រែ",
     "inventory.no_reason": "គ្មានហេតុផល",
     "inventory.no_history_found": "មិនទាន់មានប្រវត្តិការកែប្រែស្តុកនៅឡើយទេ",
+    "inventory.msg_stock_updated": "បានកែតម្រូវស្តុកដោយជោគជ័យ",
+    "inventory.msg_cannot_subtract": "មិនអាចបន្ថយស្តុកបានទេ។ ស្តុកបច្ចុប្បន្នត្រូវមានច្រើនជាងចំនួនដែលត្រូវបន្ថយ។",
 
     "_comment_products": "===== ទំនិញ =====",
     "products.page_title": "ការគ្រប់គ្រងទំនិញ",
@@ -471,6 +500,7 @@
     "auth.otp_code": "កូដ OTP",
     "auth.new_password": "ពាក្យសម្ងាត់ថ្មី",
     "auth.reset_btn": "កំណត់ពាក្យសម្ងាត់",
+    "auth.registration_success": "បានបង្កើតគណនីដោយជោគជ័យ",
 
     "_comment_profile": "===== ប្រវត្តិរូប =====",
     "profile.page_title": "ប្រវត្តិរូបរបស់ខ្ញុំ",

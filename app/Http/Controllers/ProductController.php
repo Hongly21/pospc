@@ -75,8 +75,7 @@ class ProductController extends Controller
             $imagePath = null;
             if ($request->hasFile('Image')) {
                 $file = $request->file('Image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $imagePath = $file->storeAs('products', $filename, 'public');
+                $imagePath = $file->store('products', 'public');
             }
 
             $product = Product::create([
@@ -164,8 +163,7 @@ class ProductController extends Controller
                 }
 
                 $file = $request->file('Image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $data['Image'] = $file->storeAs('products', $filename, 'public');
+                $data['Image'] = $file->store('products', 'public');
             }
 
             $product->update($data);

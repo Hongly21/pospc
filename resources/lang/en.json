@@ -27,6 +27,12 @@
     "You will be logged out of the system.": "You will be logged out of the system.",
     "Logout": "Logout",
     "Cancel": "Cancel",
+    "purchases.msg_created": "Purchase created successfully",
+    "customers.msg_created": "Customer created successfully",
+    "customers.msg_updated": "Customer updated successfully",
+    "customers.msg_status_changed": "Customer status changed successfully",
+
+
 
     "_comment_topbar": "===== TOPBAR / PROFILE DROPDOWN =====",
     "Language": "Language",
@@ -62,7 +68,7 @@
     "Action": "Action",
     "Low Stock": "Low Stock",
     "Out of Stock": "Out of Stock",
-    "Restock Now": "Restock Now",
+    "Restock Now": "Restock",
     "No low stock items. All stock levels are safe!": "No low stock items. All stock levels are safe!",
 
     "_comment_pos_history": "===== POS / SALES HISTORY =====",
@@ -141,10 +147,16 @@
     "pos.added": "Added",
     "pos.add_product": "Product added",
     "pos.image_selected": "Image selected",
+    "pos.success":"Successfully paid the bill",
+    "pos.sale_complete":"Sale completed successfully",
+    "pos.processing":"Processing...",
+    "pos.customer_has_debt":"Customer has debt",
+    "pos.customer_debt_msg":"Customer owes you",
+    "pos.ok":"OK",
 
     "_comment_purchases": "===== PURCHASES =====",
     "Purchase History": "Purchase History",
-    "Stock Purchase History": "Stock Purchase History",
+    "Stock Purchase History": "Stock Purchase",
     "Purchase": "Purchase",
     "Reference ID": "Reference ID",
     "Supplier": "Supplier",
@@ -173,7 +185,7 @@
     "Deleted Product": "Deleted Product",
 
     "_comment_customers": "===== CUSTOMERS =====",
-    "customer_information": "Customer Information",
+    "customer_information": "Customer",
     "add_new_customer": "Add New Customer",
     "search_placeholder": "Search by name or phone...",
     "search_button": "Search",
@@ -197,7 +209,7 @@
     "close": "Close",
     "confirm_status_change": "Confirm Status Change",
     "confirm_message": "Do you want to change the status of customer",
-    "yes_agree": "Yes, I agree",
+    "yes_agree": "Yes",
     "no_cancel": "No, Cancel",
     "error_input": "Data entry error (Phone number might already exist)!",
 
@@ -279,8 +291,8 @@
     "expenses_list": "Expenses List",
     "search_expense_placeholder": "Search expense title...",
     "total_expenses_label": "Total Expenses",
-    "expense_history": "Expense History Records",
-    "record_new_expense": "Record New Expense",
+    "expense_history": "Expense ",
+    "record_new_expense": "New Expense",
     "recorded_by": "Recorded By",
     "title": "Title",
     "category": "Category",
@@ -323,12 +335,21 @@
     "suppliers.clear_btn": "Clear",
     "suppliers.msg_deleted": "Supplier deleted successfully!",
     "suppliers.msg_cannot_delete": "Cannot delete! This supplier has purchase history. Please change the status to \"Inactive\" instead.",
+    "suppliers.msg_created": "Supplier created successfully!",
+    "suppliers.msg_updated": "Supplier updated successfully!",
+
+
+    "expenses.msg_created": "Expense created successfully!",
+    "expenses.msg_updated": "Expense updated successfully!",
+    "expenses.msg_deleted": "Expense deleted successfully!",
+    "expenses.msg_cannot_delete": "Cannot delete! This expense has purchase history. Please change the status to \"Inactive\" instead.",
+
 
 
 
     "_comment_inventory": "===== INVENTORY =====",
     "inventory.page_title": "Stock Adjustment",
-    "inventory.current_stock_status": "Current Stock Status",
+    "inventory.current_stock_status": "Current Stock",
     "inventory.view_history": "View History",
     "inventory.search_placeholder": "Search",
     "inventory.all_categories": "All Categories",
@@ -363,6 +384,11 @@
     "inventory.history_col_admin": "Admin",
     "inventory.no_reason": "No Reason",
     "inventory.no_history_found": "No adjustment history found",
+    "inventory.msg_stock_updated": "Stock updated successfully",
+    "inventory.msg_cannot_subtract": "Cannot subtract stock. The current stock is less than the quantity to subtract.",
+
+    "settings.msg_updated": "Settings updated successfully!",
+    "profile.msg_updated": "Profile updated successfully!",
 
 
 
@@ -486,6 +512,16 @@
     "auth.otp_code": "OTP Code",
     "auth.new_password": "New Password",
     "auth.reset_btn": "Reset Password",
+    "auth.registration_success": "Account created successfully!",
+    "auth.invalid_credentials": "Invalid email or password.",
+    "auth.account_pending": "Your account is pending for approval. Please wait for approval.",
+    "auth.password_requirements": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+
+
+    "users.msg_updated": "User updated successfully!",
+    "users.msg_deleted": "User deleted successfully!",
+    "users.msg_approved": "User approved successfully!",
+    "users.msg_rejected": "User rejected successfully!",
 
 
 

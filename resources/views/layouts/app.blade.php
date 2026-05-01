@@ -150,7 +150,8 @@
 
     {{-- chatbot ui --}}
     <div id="chat-bubble" class="shadow-lg">
-        <i class="fas fa-robot text-white fa-lg"></i>
+        <i class="fas fa-sms"></i>
+
     </div>
 
     <div id="chat-window" class="card d-none">

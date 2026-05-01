@@ -2,9 +2,8 @@
 
 @section('title', __('POS Terminal'))
 
-@section('content') 
+@section('content')
     <div class="row h-100">
-        {{-- =================== LEFT: PRODUCT GRID =================== --}}
         <div class="col-md-8">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
