@@ -151,7 +151,14 @@
     "pos.customer_has_debt":"អតិថិជនមានបំណុល",
     "pos.customer_debt_msg":"អតិថិជនមានបំណុល",
     "pos.ok":"ព្រម",
+    "pos.debt_amount":"ជំពាក់",
+    "pos.debt_payment_success":"បានទូទាត់ប្រាក់ជោគជ័យ",
 
+
+    "pos.insufficient_payment": "តើអ្នកចងអោយអតិថិជនជំពាក់ដែលឬទេ?",
+    "pos.customer_will_owe": "អតិថិជននឹងជំពាក់",
+    "pos.yes_sell_debt": "យល់ព្រម លក់",
+    "pos.cancel": "បោះបង់",
 
     "expenses.msg_created": "បានបញ្ចូលចំណាយដោយជោគជ័យ!",
     "expenses.msg_updated": "បានកែតម្រូវចំណាយដោយជោគជ័យ!",
@@ -345,7 +352,7 @@
     "suppliers.msg_cannot_delete": "មិនអាចលុបបានទេ! អ្នកផ្គត់ផ្គង់នេះមានប្រវត្តិទិញទំនិញចូលរួចហើយ។ សូមប្តូរស្ថានភាពទៅជា \"ផ្អាក\" ជំនួសវិញ។",
     "suppliers.msg_created": "អ្នកផ្គត់ផ្គង់ត្រូវបានបញ្ចូលដោយជោគជ័យ!",
     "suppliers.msg_updated": "អ្នកផ្គត់ផ្គង់ត្រូវបានកែតម្រូវដោយជោគជ័យ!",
-    
+
 
     "_comment_inventory": "===== ស្តុក =====",
     "inventory.page_title": "ការកែតម្រូវស្តុក",

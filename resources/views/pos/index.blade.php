@@ -651,8 +651,7 @@
                             bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
                             Swal.fire({
                                 title: "{{ __('pos.success') }}",
-                                text: res.message + (res.payment_status === 'Partial' ?
-                                    " ({{ __('pos.debt') }})" : ''),
+                                text: res.message,
                                 icon: 'success',
                                 timer: 2000,
                                 showConfirmButton: false

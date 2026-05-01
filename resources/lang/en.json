@@ -153,6 +153,9 @@
     "pos.customer_has_debt":"Customer has debt",
     "pos.customer_debt_msg":"Customer owes you",
     "pos.ok":"OK",
+    "pos.debt_amount":"Amount owe",
+    "pos.debt_payment_success":"Successfully paid",
+
 
     "_comment_purchases": "===== PURCHASES =====",
     "Purchase History": "Purchase History",
@@ -522,6 +525,12 @@
     "users.msg_deleted": "User deleted successfully!",
     "users.msg_approved": "User approved successfully!",
     "users.msg_rejected": "User rejected successfully!",
+
+
+    "pos.insufficient_payment": "Amount paid is insufficient.",
+    "pos.customer_will_owe": "The customer will owe",
+    "pos.yes_sell_debt": "Yes, sale with debt",
+    "pos.cancel": "cancel",
 
 
 
