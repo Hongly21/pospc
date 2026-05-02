@@ -29,15 +29,22 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            right: 0;
+            bottom: 0;
             background-color: rgba(0, 0, 0, 0.3); /* Softer, darker overlay instead of stark white */
             backdrop-filter: blur(5px); /* Modern glass-blur effect */
             -webkit-backdrop-filter: blur(5px); /* Safari support */
-            z-index: 99999;
+            z-index: 999; /* Keep below sidebar (1000) */
             display: flex;
             justify-content: center;
             align-items: center;
+            padding-left: 280px; /* Offset to center relative to main content */
+        }
+        
+        @media (max-width: 768px) {
+            #global-loader {
+                padding-left: 0;
+            }
         }
     </style>
 </head>

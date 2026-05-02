@@ -248,6 +248,37 @@
         </div>
     </div>
 
+    <style>
+        .click-anim {
+            animation: popClick 0.2s ease-out;
+        }
+        @keyframes popClick {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+            100% { transform: scale(1); }
+        }
+        .cart-row-anim {
+            animation: highlightRow 0.6s ease-out;
+        }
+        @keyframes highlightRow {
+            0% { background-color: rgba(13, 110, 253, 0.2); transform: translateX(-5px); }
+            50% { background-color: rgba(13, 110, 253, 0.1); transform: translateX(0); }
+            100% { background-color: transparent; }
+        }
+        .cart-row-anim td {
+            transition: all 0.3s;
+        }
+        .shake-anim {
+            animation: shakeCard 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shakeCard {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {{-- QR code renderer (qrcode.js) --}}
@@ -257,6 +288,7 @@
         $(document).ready(function() {
             let cart = [];
             let currentTotal = 0;
+            let lastUpdatedCartId = null;
             let qrMd5 = null; // MD5 hash from Bakong for polling
             let qrPollingTimer = null; // setInterval reference
             let qrCountdownTimer = null;
@@ -281,11 +313,28 @@
             // Add to cart
             // ─────────────────────────────────────────────────────────
             $(".btn-add-cart").click(function() {
-                let id = $(this).data("id");
-                let name = $(this).data("name");
-                let price = parseFloat($(this).data("price"));
-                let stock = parseInt($(this).data("stock"));
-                let attributes = $(this).data("attributes");
+                let card = $(this);
+
+                if (card.hasClass('disabled-card')) {
+                    // Give error feedback by shaking the card
+                    card.removeClass('shake-anim'); // reset animation if clicked quickly
+                    void card[0].offsetWidth; // trigger reflow to restart animation
+                    card.addClass('shake-anim');
+                    setTimeout(() => card.removeClass('shake-anim'), 400);
+                    return; // Prevent adding if disabled
+                }
+
+                // Add pop animation to product card
+                card.addClass('click-anim');
+                setTimeout(() => card.removeClass('click-anim'), 200);
+
+                let id = card.data("id");
+                let name = card.data("name");
+                let price = parseFloat(card.data("price"));
+                let stock = parseInt(card.data("stock"));
+                let attributes = card.data("attributes");
+
+                lastUpdatedCartId = id; // Track for cart row animation
 
                 if (stock <= 0) {
                     Toast.fire({
@@ -300,15 +349,11 @@
                     if (item.qty >= stock) {
                         Toast.fire({
                             icon: "warning",
-                            title: `${name} {{ __('pos.stock_limit') }} ${stock}`
+                            title: `${name} has only stock of ${stock}`
                         });
                         return;
                     }
                     item.qty++;
-                    Toast.fire({
-                        icon: "success",
-                        title: "{{ __('pos.added') }}"
-                    });
                 } else {
                     cart.push({
                         id,
@@ -317,10 +362,6 @@
                         qty: 1,
                         stock,
                         attributes
-                    });
-                    Toast.fire({
-                        icon: "success",
-                        title: "{{ __('pos.add_product') }}"
                     });
                 }
                 renderCart();
@@ -336,7 +377,8 @@
                     let sub = item.price * item.qty;
                     total += sub;
                     let attrHtml = item.attributes ? `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` : '';
-                    html += `<tr>
+                    let rowClass = (item.id === lastUpdatedCartId) ? 'cart-row-anim' : '';
+                    html += `<tr class="${rowClass}">
                     <td>${item.name}${attrHtml}<br><small>$${item.price}</small></td>
                     <td class="text-center">x${item.qty}</td>
                     <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
@@ -345,12 +387,51 @@
                 });
                 $("#cartTable").html(html);
                 $("#cartTotal").text("$" + total.toFixed(2));
+                
+                // Clear the tracker so it doesn't animate on deletion
+                lastUpdatedCartId = null;
+
+                updateProductCards();
+            }
+
+            function updateProductCards() {
+                $(".btn-add-cart").each(function() {
+                    let id = $(this).data("id");
+                    let stock = parseInt($(this).data("stock"));
+                    let item = cart.find(i => i.id === id);
+                    
+                    if (item && item.qty >= stock) {
+                        // Max stock reached
+                        $(this).addClass('disabled-card').css({
+                            'opacity': '0.6',
+                            'cursor': 'not-allowed',
+                            'background-color': '#f8f9fa'
+                        });
+                    } else if (stock <= 0) {
+                        // Out of stock
+                        $(this).addClass('disabled-card').css({
+                            'opacity': '0.6',
+                            'cursor': 'not-allowed',
+                            'background-color': '#f8f9fa'
+                        });
+                    } else {
+                        // Normal state
+                        $(this).removeClass('disabled-card').css({
+                            'opacity': '1',
+                            'cursor': 'pointer',
+                            'background-color': '#fff'
+                        });
+                    }
+                });
             }
 
             $(document).on("click", ".btn-remove", function() {
                 cart.splice($(this).data("index"), 1);
                 renderCart();
             });
+
+            // Initial check to disable items that are out of stock on load
+            updateProductCards();
 
             // ─────────────────────────────────────────────────────────
             // Add customer
@@ -651,7 +732,7 @@
                             bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
                             Swal.fire({
                                 title: "{{ __('pos.success') }}",
-                                text: res.message,
+                                text: res.message ,
                                 icon: 'success',
                                 timer: 2000,
                                 showConfirmButton: false
