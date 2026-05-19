@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', __('sales_report_title'))
@@ -17,7 +16,7 @@
 
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">{{ __('customer') }}</label>
-                    <select name="customer_id" class="form-select form-select-sm">
+                    <select name="customer_id" class="form-select form-select-sm searchable-select">
                         <option value="">{{ __('all_customers') }}</option>
                         @foreach ($customers as $cust)
                             <option value="{{ $cust->CustomerID }}"
@@ -40,10 +39,15 @@
                 </div>
 
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">
-                        <i class="fas fa-filter me-1"></i> {{ __('search_btn') }}
-                    </button>
+                    <button type="submit" class="btn btn-sm btn-primary btn-sm ">{{ __('taxes.btn_search') }}</button>
+
+                    {{-- reset button --}}
+
+                    <a href="{{ route('reports.sales') }}" class="btn btn-sm btn-outline-secondary px-3 ms-2">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
                 </div>
+
             </form>
         </div>
     </div>
@@ -51,7 +55,7 @@
     <div class="row mb-4 g-3">
         {{-- Orders Count --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card border-start border-4 border-primary shadow-sm h-100 py-2">
+            <div class="card border-start shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -67,7 +71,7 @@
 
         {{-- Total Sales --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card border-start border-4 border-info shadow-sm h-100 py-2">
+            <div class="card border-start shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -84,7 +88,7 @@
 
         {{-- Received Amount --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card border-start border-4 border-success shadow-sm h-100 py-2">
+            <div class="card border-start shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -101,7 +105,7 @@
 
         {{-- Total Debt --}}
         <div class="col-xl-3 col-md-6">
-            <div class="card border-start border-4 border-danger shadow-sm h-100 py-2">
+            <div class="card border-start shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
@@ -167,7 +171,8 @@
                                     <a href="{{ route('pos.receipt', $order->OrderID) }}" target="_blank"
                                         onclick="window.open(this.href, 'targetWindow', 'width=620,height=800'); return false;"
                                         class="btn btn-sm btn-light text-primary border shadow-sm">
-                                        <i class="fas fa-print fa-sm me-2"></i> {{ __('print_receipt') }}
+                                        <i class="fas fa-print fa-sm "></i>
+                                        {{-- {{ __('print_receipt') }} --}}
                                     </a>
                                 </td>
                             </tr>
@@ -184,4 +189,31 @@
             </div>
         </div>
     </div>
+
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        /**
+         * Initialize searchable search on a select element
+         */
+        function initSearch(element) {
+            let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
+            $(element).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: placeholderText.trim(),
+                dropdownParent: $(element).parent()
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.searchable-select').each(function() {
+                initSearch(this);
+            });
+        });
+    </script>
 @endsection

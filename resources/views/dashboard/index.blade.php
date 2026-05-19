@@ -4,8 +4,8 @@
 
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
+    {{-- <div class="row g-4 mb-4 ">
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-4 border-primary shadow h-100 py-2 bg-white">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-4 border-warning shadow h-100 py-2 bg-white">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-4 border-danger shadow h-100 py-2 bg-white">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6 ">
             <div class="card border-start border-4 border-success shadow h-100 py-2 bg-white">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -60,11 +60,130 @@
                 </div>
             </div>
         </div>
+    </div> --}}
+    {{-- <div class="row g-4 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start border-4 border-primary shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ __('Total Revenue') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($totalRevenue, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-primary opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start border-4 border-warning shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ __('Total Debt') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-warning">${{ number_format($totalDebt, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-warning opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start border-4 border-danger shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ __('General Expenses') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalExpenses, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-danger opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start border-4 border-success shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ __('Estimated Profit') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-success">${{ number_format($netProfit, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start  shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ __('Total Revenue') }}
+                            </div>
+                            <div class="h4 mb-0 font-weight-bold text-primary">${{ number_format($totalRevenue, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-primary opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ __('Total Debt') }}
+                            </div>
+                            <div class="h4 mb-0 font-weight-bold text-warning">${{ number_format($totalDebt, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-warning opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                {{ __('General Expenses') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalExpenses, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-danger opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-start shadow h-100 py-2 bg-white">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {{ __('Estimated Profit') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-success">${{ number_format($netProfit, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card shadow mb-4">
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow h-100 bg-white">
                 <div class="card-header py-3 bg-white">
                     <h6 class="m-0 fw-bold text-primary">{{ __('Weekly Revenue Graph') }}</h6>
                 </div>
@@ -76,8 +195,8 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
+        <div class="col-12 col-lg-4">
+            <div class="card shadow h-100 bg-white">
                 <div class="card-header py-3 bg-white">
                     <h6 class="m-0 fw-bold text-primary">{{ __('Payment Methods') }}</h6>
                 </div>
@@ -91,7 +210,9 @@
     </div>
 
 
-    <div class="card shadow mb-4 border-start border-4 border-warning">
+
+
+    <div class="card shadow mb-4 border-start">
         <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
             <h6 class="m-0 fw-bold text-danger">{{ __('Low/Out of Stock Items') }}</h6>
             <span class="badge bg-warning text-dark">{{ $lowStockItems->count() }} {{ __('items') }}</span>
@@ -114,13 +235,16 @@
                                     <td class="fw-bold">
                                         <span class="text-danger fs-5">{{ $item->inventory->Quantity ?? 0 }}</span>
                                         @if (($item->inventory->Quantity ?? 0) > 0)
-                                            <span class="text-warning small ms-2"><i class="fas fa-exclamation-triangle"></i> {{ __('Low Stock') }}</span>
+                                            <span class="text-warning small ms-2"><i
+                                                    class="fas fa-exclamation-triangle"></i> {{ __('Low Stock') }}</span>
                                         @else
-                                            <span class="text-danger small ms-2"><i class="fas fa-times-circle"></i> {{ __('Out of Stock') }}</span>
+                                            <span class="text-danger small ms-2"><i class="fas fa-times-circle"></i>
+                                                {{ __('Out of Stock') }}</span>
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('purchases.index') }}" class="btn btn-sm btn-outline-primary fw-bold">
+                                        <a href="{{ route('purchases.index') }}"
+                                            class="btn btn-sm btn-outline-primary fw-bold">
                                             <i class="fas fa-plus"></i> {{ __('Restock Now') }}
                                         </a>
                                     </td>
@@ -164,18 +288,29 @@
                         legend: {
                             labels: {
                                 color: chartTextColor,
-                                font: { family: 'Kantumruy Pro', size: 12 }
+                                font: {
+                                    family: 'Kantumruy Pro',
+                                    size: 12
+                                }
                             }
                         }
                     },
                     scales: {
                         x: {
-                            ticks: { color: chartTextColor },
-                            grid: { color: chartGridColor }
+                            ticks: {
+                                color: chartTextColor
+                            },
+                            grid: {
+                                color: chartGridColor
+                            }
                         },
                         y: {
-                            ticks: { color: chartTextColor },
-                            grid: { color: chartGridColor }
+                            ticks: {
+                                color: chartTextColor
+                            },
+                            grid: {
+                                color: chartGridColor
+                            }
                         }
                     }
                 }
@@ -198,7 +333,10 @@
                         legend: {
                             labels: {
                                 color: chartTextColor,
-                                font: { family: 'Kantumruy Pro', size: 12 }
+                                font: {
+                                    family: 'Kantumruy Pro',
+                                    size: 12
+                                }
                             }
                         }
                     }

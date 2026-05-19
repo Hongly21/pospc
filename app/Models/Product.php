@@ -12,6 +12,7 @@ class Product extends Model
     protected $fillable = [
         'Name',
         'CategoryID',
+        'TaxID',
         'Brand',
         'Model',
         'CostPrice',
@@ -25,17 +26,27 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'CategoryID');
+        return $this->belongsTo(Category::class, 'CategoryID', 'CategoryID');
+    }
+
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class, 'TaxID', 'TaxID');
+    }
+
+    public function getEffectiveTaxAttribute()
+    {
+        return $this->tax ?: ($this->category?->tax ?? null);
     }
 
     public function inventory()
     {
-        return $this->hasOne(Inventory::class, 'ProductID');
+        return $this->hasOne(Inventory::class, 'ProductID', 'ProductID');
     }
 
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class, 'ProductID');
+        return $this->hasMany(OrderDetail::class, 'ProductID', 'ProductID');
     }
 
     public function attributes()

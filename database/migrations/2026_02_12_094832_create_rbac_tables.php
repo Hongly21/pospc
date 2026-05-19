@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id('RoleID');
-            $table->string('RoleName');
+            $table->string('RoleName')->unique();
             $table->timestamps();
         });
 
         Schema::create('permissions', function (Blueprint $table) {
             $table->id('PermissionID');
-            $table->string('PermissionName');
+            $table->string('PermissionName')->unique();
             $table->timestamps();
         });
 
@@ -24,11 +24,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('RoleID')->constrained('roles', 'RoleID')->onDelete('cascade');
             $table->foreignId('PermissionID')->constrained('permissions', 'PermissionID')->onDelete('cascade');
+            $table->unique(['RoleID', 'PermissionID']);
         });
 
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'role')) {
-                $table->dropColumn('role');
+            if (Schema::hasColumn('users', 'Role')) {
+                $table->dropColumn('Role');
             }
 
             $table->foreignId('RoleID')

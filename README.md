@@ -1,52 +1,208 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# POS PC Project
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive Point of Sale (POS) system built with Laravel for managing product sales, inventory, customers, and business operations.
 
-## About Laravel
+## 🚀 Project Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This POS system is designed to help businesses efficiently manage their retail operations, including product inventory, customer relationships, sales processing, and financial reporting. The system provides a user-friendly interface for both sales staff and administrators.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠️ Technology Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend
+- **Framework**: Laravel 12 (PHP 8.2+)
+- **Database**: MySQL
+- **Architecture**: MVC (Model-View-Controller)
 
-## Learning Laravel
+### Frontend
+- **HTML5** - Semantic markup and structure
+- **CSS3** - Custom styling and responsive design
+- **Bootstrap** - UI components and responsive grid system
+- **JavaScript** - Interactive functionality
+- **jQuery** - DOM manipulation and AJAX requests
+- **Tailwind CSS** - Utility-first CSS framework (compiled via Vite)
+- **Blade Templates** - Laravel's server-side templating engine (not API-based)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Additional Features
+- **KHQR Payment Integration** - Cambodian QR code payment system
+- **Groq AI Chatbot** - AI-powered customer assistance
+- **Email OTP** - Secure password reset functionality
+- **Role-based Access Control** - Admin, Manager, and Staff permissions
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 📋 Key Features
 
-## Laravel Sponsors
+### 🛒 Point of Sale (POS)
+- Real-time sales processing
+- Customer search and management during checkout
+- Multiple payment methods (Cash, Card, KHQR)
+- Receipt generation and printing
+- Order history tracking
+- Customer debt management
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 📦 Inventory Management
+- Product catalog with categories
+- Stock level monitoring
+- Low stock alerts and reorder points
+- Inventory adjustments and history
+- Product attributes (variants)
 
-### Premium Partners
+### 👥 Customer Management
+- Customer database with contact information
+- Purchase history tracking
+- Credit/debt management
+- Customer search and filtering
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 🏪 Supplier & Purchasing
+- Supplier management
+- Purchase order processing
+- Stock replenishment tracking
 
-## Contributing
+### 💰 Financial Management
+- Sales reporting
+- Expense tracking
+- Payment processing
+- Profit/loss analysis
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 👤 User Management
+- Multi-user support with role-based permissions
+- User authentication and authorization
+- Profile management
+- Password reset with OTP
 
-## Code of Conduct
+### 🤖 AI Integration
+- Groq-powered chatbot for customer support
+- Intelligent product recommendations
+
+## 🏗️ System Architecture
+
+The application follows Laravel's MVC architecture:
+
+- **Models**: Business logic and database interactions
+  - Product, Category, Customer, Order, Inventory, etc.
+- **Views**: Blade templates for server-side rendering
+- **Controllers**: Handle HTTP requests and responses
+- **Routes**: Define application endpoints
+- **Middleware**: Authentication, authorization, and request filtering
+
+## 🗄️ Database Schema
+
+Key tables include:
+- `users` - System users with roles
+- `products` - Product catalog
+- `categories` - Product categories
+- `customers` - Customer information
+- `orders` - Sales transactions
+- `order_details` - Order line items
+- `inventory` - Stock levels
+- `suppliers` - Supplier information
+- `purchases` - Purchase orders
+- `payments` - Payment records
+- `expenses` - Business expenses
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+- PHP 8.2 or higher
+- Composer
+- Node.js & npm
+- MySQL database
+- Git
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd pos_pc_project
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
+
+4. **Environment configuration**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Database setup**
+   - Create a MySQL database
+   - Update `.env` with database credentials
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+6. **Build assets**
+   ```bash
+   npm run build
+   ```
+
+7. **Storage link**
+   ```bash
+   php artisan storage:link
+   ```
+
+8. **Start the application**
+   ```bash
+   php artisan serve
+   ```
+
+## 📱 Usage
+
+### For Sales Staff
+1. Login to the POS interface
+2. Search and add products to cart
+3. Process customer information
+4. Select payment method
+5. Generate receipt
+
+### For Administrators
+1. Access dashboard for overview
+2. Manage products, categories, and inventory
+3. Handle customer and supplier relationships
+4. Generate reports and analytics
+5. Configure system settings
+
+## 🔧 Configuration
+
+### Payment Integration
+- Configure KHQR API credentials in `.env`
+- Set up payment processing endpoints
+
+### AI Chatbot
+- Configure Groq API key for chatbot functionality
+- Customize chatbot responses and behavior
+
+### Email Settings
+- Configure SMTP settings for OTP emails
+- Set up email templates
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 📞 Support
+
+For support and questions, please contact the development team.
+
+---
+
+**Note**: This system uses server-side rendering with Blade templates rather than a separate API. All frontend interactions are handled through traditional form submissions and AJAX calls to Laravel routes.
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 

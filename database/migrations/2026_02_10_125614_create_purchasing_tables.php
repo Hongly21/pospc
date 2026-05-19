@@ -46,6 +46,7 @@ return new class extends Migration
 
             $table->integer('Qty');
             $table->decimal('CostPrice', 10, 2);
+            $table->unique(['PurchaseID', 'ProductID']);
             $table->timestamps();
         });
     }
@@ -55,6 +56,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchasing_tables');
+        Schema::dropIfExists('purchasedetails');
+        Schema::dropIfExists('purchases');
+        Schema::dropIfExists('suppliers');
     }
 };

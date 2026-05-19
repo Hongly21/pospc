@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->text('note')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('UserID')->on('users')->nullOnDelete();
             $table->timestamps();
         });
     }

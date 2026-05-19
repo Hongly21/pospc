@@ -1,108 +1,161 @@
-<div class="sidebar">
-    <div class="d-md-none text-end mb-3">
-        <button class="btn btn-sm btn-outline-secondary" onclick="$('.sidebar').removeClass('active')">
+<div id="sidebar" class="sidebar">
+    <div class="d-md-none text-end ">
+        <button class="btn btn-sm btn-outline-secondary btn-close-slide-mobile" onclick="closeSidebarMobile()">
             <i class="fas fa-times"></i>
         </button>
     </div>
 
     <div class="sidebar-brand">
-        <i class="fas fa-layer-group"></i>
-        <span>{{ __('POS System') }}</span>
+        <div class="brand-logo-wrapper">
+            <i class="fas fa-layer-group"></i>
+            <span class="nav-label">{{ __('POS System') }}</span>
+        </div>
+        <i class="fas fa-angles-left sidebar-toggle-btn d-none d-md-block" onclick="toggleDesktopSidebar()"
+            data-tooltip="{{ __('open_sidebar') }}"></i>
     </div>
 
     @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
-        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-chart-pie icon"></i> {{ __('Dashboard') }}
+        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}"
+            data-tooltip="{{ __('Dashboard') }}">
+            <i class="fas fa-chart-pie icon"></i> <span class="nav-label">{{ __('Dashboard') }}</span>
         </a>
     @endif
 
-    <a href="{{ route('pos.index') }}" class="{{ request()->routeIs('pos.index') ? 'active' : '' }}">
-        <i class="fas fa-cash-register icon text-primary"></i> {{ __('POS') }}
+    <a href="{{ route('pos.index') }}" class="{{ request()->routeIs('pos.index') ? 'active' : '' }}"
+        data-tooltip="{{ __('POS') }}">
+        <i class="fas fa-cash-register icon text-primary"></i> <span class="nav-label">{{ __('POS') }}</span>
     </a>
 
-    <a href="{{ route('pos.history') }}" class="{{ request()->routeIs('pos.history') ? 'active' : '' }}">
-        <i class="fas fa-history icon"></i> {{ __('Sales History') }}
+    <a href="{{ route('pos.history') }}" class="{{ request()->routeIs('pos.history') ? 'active' : '' }}"
+        data-tooltip="{{ __('Sales History') }}">
+        <i class="fas fa-history icon"></i> <span class="nav-label">{{ __('Sales History') }}</span>
     </a>
 
     @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
+        @php
+            $lowStockCount = \App\Models\Inventory::whereRaw('Quantity <= ReorderLevel')->count();
+        @endphp
+
         <div class="menu-header">{{ __('Stock Management') }}</div>
 
         <a href="#" class="dropdown-toggle" onclick="toggleSubmenu(this); return false;"
             aria-expanded="{{ request()->is('products*') || request()->is('categories*') || request()->is('inventory*') ? 'true' : 'false' }}">
-            <i class="fas fa-box-open icon"></i> {{ __('Products') }}
+            <i class="fas fa-box-open icon"></i> <span class="nav-label">{{ __('Products') }}</span>
             <i class="fas fa-chevron-down arrow-icon"></i>
         </a>
 
-        <div id="productMenu" class="submenu"
-            style="display: {{ request()->is('products*') || request()->is('categories*') || request()->is('inventory*') ? 'block' : 'none' }};">
+        <div id="productMenu" class="submenu {{ request()->is('products*') || request()->is('categories*') || request()->is('inventory*') ? 'show' : '' }}">
             <a href="{{ url('/categories') }}" class="{{ request()->is('categories*') ? 'active' : '' }}">
-                {{ __('Categories') }}
+                <span class="nav-label">{{ __('Categories') }}</span>
             </a>
             <a href="{{ url('/products') }}" class="{{ request()->is('products*') ? 'active' : '' }}">
-                {{ __('All Products') }}
+                <span class="nav-label">{{ __('All Products') }}</span>
             </a>
-            <a href="{{ url('/inventory') }}" class="{{ request()->is('inventory*') ? 'active' : '' }}">
-                {{ __('Adjust Inventory') }}
+            <a href="{{ url('/inventory') }}"
+                class="{{ request()->is('inventory*') ? 'active' : '' }} position-relative">
+                <span class="nav-label">{{ __('Adjust Inventory') }}</span>
+                @if ($lowStockCount > 0)
+                    <span class="sidebar-badge badge rounded-pill bg-danger">{{ $lowStockCount }}</span>
+                @endif
             </a>
         </div>
 
-        <a href="{{ url('/purchases') }}" class="{{ request()->is('purchases*') ? 'active' : '' }}">
-            <i class="fas fa-truck-loading icon"></i> {{ __('Purchases') }}
+        <a href="{{ url('/purchases') }}" class="{{ request()->is('purchases*') ? 'active' : '' }}"
+            data-tooltip="{{ __('Purchases') }}">
+            <i class="fas fa-truck-loading icon"></i> <span class="nav-label">{{ __('Purchases') }}</span>
         </a>
     @endif
 
     @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
         <div class="menu-header">{{ __('Contacts') }}</div>
 
-        <a class="{{ request()->routeIs('customers.*') ? 'active' : '' }}" href="{{ route('customers.index') }}">
-            <i class="fas fa-users fa-fw icon"></i> {{ __('Customers') }}
+        <a class="{{ request()->routeIs('customers.*') ? 'active' : '' }}" href="{{ route('customers.index') }}"
+            data-tooltip="{{ __('Customers') }}">
+            <i class="fas fa-users fa-fw icon"></i> <span class="nav-label">{{ __('Customers') }}</span>
         </a>
 
-        <a href="{{ url('/suppliers') }}" class="{{ request()->is('suppliers*') ? 'active' : '' }}">
-            <i class="fas fa-truck icon"></i> {{ __('Suppliers') }}
+        <a href="{{ url('/suppliers') }}" class="{{ request()->is('suppliers*') ? 'active' : '' }}"
+            data-tooltip="{{ __('Suppliers') }}">
+            <i class="fas fa-truck icon"></i> <span class="nav-label">{{ __('Suppliers') }}</span>
         </a>
     @endif
 
     @if (auth()->user()->hasRole('Admin'))
         <div class="menu-header">{{ __('Finance & Reports') }}</div>
 
-        <a href="{{ url('/expenses') }}" class="{{ request()->is('expenses*') ? 'active' : '' }}">
-            <i class="fas fa-hand-holding-usd icon "></i> {{ __('Expenses') }}
+        <a href="{{ url('/expenses') }}" class="{{ request()->is('expenses*') ? 'active' : '' }}"
+            data-tooltip="{{ __('Expenses') }}">
+            <i class="fas fa-hand-holding-usd icon "></i> <span class="nav-label">{{ __('Expenses') }}</span>
         </a>
 
-        <a href="{{ route('reports.sales') }}" class="{{ request()->is('reports/sales*') ? 'active' : '' }}">
-            <i class="fas fa-fw fa-chart-area icon "></i> {{ __('Sales Reports') }}
+        <a href="{{ route('reports.sales') }}" class="{{ request()->is('reports/sales*') ? 'active' : '' }}"
+            data-tooltip="{{ __('Sales Reports') }}">
+            <i class="fas fa-fw fa-chart-area icon "></i> <span class="nav-label">{{ __('Sales Reports') }}</span>
         </a>
     @endif
 
     @if (auth()->user()->hasRole('Admin'))
+        @php
+            // $pendingCount = \App\Models\User::where('Status', 'Pending')->count();
+            $pendingCount = \App\Models\User::where('Status', 'Pending')->count();
+            $lowStockCount = \App\Models\Inventory::whereRaw('Quantity <= ReorderLevel')->count();
+            $totalNotifications = $pendingCount + $lowStockCount;
+        @endphp
+
         <div class="menu-header">{{ __('Administration') }}</div>
 
-        <a href="{{ url('/users') }}" class="{{ request()->is('users*') ? 'active' : '' }}">
-            <i class="fas fa-users-cog icon"></i> {{ __('Manage Staff') }}
+        <a href="{{ url('/users') }}" class="{{ request()->is('users*') ? 'active' : '' }} position-relative"
+            data-tooltip="{{ __('Manage Staff') }}">
+            <i class="fas fa-users-cog icon"></i>
+            <span class="nav-label">{{ __('Manage Staff') }}</span>
+            @if ($totalNotifications > 0)
+                <span class="sidebar-badge badge rounded-pill bg-danger">{{ $totalNotifications }}</span>
+            @endif
         </a>
-
-        <a href="{{ url('/settings') }}" class="{{ request()->is('settings*') ? 'active' : '' }}">
-            <i class="fas fa-cogs icon"></i> {{ __('System Settings') }}
+        <a href="{{ route('taxes.index') }}" class="{{ request()->is('taxes*') ? 'active' : '' }}"
+            data-tooltip="{{ __('taxes.page_title') }}">
+            <i class="fas fa-percentage icon"></i> <span class="nav-label">{{ __('taxes.page_title') }}</span>
+        </a>
+        <a href="{{ url('/settings') }}" class="{{ request()->is('settings*') ? 'active' : '' }}"
+            data-tooltip="{{ __('System Settings') }}">
+            <i class="fas fa-cogs icon"></i> <span class="nav-label">{{ __('System Settings') }}</span>
         </a>
     @endif
 
     {{-- Dark Mode Toggle --}}
-    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()" data-tooltip="{{ __('Dark Mode') }}">
         <span>
             <i class="fas fa-moon icon" id="dark-mode-icon"></i>
-            <span id="dark-mode-label">{{ __('Dark Mode') }}</span>
+            <span class="nav-label" id="dark-mode-label">{{ __('Dark Mode') }}</span>
         </span>
         <div class="theme-switch" id="theme-switch"></div>
     </div>
 </div>
 
 <script>
+    function isCompactTabletSidebar() {
+        return window.matchMedia('(min-width: 769px) and (max-width: 1100px)').matches || document.querySelector(
+            '.sidebar').classList.contains('mini');
+    }
+
+    function closeSidebarMobile() {
+        $('.sidebar').removeClass('active');
+        $('.sidebar-backdrop').removeClass('active');
+    }
+
     function toggleSubmenu(element) {
         let submenu = document.getElementById('productMenu');
         let isExpanded = element.getAttribute('aria-expanded') === 'true';
+
+        if (isCompactTabletSidebar()) {
+            element.setAttribute('aria-expanded', !isExpanded);
+            submenu.classList.toggle('compact-open', !isExpanded);
+            return;
+        }
+
         element.setAttribute('aria-expanded', !isExpanded);
-        $(submenu).slideToggle(200);
+        // .stop(true, true) prevents animation queuing if clicked rapidly
+        $(submenu).stop(true, true).slideToggle(350, 'swing');
     }
 
     function confirmLogout(event) {
@@ -118,8 +171,6 @@
             cancelButtonText: "{{ __('Cancel') }}"
         }).then((result) => {
             if (result.isConfirmed) {
-                // It is safer to use a form for logout in Laravel (POST request)
-                // But for now, using your existing logic:
                 window.location.href = "{{ route('logout') }}";
             }
         });
@@ -149,9 +200,24 @@
         }
     }
 
-    // Initialize dark mode UI on load
     (function() {
         var theme = localStorage.getItem('theme') || 'light';
         updateDarkModeUI(theme);
     })();
+
+    document.addEventListener('click', function(e) {
+        if (!isCompactTabletSidebar()) return;
+        const productMenu = document.getElementById('productMenu');
+        const trigger = document.querySelector('.sidebar .dropdown-toggle');
+        if (!productMenu || !trigger) return;
+        if (trigger.contains(e.target) || productMenu.contains(e.target)) return;
+        productMenu.classList.remove('compact-open');
+        trigger.setAttribute('aria-expanded', 'false');
+    });
+
+    window.addEventListener('resize', function() {
+        const productMenu = document.getElementById('productMenu');
+        if (!productMenu || isCompactTabletSidebar()) return;
+        productMenu.classList.remove('compact-open');
+    });
 </script>

@@ -7,17 +7,17 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Expense;
-use App\Services\GeminiService;
+use App\Services\GroqService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ChatbotController extends Controller
 {
-    protected GeminiService $gemini;
+    protected GroqService $groq;
 
-    public function __construct(GeminiService $gemini)
+    public function __construct(GroqService $groq)
     {
-        $this->gemini = $gemini;
+        $this->groq = $groq;
     }
 
     public function chat(Request $request)
@@ -29,13 +29,13 @@ class ChatbotController extends Controller
         $userMessage = $request->input('message');
         $systemContext = $this->buildSystemContext();
 
-        $reply = $this->gemini->chat($userMessage, $systemContext);
+        $reply = $this->groq->chat($userMessage, $systemContext);
 
         return response()->json(['reply' => $reply]);
     }
 
     /**
-     * Build a system prompt with real-time POS data so Gemini can answer accurately.
+     * Build a system prompt with real-time POS data so Groq can answer accurately.
      */
     private function buildSystemContext(): string
     {
@@ -96,11 +96,55 @@ class ChatbotController extends Controller
             ->whereYear('OrderDate', now()->year)
             ->count();
 
-        // --- Debt orders ---
-        $totalDebt = Order::where('Status', 'Debt')->sum(DB::raw('TotalAmount - COALESCE((SELECT SUM(PaidAmount) FROM receipts WHERE receipts.OrderID = orders.OrderID), 0)'));
+        // --- Debt orders with customer details ---
+        $debtOrders = Order::whereIn('Status', ['Debt', 'Partial'])
+            ->with(['customer', 'receipts'])
+            ->get()
+            ->map(function($order) {
+                $paidAmount = $order->receipts->sum('PaidAmount');
+                $remainingDebt = $order->TotalAmount - $paidAmount;
+                return [
+                    'customer' => $order->customer->Name ?? 'Unknown Customer',
+                    'order_id' => $order->OrderID,
+                    'total_amount' => $order->TotalAmount,
+                    'paid_amount' => $paidAmount,
+                    'remaining_debt' => $remainingDebt,
+                    'order_date' => \Carbon\Carbon::parse($order->OrderDate)->format('Y-m-d'),
+                ];
+            })
+            ->filter(fn($debt) => $debt['remaining_debt'] > 0)
+            ->sortByDesc('remaining_debt')
+            ->take(10); // Top 10 debts
+
+        $debtSummary = $debtOrders->map(fn($d) => "{$d['customer']}: \${$d['remaining_debt']} (Order #{$d['order_id']})")->toArray();
+
+        // --- Total debt ---
+        $totalDebt = $debtOrders->sum('remaining_debt');
 
         // --- Customer count ---
         $customerCount = Customer::where('status', 1)->count();
+
+        // --- Expense summaries ---
+        $thisMonthExpenses = Expense::whereMonth('expense_date', now()->month)
+            ->whereYear('expense_date', now()->year)
+            ->sum('amount');
+
+        $expenseCategories = Expense::whereMonth('expense_date', now()->month)
+            ->whereYear('expense_date', now()->year)
+            ->select('category', DB::raw('SUM(amount) as total'))
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn($e) => "{$e->category}: \${$e->total}")
+            ->toArray();
+
+        // --- Recent expenses (last 10) ---
+        $recentExpenses = Expense::with('user')
+            ->orderBy('expense_date', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(fn($e) => "{$e->title}: \${$e->amount} ({\Carbon\Carbon::parse($e->expense_date)->format('M d')})")
+            ->toArray();
 
         // --- Top 5 best sellers this month ---
         $topSellers = DB::table('orderdetails')
@@ -131,21 +175,56 @@ class ChatbotController extends Controller
         $outOfStockText = empty($outOfStock) ? 'None - all products in stock!' : implode(', ', $outOfStock);
         $lowStockText = empty($lowStock) ? 'None - stock levels are healthy!' : implode("\n", $lowStock);
         $topSellersText = empty($topSellers) ? 'No sales data this month yet.' : implode("\n", $topSellers);
+        $debtText = empty($debtSummary) ? 'No outstanding debts.' : implode("\n", $debtSummary);
+        $expenseCategoriesText = empty($expenseCategories) ? 'No expenses this month.' : implode("\n", $expenseCategories);
+        $recentExpensesText = empty($recentExpenses) ? 'No recent expenses.' : implode("\n", $recentExpenses);
 
         return <<<PROMPT
 You are a helpful POS (Point of Sale) AI assistant for a retail shop. {$langInstruction}
-Your job is to answer questions about products, stock, sales, and general shop info.
+Your job is to answer questions about products, stock, sales, debts, and expenses.
 Keep answers concise and helpful. Use bullet points or short lists when appropriate.
-If a user asks about a product, search the product list below and give accurate stock/price info.
-If you don't know something or the data isn't available, say so honestly.
-Do NOT make up product names or stock numbers — only use the data provided below.
+
+INVENTORY QUERIES:
+- For "Do we have X left?" or stock checks: Search the product list and give exact stock numbers
+- For "What items are low on stock?": List products below reorder level
+- For "What's out of stock?": List products with 0 quantity
+
+SALES QUERIES:
+- For "How much money did we make today/month?": Use the sales statistics provided
+- For revenue questions: Calculate from order totals
+
+DEBT QUERIES:
+- For "Who owes us money?": List customers with outstanding debts
+- For "How much debt do we have?": Sum of all outstanding amounts
+- Include order numbers and amounts owed
+
+EXPENSE QUERIES:
+- For "What were our expenses this month?": Use expense statistics and categories
+- For expense breakdowns: Show by category
+- For recent expenses: List the most recent ones
+
+GENERAL RULES:
+- If a user asks about a product, search the product list below and give accurate stock/price info
+- If you don't know something or the data isn't available, say so honestly
+- Do NOT make up product names or stock numbers — only use the data provided below
+- For calculations, use the provided statistics rather than trying to recalculate
 
 === SHOP STATISTICS ===
 - Total active products: {$totalProducts}
 - Total active customers: {$customerCount}
 - Today's sales: \${$todaySales} ({$todayOrders} orders)
 - This month's sales: \${$monthSales} ({$monthOrders} orders)
+- This month's expenses: \${$thisMonthExpenses}
 - Outstanding debt: \${$totalDebt}
+
+=== OUTSTANDING DEBTS ===
+{$debtText}
+
+=== EXPENSE CATEGORIES (THIS MONTH) ===
+{$expenseCategoriesText}
+
+=== RECENT EXPENSES ===
+{$recentExpensesText}
 
 === CATEGORIES ===
 {$categoriesText}

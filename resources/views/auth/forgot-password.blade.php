@@ -4,14 +4,14 @@
 @section('body-class', 'auth-centered')
 
 @section('content')
-    <main class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <main class="container d-flex align-items-center justify-content-center auth-fullscreen">
         <div class="card p-4 p-md-5 w-100">
 
             <div class="text-center mb-4">
-                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                <div class="auth-icon-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3">
                     <i class="fas fa-key fa-2x"></i>
                 </div>
-                <h3 class="fw-bold" style="color: var(--bg-dark);">{{ __('auth.forgot_title') }}</h3>
+                <h3 class="fw-bold auth-title-dark">{{ __('auth.forgot_title') }}</h3>
                 <p class="text-muted small px-3">{{ __('auth.forgot_subtitle') }}</p>
             </div>
 

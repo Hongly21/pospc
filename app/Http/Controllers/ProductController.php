@@ -9,6 +9,7 @@ use App\Models\Inventory;
 use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB; // Required for database transactions
+use App\Models\Tax;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -36,20 +37,21 @@ class ProductController extends Controller
 
         $products = $query->orderBy('ProductID', 'desc')->paginate(15);
         $categories = Category::where('status', 1)->get();
+        $taxes = Tax::where('Status', 1)->get();
 
-        return view('products.index', compact('products', 'categories'));
+        return view('products.index', compact('products', 'categories', 'taxes'));
     }
 
     public function store(Request $request)
     {
         $request->merge([
             'Name' => trim((string) $request->input('Name')),
-            'Barcode' => $request->filled('Barcode') ? trim((string) $request->input('Barcode')) : null,
         ]);
 
         $request->validate([
-            'Name' => ['required', 'string', 'max:255', Rule::unique('products', 'Name')],
+            'Name' => ['required', 'string', 'max:255'],
             'CategoryID' => 'required|exists:categories,CategoryID',
+            'TaxID' => 'nullable|exists:taxes,TaxID',
             'CostPrice' => 'required|numeric|min:0',
             'SellPrice' => 'required|numeric|min:0',
             'StockQuantity' => 'required|integer|min:0',
@@ -62,9 +64,13 @@ class ProductController extends Controller
             'AttributeValue' => 'nullable|array',
             'AttributeValue.*' => 'nullable|string|max:255',
         ], [
-            'Name.unique' => 'Product name already exists.',
             'Barcode.unique' => 'Barcode already exists.',
         ]);
+
+        $barcode = $request->filled('Barcode') ? trim((string) $request->input('Barcode')) : null;
+        if ($barcode === null || $barcode === '') {
+            $barcode = $this->generateUniqueBarcode((int) $request->input('CategoryID'), $request->input('Name'));
+        }
 
         $validatedAttributes = $this->extractAndValidateAttributesFromRequest($request);
 
@@ -81,12 +87,13 @@ class ProductController extends Controller
             $product = Product::create([
                 'Name' => $request->Name,
                 'CategoryID' => $request->CategoryID,
+                'TaxID' => $request->TaxID,
                 'Brand' => $request->Brand,
                 'Model' => $request->Model,
                 'CostPrice' => $request->CostPrice,
                 'SellPrice' => $request->SellPrice,
                 'WarrantyMonths' => $request->WarrantyMonths ?? 0,
-                'Barcode' => $request->Barcode,
+                'Barcode' => $barcode,
                 'Description' => $request->Description,
                 'Image' => $imagePath,
                 'Status' => 1
@@ -127,12 +134,12 @@ class ProductController extends Controller
 
         $request->merge([
             'Name' => trim((string) $request->input('Name')),
-            'Barcode' => $request->filled('Barcode') ? trim((string) $request->input('Barcode')) : null,
         ]);
 
         $request->validate([
-            'Name' => ['required', 'string', 'max:255', Rule::unique('products', 'Name')->ignore($id, 'ProductID')],
+            'Name' => ['required', 'string', 'max:255'],
             'CategoryID' => 'required|exists:categories,CategoryID',
+            'TaxID' => 'nullable|exists:taxes,TaxID',
             'CostPrice' => 'required|numeric|min:0',
             'SellPrice' => 'required|numeric|min:0',
             'WarrantyMonths' => 'nullable|integer|min:0',
@@ -140,19 +147,17 @@ class ProductController extends Controller
             //my datatype Status is not boolean it is tinyint
             // 'Status' => 'required',
             'Status' => 'required|boolean',
-            'Barcode' => ['nullable', 'string', 'max:100', Rule::unique('products', 'Barcode')->ignore($id, 'ProductID')],
             'AttributesPayload' => 'nullable|string',
             'AttributeName' => 'nullable|array',
             'AttributeName.*' => 'nullable|string|max:100',
             'AttributeValue' => 'nullable|array',
             'AttributeValue.*' => 'nullable|string|max:255',
-        ], [
-            'Name.unique' => 'Product name already exists.',
-            'Barcode.unique' => 'Barcode already exists.',
         ]);
 
         $validatedAttributes = $this->extractAndValidateAttributesFromRequest($request);
-        $data = $request->except(['Image', 'StockQuantity', 'AttributesPayload', 'AttributeName', 'AttributeValue']);
+        $data = $request->except(['Image', 'StockQuantity', 'AttributesPayload', 'AttributeName', 'AttributeValue', 'Barcode']);
+        $data['Barcode'] = $product->Barcode;
+        $data['TaxID'] = $request->TaxID;
 
         try {
             DB::beginTransaction();
@@ -268,6 +273,63 @@ class ProductController extends Controller
         }
 
         return $attributes;
+    }
+
+    private function generateUniqueBarcode(int $categoryId, string $name): string
+    {
+        $prefix = $this->getCategoryBarcodePrefix($categoryId);
+        $attempt = 0;
+
+        do {
+            $suffix = $this->generateRandomAlphanumericSuffix(6);
+            $barcode = sprintf('%s-%s', $prefix, $suffix);
+            $attempt++;
+        } while (Product::where('Barcode', $barcode)->exists() && $attempt < 20);
+
+        if (Product::where('Barcode', $barcode)->exists()) {
+            $barcode = sprintf('%s-%s', $prefix, strtoupper(bin2hex(random_bytes(4))));
+        }
+
+        return $barcode;
+    }
+
+    private function getCategoryBarcodePrefix(int $categoryId): string
+    {
+        $category = Category::find($categoryId);
+        $name = $category ? $category->Name : '';
+        $clean = preg_replace('/[^A-Za-z0-9\s]+/', ' ', strtoupper(trim($name)));
+        $words = array_filter(preg_split('/\s+/', $clean));
+
+        $prefix = '';
+        if (count($words) > 1) {
+            foreach ($words as $word) {
+                $prefix .= substr($word, 0, 1);
+                if (strlen($prefix) >= 4) {
+                    break;
+                }
+            }
+        }
+
+        if (strlen($prefix) < 4) {
+            $joined = implode('', $words);
+            $joined = preg_replace('/[^A-Z0-9]/', '', $joined);
+            $prefix = strtoupper(substr($joined, 0, 4));
+        }
+
+        $prefix = strtoupper(preg_replace('/[^A-Z0-9]/', '', $prefix));
+        $prefix = str_pad($prefix, 4, 'X');
+
+        return substr($prefix, 0, 4);
+    }
+
+    private function generateRandomAlphanumericSuffix(int $length): string
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $result = '';
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+        return $result;
     }
 
     private function buildAttributeInsertData(int $productId, array $attributes): array

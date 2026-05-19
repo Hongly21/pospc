@@ -2,7 +2,7 @@
 
 @section('title', __('Sales History'))
 
-@section('content') 
+@section('content')
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -30,13 +30,24 @@
                             {{ __('Unpaid/Debt') }}</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-2 d-flex gap-2">
+                {{-- <div class="col-12 col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-outline-primary flex-grow-1">
                         <i class="fas fa-filter fa-sm me-1"></i> {{ __('Search') }}
                     </button>
-                    <a href="{{ route('pos.history') }}" class="btn btn-outline-danger px-3" title="{{ __('Clear Filter') }}">
+                    <a href="{{ route('pos.history') }}" class="btn btn-outline-danger px-3"
+                        title="{{ __('Clear Filter') }}">
                         <i class="fas fa-sync-alt"></i>
                     </a>
+                </div> --}}
+                <div class="col-12 col-md-3 d-flex gap-2">
+                    <button type="submit"
+                        class="btn btn-sm btn-primary px-4 w-100">{{ __('products.btn_search') }}
+                    </button>
+                    @if (request('search') || request('status'))
+                        <a href="{{ route('pos.history') }}" class="btn btn-sm btn-outline-secondary px-2 ">
+                            <i class="fas fa-sync-alt py-2"></i>
+                        </a>
+                    @endif
                 </div>
             </form>
 
@@ -64,11 +75,13 @@
                                 <td class="fw-bold text-success">${{ number_format($order->TotalAmount, 2) }}</td>
                                 <td>
                                     @if ($order->PaymentType == 'Cash')
-                                        <span class="badge bg-success"><i class="fas fa-money-bill-wave fa-sm me-1"></i> {{ __('Cash') }}</span>
+                                        <span class="badge bg-success"><i class="fas fa-money-bill-wave fa-sm me-1"></i>
+                                            {{ __('Cash') }}</span>
                                     @elseif($order->PaymentType == 'QR')
                                         <span class="badge bg-info"><i class="fas fa-qrcode fa-sm me-1"></i> KHQR</span>
                                     @else
-                                        <span class="badge bg-secondary"><i class="fas fa-credit-card fa-sm me-1"></i> {{ __('Card') }}</span>
+                                        <span class="badge bg-secondary"><i class="fas fa-credit-card fa-sm me-1"></i>
+                                            {{ __('Card') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -85,7 +98,8 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button onclick="window.open('{{ route('pos.receipt', $order->OrderID) }}', '_blank', 'width=620,height=800')"
+                                    <button
+                                        onclick="window.open('{{ route('pos.receipt', $order->OrderID) }}', '_blank', 'width=620,height=800')"
                                         class="btn btn-sm btn-outline-primary mb-1">
                                         <i class="fas fa-print fa-sm "></i> {{ __('Print Receipt') }}
                                     </button>
@@ -112,6 +126,7 @@
                         @endforelse
                     </tbody>
                 </table>
+
             </div>
 
             <div class="d-flex justify-content-end mt-3">
@@ -124,18 +139,21 @@
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header text-dark">
-                    <h6 class="modal-title fw-bold"><i class="fas fa-money-bill-wave me-2"></i> {{ __('Pay Remaining Debt') }}</h6>
+                    <h6 class="modal-title fw-bold"><i class="fas fa-money-bill-wave me-2"></i>
+                        {{ __('Pay Remaining Debt') }}</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center mt-2">
                     <p class="mb-1 text-muted">{{ __('Customer') }}: <strong id="debtCustomerName">...</strong></p>
-                    <p class="mb-3">{{ __('Total Debt') }}: <strong class="text-danger fs-5" id="debtRemainingAmount">$0.00</strong></p>
+                    <p class="mb-3">{{ __('Total Debt') }}: <strong class="text-danger fs-5"
+                            id="debtRemainingAmount">$0.00</strong></p>
 
                     <input type="hidden" id="debtOrderID">
 
                     <div class="form-group mb-3 text-start">
                         <label class="form-label small fw-bold">{{ __('Amount Received') }} ($)</label>
-                        <input type="number" id="debtPaidAmount" class="form-control text-center fw-bold" placeholder="0.00" step="0.01">
+                        <input type="number" id="debtPaidAmount" class="form-control text-center fw-bold"
+                            placeholder="0.00" step="0.01">
                     </div>
 
                     <div class="form-group mb-3 text-start">
@@ -148,7 +166,8 @@
                     </div>
                 </div>
                 <div class="modal-footer p-2 justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">{{ __('Close') }}</button>
                     <button type="button" class="btn btn-outline-success btn-sm fw-bold" id="btnSubmitDebtPayment">
                         {{ __('Confirm Payment') }}
                     </button>
@@ -156,9 +175,6 @@
             </div>
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function openDebtModal(orderId, remainingDebt, customerName) {
@@ -168,7 +184,9 @@
             $('#debtPaidAmount').val('');
             var myModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
             myModal.show();
-            setTimeout(() => { $('#debtPaidAmount').focus(); }, 500);
+            setTimeout(() => {
+                $('#debtPaidAmount').focus();
+            }, 500);
         }
 
         $('#btnSubmitDebtPayment').click(function() {
@@ -181,7 +199,8 @@
                 return;
             }
 
-            $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> {{ __('Processing...') }}');
+            $(this).prop('disabled', true).html(
+            '<i class="fas fa-spinner fa-spin"></i> {{ __('Processing...') }}');
 
             $.ajax({
                 url: "/pos/order/" + orderId + "/pay-debt",
@@ -200,14 +219,17 @@
                             icon: 'success',
                             timer: 2000,
                             showConfirmButton: false
-                        }).then(() => { location.reload(); });
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
                         Swal.fire({
                             title: "{{ __('Error') }}",
                             html: res.message,
                             icon: 'error'
                         });
-                        $('#btnSubmitDebtPayment').prop('disabled', false).text("{{ __('Confirm Payment') }}");
+                        $('#btnSubmitDebtPayment').prop('disabled', false).text(
+                            "{{ __('Confirm Payment') }}");
                     }
                 }
             });

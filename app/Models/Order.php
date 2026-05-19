@@ -12,10 +12,19 @@ class Order extends Model
     protected $fillable = [
         'UserID',
         'CustomerID',
-        'CustomerPhoneNumber',
         'TotalAmount',
+        'TotalTax',
         'PaymentType',
         'Status',
+        'OrderDate'
+    ];
+
+    protected $casts = [
+        'TotalAmount' => 'float',
+        'TotalTax'    => 'float',
+    ];
+
+    protected $dates = [
         'OrderDate'
     ];
 
@@ -38,5 +47,10 @@ class Order extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'CustomerID', 'CustomerID');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'OrderID', 'OrderID');
     }
 }

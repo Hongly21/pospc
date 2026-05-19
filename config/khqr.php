@@ -11,7 +11,7 @@ return [
 
     'base_url'      => env('KHQR_BASE_URL', 'https://api-bakong.nbc.gov.kh'),
     'token'         => env('KHQR_TOKEN', ''),
-    'account'       => env('KHQR_ACCOUNT', ''),       // e.g. yourname@wing
+    'account'       => env('KHQR_ACCOUNT', ''),       
     'merchant_name' => env('KHQR_MERCHANT_NAME', 'My Shop'),
     'store_label'   => env('KHQR_STORE_LABEL', 'POS'),
     'phone'         => env('KHQR_PHONE', ''),

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TaxController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PurchaseController;
@@ -73,6 +74,8 @@ Route::middleware(['auth', 'role:Admin,Manager'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::post('/categories/update', [CategoryController::class, 'update'])->name('categories.update');
     Route::post('/categories/delete', [CategoryController::class, 'destroy'])->name('categories.delete');
+
+    Route::resource('taxes', TaxController::class);
 
     // Full Customer Management
     Route::resource('customers', CustomerController::class);

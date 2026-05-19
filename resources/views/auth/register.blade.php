@@ -54,7 +54,7 @@
                         <div class="form-text small mb-2 text-muted">{{ __('auth.password_requirements') }}</div>
                         <div class="input-group">
                             <input type="password" name="password" id="reg-password" class="form-control" autocomplete="new-password" required>
-                            <span class="input-group-text toggle-password" onclick="toggleField('reg-password', 'reg-toggle-icon')" style="cursor: pointer;">
+                            <span class="input-group-text toggle-password" onclick="toggleField('reg-password', 'reg-toggle-icon')">
                                 <i class="fas fa-eye" id="reg-toggle-icon"></i>
                             </span>
                         </div>
@@ -64,7 +64,7 @@
                         <label for="reg-confirm-password" class="form-label text-uppercase">{{ __('auth.confirm_password') }} <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="password" name="password_confirmation" id="reg-confirm-password" class="form-control" autocomplete="new-password" required>
-                            <span class="input-group-text toggle-password" onclick="toggleField('reg-confirm-password', 'reg-confirm-icon')" style="cursor: pointer;">
+                            <span class="input-group-text toggle-password" onclick="toggleField('reg-confirm-password', 'reg-confirm-icon')">
                                 <i class="fas fa-eye" id="reg-confirm-icon"></i>
                             </span>
                         </div>
@@ -79,7 +79,7 @@
 
                 <div class="text-center">
                     <span class="text-muted small">{{ __('auth.has_account') }}</span>
-                    <a href="{{ route('login') }}" class="fw-bold text-decoration-none ms-1" style="color: var(--bg-dark);">
+                    <a href="{{ route('login') }}" class="fw-bold text-decoration-none ms-1 text-dark auth-link-dark">
                         {{ __('auth.login_link') }}
                     </a>
                 </div>

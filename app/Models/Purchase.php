@@ -20,6 +20,6 @@ class Purchase extends Model
 
     public function details()
     {
-        return $this->hasMany(PurchaseDetail::class, 'PurchaseID');
+        return $this->hasMany(PurchaseDetail::class, 'PurchaseID', 'PurchaseID');
     }
 }

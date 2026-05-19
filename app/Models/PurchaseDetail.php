@@ -9,8 +9,6 @@ class PurchaseDetail extends Model
     protected $table = 'purchasedetails';
     protected $primaryKey = 'PurchaseDetailID';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'PurchaseID',
         'ProductID',
@@ -21,5 +19,10 @@ class PurchaseDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'ProductID', 'ProductID');
+    }
+
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class, 'PurchaseID', 'PurchaseID');
     }
 }

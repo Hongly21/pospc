@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('email_otp', function (Blueprint $table) {
             $table->id(); // Standard 'id' from your image
-            $table->foreignId('UserID')->references('UserID')->on('users')->onDelete('cascade');
-            $table->string('email', 100);
+            $table->foreignId('UserID')->constrained('users', 'UserID')->onDelete('cascade');
+            $table->string('email', 100)->index();
             $table->string('otp', 6);
             $table->dateTime('expires_at');
             $table->tinyInteger('used')->default(0);

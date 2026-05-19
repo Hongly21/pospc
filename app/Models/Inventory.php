@@ -10,18 +10,14 @@ class Inventory extends Model
 
     protected $primaryKey = 'InventoryID';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'ProductID',
         'Quantity',
-        'ReorderLevel',
-        'created_at',
-        'updated_at',
+        'ReorderLevel'
     ];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'ProductID');
+        return $this->belongsTo(Product::class, 'ProductID', 'ProductID');
     }
 }

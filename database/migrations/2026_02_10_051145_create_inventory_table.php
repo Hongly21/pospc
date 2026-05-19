@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('InventoryID');
 
             $table->foreignId('ProductID')->constrained('products', 'ProductID')->onDelete('cascade');
+            $table->unique('ProductID');
 
             $table->decimal('Quantity', 10, 2)->default(0);
             $table->integer('ReorderLevel')->default(5); 

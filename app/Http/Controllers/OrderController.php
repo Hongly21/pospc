@@ -25,7 +25,7 @@ class OrderController extends Controller
         $query = Product::where('status', 1)
             ->whereHas('inventory', function ($q) {
                 $q->where('Quantity', '>', 0);
-            })->with(['inventory', 'category', 'attributes']);
+            })->with(['inventory', 'category.tax', 'attributes', 'tax']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -120,9 +120,8 @@ class OrderController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // Lock inventory rows to prevent race conditions (concurrent overselling)
             $calculatedTotal = 0;
+            $totalTax = 0;
             foreach ($request->cart as $item) {
                 $inventory = Inventory::where('ProductID', $item['id'])->lockForUpdate()->first();
                 if (!$inventory || $inventory->Quantity < $item['qty']) {
@@ -133,9 +132,13 @@ class OrderController extends Controller
                     ]);
                 }
 
-                // Use server-side price from database, not from frontend
-                $product = Product::findOrFail($item['id']);
-                $calculatedTotal += $product->SellPrice * $item['qty'];
+                // Use server-side price and tax rate from database, not from frontend
+                $product = Product::with(['tax', 'category.tax'])->findOrFail($item['id']);
+                $lineAmount = $product->SellPrice * $item['qty'];
+                $taxRate = $product->tax->Rate ?? ($product->category->tax->Rate ?? 0);
+                $taxAmount = round($lineAmount * ($taxRate / 100), 2);
+                $calculatedTotal += round($lineAmount + $taxAmount, 2);
+                $totalTax += $taxAmount;
             }
 
             $paidAmount = $request->payment_type === 'QR'
@@ -153,6 +156,7 @@ class OrderController extends Controller
                 'UserID'      => Auth::id() ?? 1,
                 'CustomerID'  => $request->customer_id,
                 'TotalAmount' => $calculatedTotal,
+                'TotalTax'    => round($totalTax, 2),
                 'PaymentType' => $request->payment_type,
                 'Status'      => $status,
                 'OrderDate'   => Carbon::now(),
@@ -170,12 +174,18 @@ class OrderController extends Controller
             }
 
             foreach ($request->cart as $item) {
-                $product = Product::findOrFail($item['id']);
+                $product = Product::with(['tax', 'category.tax'])->findOrFail($item['id']);
+                $lineAmount = $product->SellPrice * $item['qty'];
+                $taxRate = $product->tax->Rate ?? ($product->category->tax->Rate ?? 0);
+                $taxAmount = round($lineAmount * ($taxRate / 100), 2);
+
                 OrderDetail::create([
                     'OrderID'   => $order->OrderID,
                     'ProductID' => $item['id'],
                     'Quantity'  => $item['qty'],
-                    'Subtotal'  => $product->SellPrice * $item['qty'],
+                    'TaxRate'   => $taxRate,
+                    'TaxAmount' => $taxAmount,
+                    'Subtotal'  => round($lineAmount + $taxAmount, 2),
                 ]);
                 Inventory::where('ProductID', $item['id'])->decrement('Quantity', $item['qty']);
             }
@@ -210,7 +220,6 @@ class OrderController extends Controller
     {
         $order   = Order::with(['details.product.attributes', 'user', 'customer', 'receipts'])->findOrFail($id);
 
-        // Only admin (RoleID=1) can view any receipt; others can only view their own
         if (Auth::user()->RoleID != 1 && $order->UserID != Auth::id()) {
             abort(403);
         }

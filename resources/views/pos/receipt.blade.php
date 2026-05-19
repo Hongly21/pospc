@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #{{ $order->OrderID }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
@@ -26,20 +26,20 @@
             <div class="col-left">
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
                 <h1 class="company-name">{{ $setting->shop_name ?? 'YOTTA PRINTER TECHNOLOGY' }}</h1>
-                <div>{{ $setting->shop_address ?? 'អាសយដ្ឋាន: ភ្នំពេញ, កម្ពុជា' }}</div>
-                <div>ទូរស័ព្ទ: {{ $setting->shop_phone ?? '000-000-000' }}</div>
+                <div>{{ $setting->shop_address ?? __('settings.address') }}</div>
+                <div>{{ __('settings.phone') }}: {{ $setting->shop_phone ?? '000-000-000' }}</div>
             </div>
             <div class="col-right">
-                <h2 class="invoice-title">វិក្កយបត្រ</h2>
+                <h2 class="invoice-title">{{ __('receipt.title') }}</h2>
                 <div class="info-grid">
-                    <span>លេខបង្កាន់ដៃ:</span>
-                    <span style="font-weight: normal;">{{ $latestReceipt->ReceiptNo ?? '-' }}</span>
-                    <span>កាលបរិច្ឆេទបញ្ជាទិញ:</span>
-                    <span style="font-weight: normal;">{{ $order->created_at->format('Y-m-d') }}</span>
-                    <span>ម៉ោង:</span>
-                    <span style="font-weight: normal;">{{ $order->created_at->format('H:i') }}</span>
-                    <span>លេខបញ្ជាទិញ:</span>
-                    <span style="font-weight: normal;">#{{ str_pad($order->OrderID, 6, '0', STR_PAD_LEFT) }}</span>
+                    <span>{{ __('receipt.invoice_no') }}</span>
+                    <span class="receipt-text-normal">{{ $latestReceipt->ReceiptNo ?? '-' }}</span>
+                    <span>{{ __('receipt.order_date') }}</span>
+                    <span class="receipt-text-normal">{{ $order->created_at->format('Y-m-d') }}</span>
+                    <span>{{ __('receipt.time') }}</span>
+                    <span class="receipt-text-normal">{{ $order->created_at->format('H:i') }}</span>
+                    <span>{{ __('receipt.order_no') }}</span>
+                    <span class="receipt-text-normal">#{{ str_pad($order->OrderID, 6, '0', STR_PAD_LEFT) }}</span>
                 </div>
             </div>
         </div>
@@ -47,17 +47,17 @@
         {{-- ── Customer + Order Info (merged, no redundant meta table) ── --}}
         <div class="customer-section">
             <div class="customer-info">
-                <div class="fw-bold text-uppercase" style="margin-bottom: 3px;">ព័ត៌មានអតិថិជន:</div>
-                <div><strong>ឈ្មោះ:</strong> {{ $order->customer->Name ?? 'អតិថិជនទូទៅ' }}</div>
+                <div class="fw-bold text-uppercase receipt-section-title">{{ __('receipt.customer_info') }}</div>
+                <div><strong>{{ __('receipt.name') }}</strong> {{ $order->customer->Name ?? __('general_customer') }}</div>
                 @if ($order->customer)
-                    <div><strong>ទូរស័ព្ទ:</strong> {{ $order->customer->PhoneNumber }}</div>
+                    <div><strong>{{ __('receipt.phone') }}</strong> {{ $order->customer->PhoneNumber }}</div>
                 @endif
             </div>
             <div class="customer-info">
-                <div class="fw-bold text-uppercase" style="margin-bottom: 3px;">ព័ត៌មានការបញ្ជាទិញ:</div>
-                <div><strong>អ្នកលក់:</strong> {{ $order->user->Username ?? 'Admin' }}</div>
-                <div><strong>វិធីបង់ប្រាក់:</strong> {{ $order->PaymentType }}</div>
-                <div><strong>ស្ថានភាព:</strong> <span
+                <div class="fw-bold text-uppercase receipt-section-title">{{ __('receipt.order_info') }}</div>
+                <div><strong>{{ __('receipt.seller') }}</strong> {{ $order->user->Username ?? 'Admin' }}</div>
+                <div><strong>{{ __('receipt.payment_method') }}</strong> {{ $order->PaymentType }}</div>
+                <div><strong>{{ __('receipt.status') }}</strong> <span
                         class="{{ $debt > 0 ? 'text-danger fw-bold' : '' }}">{{ $order->Status }}</span></div>
             </div>
         </div>
@@ -66,61 +66,78 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">#</th>
-                    <th style="width: 45%; text-align: left;">ការពិពណ៌នា (ទំនិញ)</th>
-                    <th style="width: 15%;">ចំនួន</th>
-                    <th style="width: 17%;">តម្លៃឯកតា</th>
-                    <th style="width: 18%;">សរុប</th>
+                    <th class="receipt-table-col-1">#</th>
+                    <th class="receipt-table-col-2">{{ __('receipt.description') }}</th>
+                    <th class="receipt-table-col-3">{{ __('receipt.qty') }}</th>
+                    <th class="receipt-table-col-4">{{ __('receipt.unit_price') }}</th>
+                    <th class="receipt-table-col-5">{{ __('receipt.tax_percent') }}</th>
+                    <th class="receipt-table-col-6">{{ __('receipt.tax') }}</th>
+                    <th class="receipt-table-col-7">{{ __('receipt.total') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($order->details as $index => $detail)
                     <tr class="{{ $loop->last ? 'last-row' : '' }}">
-                        <td class="text-center" style="vertical-align: top;">{{ $index + 1 }}</td>
+                        <td class="text-center receipt-cell-top">{{ $index + 1 }}</td>
                         <td class="text-start">
                             {{ $detail->product->Name }}
                             @if ($detail->product && $detail->product->attributes->isNotEmpty())
-                                <div style="font-size: 11px; color: #666;">{{ $detail->product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}</div>
+                                <div class="receipt-detail-meta">{{ $detail->product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}</div>
                             @endif
                         </td>
                         <td class="text-center">{{ $detail->Quantity }}</td>
-                        <td class="text-center">${{ number_format($detail->Quantity > 0 ? $detail->Subtotal / $detail->Quantity : 0, 2) }}</td>
+                        <td class="text-center">${{ number_format($detail->unit_price, 2) }}</td>
+                        <td class="text-center">{{ number_format($detail->tax_rate, 2) }}%</td>
+                        <td class="text-end">${{ number_format($detail->tax_amount, 2) }}</td>
                         <td class="text-end">${{ number_format($detail->Subtotal, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
+        @php
+            $totalTax = $order->TotalTax && $order->TotalTax > 0 ? $order->TotalTax : $order->details->sum(fn($detail) => $detail->tax_amount);
+            $subtotalWithoutTax = $order->TotalAmount - $totalTax;
+        @endphp
+
         {{-- ── Totals ── --}}
         <div class="summary-container">
             <div class="notes-box">
-                <div class="fw-bold text-uppercase" style="font-size: 10px;">កំណត់ចំណាំ:</div>
+                <div class="fw-bold text-uppercase receipt-meta-title">{{ __('receipt.notes') }}</div>
                 <div class="notes-box-inner">
                     @if ($debt > 0)
-                        <span class="text-danger fw-bold">*** វិក្កយបត្រនេះមិនទាន់បង់ប្រាក់ពេញលេញទេ ***</span>
+                        <span class="text-danger fw-bold">{{ __('receipt.unpaid_warning') }}</span>
                     @else
-                        <span>បានទូទាត់រួចរាល់។ សូមអរគុណ!</span>
+                        <span>{{ __('receipt.paid_thanks') }}</span>
                     @endif
                 </div>
             </div>
 
             <table class="totals-table">
                 <tr>
-                    <td class="label">សរុបរង</td>
+                    <td class="label">{{ __('receipt.subtotal') }}</td>
+                    <td class="text-end">${{ number_format($subtotalWithoutTax, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">{{ __('receipt.total_tax') }}</td>
+                    <td class="text-end">${{ number_format($totalTax, 2) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">{{ __('receipt.total_amount') }}</td>
                     <td class="text-end">${{ number_format($order->TotalAmount, 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="label">បានបង់សរុប</td>
+                    <td class="label">{{ __('receipt.total_paid') }}</td>
                     <td class="text-end">${{ number_format($actualPaidToBill, 2) }}</td>
                 </tr>
                 @if ($debt > 0)
                     <tr>
-                        <td class="label text-danger">ប្រាក់ជំពាក់នៅសល់</td>
+                        <td class="label text-danger">{{ __('receipt.remaining_debt') }}</td>
                         <td class="text-end fw-bold text-danger">${{ number_format($debt, 2) }}</td>
                     </tr>
                 @else
                     <tr>
-                        <td class="label">ប្រាក់អាប់</td>
+                        <td class="label">{{ __('receipt.change') }}</td>
                         <td class="text-end">${{ number_format($totalChange, 2) }}</td>
                     </tr>
                 @endif
@@ -130,16 +147,16 @@
         {{-- ── Payment History (shows each payment transaction) ── --}}
         @if ($order->receipts->count() > 0)
             <div class="payment-history">
-                <div class="fw-bold text-uppercase" style="font-size: 10px; margin-bottom: 5px;">ប្រវត្តិការបង់ប្រាក់:</div>
+                <div class="fw-bold text-uppercase receipt-meta-title">{{ __('receipt.payment_history') }}</div>
                 <table class="payment-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>លេខបង្កាន់ដៃ</th>
-                            <th>វិធី</th>
-                            <th>កាលបរិច្ឆេទ</th>
-                            <th>ប្រាក់បង់</th>
-                            <th>ប្រាក់អាប់</th>
+                            <th>{{ __('receipt.receipt_no') }}</th>
+                            <th>{{ __('receipt.method') }}</th>
+                            <th>{{ __('receipt.date') }}</th>
+                            <th class="text-end">{{ __('receipt.paid') }}</th>
+                            <th class="text-end">{{ __('receipt.change_col') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -159,14 +176,13 @@
         @endif
 
         <div class="footer-thanks">
-            សូមអរគុណសម្រាប់អាជីវកម្មរបស់អ្នក! <br>
-            <span style="font-weight: normal; font-size: 10px;">សូមអរគុណសម្រាប់ការទិញទំនិញជាមួយយើង!</span>
+            {{ __('receipt.footer_thanks') }} <br>
+            <span class="receipt-footer-note">{{ __('receipt.footer_thanks') }}</span>
         </div>
 
-        <div class="text-center mt-2 no-print" style="margin-top: 20px;">
-            <button onclick="window.print()"
-                style="padding: 8px 16px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-                បោះពុម្ពវិក្កយបត្រ
+        <div class="text-center mt-2 no-print receipt-print-wrapper">
+            <button onclick="window.print()" class="receipt-print-btn">
+                {{ __('receipt.print_button') }}
             </button>
         </div>
 

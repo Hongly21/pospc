@@ -2,11 +2,13 @@
 
 @section('title', __('New Purchase (Stock-In)'))
 
-@section('content') 
+@section('content')
     <form action="{{ route('purchases.store') }}" method="POST">
         @csrf
+        @include('partials.alerts')
+
         <div class="card shadow mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="m-0 fw-bold">{{ __('New Purchase (Stock-In)') }}</h5>
 
                 <a href="{{ route('purchases.index') }}" class="btn btn-sm btn-outline-primary">
@@ -18,7 +20,7 @@
                     <div class="col-md-6">
                         {{-- choose supplier --}}
                         <label class="fw-bold mb-2">{{ __('Supplier') }}</label>
-                        <select name="SupplierID" class="form-select" required>
+                        <select name="SupplierID" class="form-select searchable-select" required>
                             <option value=""> {{ __('Select Supplier') }} </option>
                             @foreach ($suppliers as $s)
                                 <option value="{{ $s->SupplierID }}">{{ $s->Name }}</option>
@@ -48,9 +50,9 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>
-                                    <select name="items[0][product_id]" class="form-select product-select" required
-                                        onchange="updatePrice(this)">
+                                <td data-label="{{ __('Product') }}">
+                                    <select name="items[0][product_id]" class="form-select product-select searchable-select" 
+                                        required onchange="updatePrice(this)">
                                         <option value="">{{ __('Select Product') }}</option>
 
                                         @foreach ($products as $p)
@@ -66,18 +68,23 @@
                                             @endphp
 
                                             <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}">
-                                                {{ $p->Name }} @if($p->attributes->isNotEmpty()) ({{ $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}) @endif - {{ $statusText }} ({{ __('Qty') }}: {{ $qty }})
+                                                {{ $p->Name }} @if ($p->attributes->isNotEmpty())
+                                                    ({{ $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }})
+                                                @endif - {{ $statusText }} ({{ __('Qty') }}:
+                                                {{ $qty }})
                                             </option>
                                         @endforeach
                                     </select>
                                 </td>
-                                <td><input type="number" name="items[0][cost]" step="0.01" class="form-control cost-input"
-                                        oninput="calcRow(this)" required></td>
-                                <td><input type="number" name="items[0][quantity]" class="form-control qty-input"
-                                        oninput="calcRow(this)" required></td>
-                                <td><input type="text" class="form-control subtotal-display" readonly></td>
-                                <td>
-                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row">
+                                <td data-label="{{ __('Cost') }} ($)"><input type="number" name="items[0][cost]"
+                                        step="0.01" class="form-control cost-input" oninput="calcRow(this)" required>
+                                </td>
+                                <td data-label="{{ __('Quantity') }}"><input type="number" name="items[0][quantity]"
+                                        class="form-control qty-input" oninput="calcRow(this)" required></td>
+                                <td data-label="{{ __('Subtotal') }} ($)"><input type="text"
+                                        class="form-control subtotal-display" readonly></td>
+                                <td class="action-cell">
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row w-100">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -93,25 +100,129 @@
 
         <div class="text-end mb-5">
             <h3 class="fw-bold">{{ __('Total') }}: $<span id="grandTotal">0.00</span></h3>
-            <button type="submit" class="btn btn-success px-4 py-2 mt-2 shadow-sm">
+            <button type="submit" class="btn btn-success px-4 py-2 mt-2 shadow-sm purchase-submit-btn">
                 <i class="fas fa-check-circle me-1"></i> {{ __('Confirm Purchase & Add Stock') }}
             </button>
         </div>
     </form>
 
+    <style>
+        @media (max-width: 768px) {
+            #purchaseTable thead {
+                display: none;
+            }
+
+            #purchaseTable,
+            #purchaseTable tbody,
+            #purchaseTable tr,
+            #purchaseTable td {
+                display: block;
+                width: 100%;
+            }
+
+            #purchaseTable tr {
+                border: 1px solid var(--border-color, #dee2e6);
+                border-radius: 10px;
+                margin-bottom: 0.85rem;
+                /* background: #fff; */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                padding: 0.75rem;
+            }
+
+            #purchaseTable td {
+                border: 0 !important;
+                padding: 0.35rem 0;
+            }
+
+            #purchaseTable td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.8rem;
+                font-weight: 700;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+            }
+
+            #purchaseTable td.action-cell::before {
+                display: none;
+            }
+
+            #purchaseTable .remove-row {
+                margin-top: 0.2rem;
+            }
+
+            #addRow,
+            .purchase-submit-btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-        // No changes needed to JS logic, it uses the cloned HTML which is already localized!
         let rowIdx = 1;
+
+        /**
+         * Initialize searchable search on a select element
+         */
+        function initSearch(element) {
+            let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
+            $(element).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: placeholderText.trim(),
+                dropdownParent: $(element).parent() // Ensures dropdown moves with the row
+            });
+        }
+
+        // Initial setup for the first row
+        $(document).ready(function() {
+            $('.searchable-select').each(function() {
+                initSearch(this);
+            });
+        });
+
         document.getElementById('addRow').addEventListener('click', function() {
             let table = document.getElementById('purchaseTable').getElementsByTagName('tbody')[0];
             let firstRow = table.rows[0];
+
+            // 1. Clone the row
             let newRow = firstRow.cloneNode(true);
 
-            newRow.innerHTML = newRow.innerHTML.replace(/items\[0\]/g, `items[${rowIdx}]`);
-            let inputs = newRow.getElementsByTagName('input');
-            for (let input of inputs) { input.value = ''; }
+            // 2. Cleanup Select2 artifacts from the clone before appending
+            $(newRow).find('.select2-container').remove();
+            let select = $(newRow).find('.product-select');
 
+            // 3. Reset Select2 internal states
+            select.removeClass('select2-hidden-accessible')
+                .removeAttr('data-select2-id')
+                .removeAttr('aria-hidden')
+                .show();
+
+            // 4. Update the name attribute with correct index
+            newRow.innerHTML = newRow.innerHTML.replace(/items\[0\]/g, `items[${rowIdx}]`);
+
+            // 5. Reset inputs
+            let inputs = newRow.getElementsByTagName('input');
+            for (let input of inputs) {
+                input.value = '';
+            }
+
+            // 6. Reset select value
+            $(newRow).find('select').val('');
+
+            // 7. Append to table
             table.appendChild(newRow);
+
+            // 8. Re-initialize search for the new row
+            initSearch($(newRow).find('.product-select'));
+
             rowIdx++;
         });
 

@@ -50,7 +50,7 @@
                         <label for="password" class="form-label text-uppercase">{{ __('auth.password_label') }}</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password" class="form-control" autocomplete="current-password" required>
-                            <span class="input-group-text toggle-password" onclick="togglePassword()" style="cursor: pointer;">
+                            <span class="input-group-text toggle-password" onclick="togglePassword()">
                                 <i class="fas fa-eye" id="toggleIcon"></i>
                             </span>
                         </div>
@@ -63,7 +63,7 @@
                                 {{ __('auth.remember_me') }}
                             </label>
                         </div>
-                        <a href="{{ route('password.request') }}" class="small fw-bold text-decoration-none" style="color: var(--primary);">
+                        <a href="{{ route('password.request') }}" class="small fw-bold text-decoration-none text-primary auth-link-primary">
                             {{ __('auth.forgot_password') }}
                         </a>
                     </div>
@@ -75,7 +75,7 @@
 
                 <div class="text-center mt-4">
                     <span class="text-muted small">{{ __('auth.no_account') }}</span>
-                    <a href="{{ route('register') }}" class="fw-bold text-decoration-none ms-1" style="color: var(--bg-dark);">
+                    <a href="{{ route('register') }}" class="fw-bold text-decoration-none ms-1 text-dark auth-link-dark">
                         {{ __('auth.create_account_link') }}
                     </a>
                 </div>

@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('Username', 50);
             $table->string('Email', 100)->unique();
             $table->string('PasswordHash', 255); // Matches diagram (not 'password')
-            $table->string('Role', 20);
             $table->string('PhoneNumber', 20)->nullable();
             $table->string('UserImage', 255)->nullable();
 
@@ -44,7 +43,8 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->foreign('user_id')->references('UserID')->on('users')->nullOnDelete();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

@@ -50,6 +50,7 @@
                         <tr>
                             <th class="ps-3 py-3">{{ __('categories.tbl_id') }}</th>
                             <th class="py-3">{{ __('categories.tbl_name') }}</th>
+                            <th class="py-3">{{ __('categories.tbl_tax') }}</th>
                             <th class="text-center py-3">{{ __('categories.tbl_status') }}</th>
                             <th class="text-end pe-3 py-3">{{ __('categories.tbl_actions') }}</th>
                         </tr>
@@ -59,6 +60,14 @@
                             <tr>
                                 <td class="ps-3 text-muted fw-medium">#{{ $category->CategoryID }}</td>
                                 <td class="fw-bold text-dark">{{ $category->Name }}</td>
+                                <td>
+                                    @if ($category->tax)
+                                        <div class="fw-bold text-dark">{{ $category->tax->Name }}</div>
+                                        <small class="text-muted">{{ number_format($category->tax->Rate, 2) }}%</small>
+                                    @else
+                                        <span class="text-secondary">{{ __('categories.no_tax') }}</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     @if ($category->status == 1)
                                         <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1"><i class="fas fa-check-circle me-1"></i> {{ __('categories.status_active') }}</span>
@@ -115,6 +124,18 @@
                                                         @error('Name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
+                                                    </div>
+                                                    <div class="col-12 col-md-6">
+                                                        <label
+                                                            class="form-label small fw-bold text-muted">{{ __('categories.lbl_tax') }}</label>
+                                                        <select name="TaxID" class="form-select">
+                                                            <option value="">{{ __('categories.select_tax') }}</option>
+                                                            @foreach ($taxes as $tax)
+                                                                <option value="{{ $tax->TaxID }}" {{ $category->TaxID == $tax->TaxID ? 'selected' : '' }}>
+                                                                    {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label
@@ -178,6 +199,17 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">{{ __('categories.lbl_tax') }}</label>
+                                <select name="TaxID" class="form-select">
+                                    <option value="">{{ __('categories.select_tax') }}</option>
+                                    @foreach ($taxes as $tax)
+                                        <option value="{{ $tax->TaxID }}" {{ old('TaxID') == $tax->TaxID ? 'selected' : '' }}>
+                                            {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer bg-light border-top-0">
@@ -190,7 +222,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const deleteButtons = document.querySelectorAll('.btn-delete');

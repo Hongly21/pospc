@@ -134,6 +134,38 @@ body {
     box-shadow: none;
 }
 
+.toggle-password,
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.auth-fullscreen {
+    min-height: 100vh;
+}
+
+.auth-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+}
+
+.auth-title-dark {
+    color: var(--bg-dark);
+}
+
+.auth-link-primary {
+    color: var(--primary);
+}
+
+.auth-link-dark {
+    color: var(--bg-dark);
+}
+
+.otp-input {
+    letter-spacing: 0.4em;
+    font-size: 1.5rem;
+}
+
 /* --- Buttons --- */
 .btn-primary {
     background-color: var(--primary);

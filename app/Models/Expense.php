@@ -18,6 +18,10 @@ class Expense extends Model
         'user_id'
     ];
 
+    protected $dates = [
+        'expense_date'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'UserID');

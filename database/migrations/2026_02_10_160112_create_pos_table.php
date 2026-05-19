@@ -18,16 +18,19 @@ return new class extends Migration
             $table->enum('Status', ['Pending', 'Paid', 'Cancelled', 'Partial', 'Unpaid'])->default('Paid');
 
             $table->decimal('TotalAmount', 10, 2);
+
+            // NEW: To store the grand total of all tax on this specific order
+            $table->decimal('TotalTax', 10, 2)->default(0.00);
+
             $table->enum('PaymentType', ['Cash', 'QR', 'Card']);
 
             $table->foreignId('UserID')->constrained('users', 'UserID');
             $table->unsignedBigInteger('CustomerID')->nullable();
-            $table->foreign('CustomerID')->references('CustomerID')->on('customers')->onDelete('cascade');
+            $table->foreign('CustomerID')->references('CustomerID')->on('customers')->nullOnDelete();
             $table->timestamps();
         });
 
         Schema::create('orderdetails', function (Blueprint $table) {
-
             $table->id('OrderDetailID'); // Primary Key
 
             // Link to Order
@@ -38,12 +41,18 @@ return new class extends Migration
             $table->integer('Quantity');
             $table->decimal('Subtotal', 10, 2);
 
+            // NEW: To freeze the exact amount of tax money paid for this item
+            $table->decimal('TaxAmount', 10, 2)->default(0.00);
+
+            // NEW: To freeze the exact percentage rate (e.g. 10.00 or 5.00) at the time of sale
+            $table->decimal('TaxRate', 5, 2)->default(0.00);
+
             $table->timestamps();
         });
 
         Schema::create('receipts', function (Blueprint $table) {
             $table->id('ReceiptID');
-            $table->foreignId('OrderID')->constrained('orders', 'OrderID');
+            $table->foreignId('OrderID')->constrained('orders', 'OrderID')->onDelete('cascade');
             $table->string('ReceiptNo', 50)->unique();
             $table->enum('PaymentMethod', ['Cash', 'QR', 'Card']);
             $table->decimal('PaidAmount', 10, 2);

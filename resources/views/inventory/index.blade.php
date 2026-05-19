@@ -4,7 +4,7 @@
 
 @section('content')
     @include('partials.alerts')
- 
+
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white border-bottom pt-3 pb-3 d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold text-dark">
@@ -46,7 +46,7 @@
 
                     @if (request()->filled('search') || request()->filled('CategoryID'))
                         <a href="{{ route('inventory.index') }}" class="btn btn-sm btn-outline-secondary px-3">
-                            <i class="fas fa-sync-alt"></i> {{ __('inventory.clear_button') }}
+                            <i class="fas fa-sync-alt"></i>
                         </a>
                     @endif
                 </div>
@@ -74,7 +74,7 @@
                                                 class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48"
                                                 alt="{{ $product->Name }}">
                                         @else
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light" style="width: 48px; height: 48px;">
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light square-48">
                                                 <i class="fas fa-box text-secondary fs-5"></i>
                                             </div>
                                         @endif

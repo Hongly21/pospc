@@ -4,7 +4,7 @@
 
 @section('content')
     @include('partials.alerts')
-    <div class="row justify-content-center"> 
+    <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
@@ -19,16 +19,14 @@
                         <div class="text-center mb-4">
                             @if ($user->UserImage)
                                 <img src="{{ asset('storage/' . $user->UserImage) }}" alt="Profile Picture"
-                                    class="rounded-circle mb-2"
-                                    style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #4e73df;">
+                                    class="rounded-circle mb-2 profile-avatar">
                             @else
-                                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2"
-                                    style="width: 120px; height: 120px; border: 3px solid #4e73df;">
-                                    <i class="fas fa-user text-white fa-3x"></i>
+                                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2 profile-avatar-placeholder">
+                                    {{ strtoupper(substr($user->Username, 0, 1)) }}
                                 </div>
                             @endif
                             <div class="mt-2">
-                                <label for="imageUpload" class="btn btn-sm btn-outline-primary" style="cursor: pointer;">
+                                <label for="imageUpload" class="btn btn-sm btn-outline-primary cursor-pointer">
                                     <i class="fas fa-camera me-1"></i> {{ __('profile.change_photo') }}
                                 </label>
                                 <input type="file" name="user_image" id="imageUpload" class="d-none" accept="image/*">
@@ -84,25 +82,24 @@
     </div>
 
     <script>
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
-            if (e.target.files.length > 0) {
-                Toast.fire({
-                    icon: "success",
-                    text: "{{ __('profile.image_selected') }}",
-                    title: e.target.files[0].name
-                });
+        // Image preview before upload
+        document.getElementById('imageUpload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imgElement = document.querySelector('.card-body img, .card-body .rounded-circle');
+                    if (imgElement.tagName.toLowerCase() === 'img') {
+                        imgElement.src = e.target.result;
+                    } else {
+                        imgElement.style.backgroundImage = `url(${e.target.result})`;
+                        imgElement.textContent = '';
+                    }
+                };
+                reader.readAsDataURL(file);
             }
         });
+
     </script>
+
 @endsection

@@ -4,14 +4,14 @@
 @section('body-class', 'auth-centered')
 
 @section('content')
-    <main class="container d-flex align-items-center justify-content-center py-5" style="min-height: 100vh;">
+    <main class="container d-flex align-items-center justify-content-center py-5 auth-fullscreen">
         <div class="card p-4 p-md-5 w-100">
 
             <div class="text-center mb-4">
-                <div class="bg-info bg-opacity-10 text-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                <div class="auth-icon-circle bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3">
                     <i class="fas fa-unlock-alt fa-2x"></i>
                 </div>
-                <h3 class="fw-bold" style="color: var(--bg-dark);">{{ __('auth.reset_title') }}</h3>
+                <h3 class="fw-bold auth-title-dark">{{ __('auth.reset_title') }}</h3>
                 <p class="text-muted small px-3">{{ __('auth.reset_subtitle') }}</p>
             </div>
 
@@ -33,8 +33,8 @@
 
                 <div class="mb-4">
                     <label for="otp" class="form-label text-uppercase fw-bold">{{ __('auth.otp_code') }}</label>
-                    <input type="text" name="otp" id="otp" class="form-control form-control-lg text-center fw-bold bg-light"
-                        autocomplete="one-time-code" style="letter-spacing: 8px; font-size: 1.5rem;" required autofocus>
+                    <input type="text" name="otp" id="otp" class="form-control form-control-lg text-center fw-bold bg-light otp-input"
+                        autocomplete="one-time-code" required autofocus>
                 </div>
 
                 <div class="mb-3">

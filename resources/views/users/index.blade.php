@@ -71,10 +71,13 @@
                                 <td class="ps-3 text-muted fw-medium">#{{ $row->UserID }}</td>
                                 <td>
                                     <div class="d-flex align-items-center py-1">
-                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border border-primary-subtle"
-                                            style="width: 40px; height: 40px; font-weight:bold;">
-                                            {{ strtoupper(substr($row->Username, 0, 1)) }}
-                                        </div>
+                                        @if ($row->UserImage)
+                                            <img src="{{ asset('storage/' . $row->UserImage) }}" alt="User Image" class="rounded-circle me-3 shadow-sm border border-primary-subtle user-avatar-sm object-fit-cover">
+                                        @else
+                                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border border-primary-subtle user-avatar-placeholder-sm fw-bold">
+                                                {{ strtoupper(substr($row->Username, 0, 1)) }}
+                                            </div>
+                                        @endif
                                         <div>
                                             <div class="fw-bold text-dark mb-1">{{ $row->Username }}</div>
                                             <div class="small text-muted">{{ $row->Email }}</div>
@@ -113,7 +116,7 @@
                                     @else
                                         <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2 py-1"><i class="fas fa-clock me-1"></i> {{ __('pending') }}</span>
                                     @endif
-                                    
+
                                     @if ($row->Status == 'Pending')
                                         <div class="ms-2 d-inline-block">
                                             <a href="{{ route('users.approve', $row->UserID) }}"
@@ -186,7 +189,7 @@
                                                     <div class="input-group">
                                                         <input type="password" class="form-control border-end-0" name="password"
                                                             id="edit-password-{{ $row->UserID }}" placeholder="{{ __('leave_blank') }}">
-                                                        <span class="input-group-text bg-white" onclick="toggleField('edit-password-{{ $row->UserID }}', 'edit-pwd-icon-{{ $row->UserID }}')" style="cursor: pointer;">
+                                                        <span class="input-group-text bg-white cursor-pointer" onclick="toggleField('edit-password-{{ $row->UserID }}', 'edit-pwd-icon-{{ $row->UserID }}')">
                                                             <i class="fas fa-eye text-muted" id="edit-pwd-icon-{{ $row->UserID }}"></i>
                                                         </span>
                                                     </div>
@@ -216,7 +219,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="mt-4">
                 {{-- User pagination if exists --}}
                 @if(method_exists($users, 'links'))
@@ -250,11 +253,11 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('new_password') }} <span
                                         class="text-danger">*</span></label>
-                                <div class="form-text small mt-0 mb-1 text-muted">{{ __('password_requirements') }}</div>
+                                {{-- <div class="form-text small mt-0 mb-1 text-muted">{{ __('password_requirements') }}</div> --}}
                                 <div class="input-group">
                                     <input type="password" class="form-control border-end-0" id="add_password" required>
                                     <span class="input-group-text bg-white"
-                                        onclick="toggleField('add_password', 'add-pwd-icon')" style="cursor: pointer;">
+                                        onclick="toggleField('add_password', 'add-pwd-icon')" class="cursor-pointer">
                                         <i class="fas fa-eye text-muted" id="add-pwd-icon"></i>
                                     </span>
                                 </div>
@@ -262,13 +265,13 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('confirm_password') }} <span
                                         class="text-danger">*</span></label>
-                                <div class="form-text small mt-0 mb-1 text-muted">&nbsp;</div>
+                                {{-- <div class="form-text small mt-0 mb-1 text-muted">&nbsp;</div> --}}
                                 <div class="input-group">
                                     <input type="password" class="form-control border-end-0"
                                         id="add_password_confirmation" required>
                                     <span class="input-group-text bg-white"
                                         onclick="toggleField('add_password_confirmation', 'add-pwd-confirm-icon')"
-                                        style="cursor: pointer;">
+                                        class="cursor-pointer">
                                         <i class="fas fa-eye text-muted" id="add-pwd-confirm-icon"></i>
                                     </span>
                                 </div>

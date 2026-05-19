@@ -46,8 +46,8 @@
 #chat-window {
     position: fixed;
     right: 24px;
-    bottom: 98px;
-    width: 370px;
+    bottom: 24px;
+    width: min(370px, calc(100vw - 48px));
     max-width: calc(100vw - 24px);
     border: 1px solid var(--chat-border);
     border-radius: 18px;
@@ -82,12 +82,13 @@
 }
 
 #chat-window #close-chat:hover {
-    background-color: rgba(255, 255, 255, 0.18);
-    opacity: 1;
+    background-color: rgba(196, 11, 11, 0.18);
+    /* opacity: 1; */
 }
 
 #chat-content {
-    height: 360px !important;
+    max-height: min(360px, 60vh) !important;
+    height: auto !important;
     padding: 1rem;
     overflow-y: auto;
     background: linear-gradient(180deg, #f7f9fd 0%, #f1f5fb 100%) !important;
@@ -132,7 +133,7 @@
     font-size: 0.93rem;
     line-height: 1.45;
     word-wrap: break-word;
-    white-space: pre-wrap;
+    /* white-space: pre-wrap; */
 }
 
 .message-ai > div {
@@ -254,7 +255,7 @@
     #chat-window {
         right: 12px;
         left: 12px;
-        bottom: 80px;
+        bottom: 24px;
         width: auto;
         max-width: none;
     }

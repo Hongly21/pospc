@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <select name="CategoryID" class="form-select form-select-sm bg-light">
+                    <select name="CategoryID" class="form-select form-select-sm bg-light searchable-select">
                         <option value="">{{ __('products.filter_all_categories') }}</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->CategoryID }}"
@@ -64,6 +64,7 @@
                             <th class="ps-3 py-3">{{ __('products.tbl_id') }}</th>
                             <th class="py-3">{{ __('products.tbl_image_name') }}</th>
                             <th class="py-3">{{ __('products.tbl_category') }}</th>
+                            <th class="py-3">{{ __('products.tbl_tax') }}</th>
                             <th class="py-3">{{ __('products.tbl_price') }}</th>
                             <th class="py-3">{{ __('products.tbl_stock') }}</th>
                             <th class="text-center py-3">{{ __('products.tbl_status') }}</th>
@@ -81,7 +82,7 @@
                                                 class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48" alt="{{ $product->Name }}">
                                         @else
                                             <div
-                                                class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light" style="width: 48px; height: 48px;">
+                                                class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light square-48">
                                                 <i class="fas fa-box text-secondary fs-5"></i>
                                             </div>
                                         @endif
@@ -90,7 +91,7 @@
                                             @if ($product->attributes->isNotEmpty())
                                                 <div class="d-flex flex-wrap gap-1 mt-1">
                                                     @foreach ($product->attributes as $attribute)
-                                                        <span class="badge bg-light text-secondary border border-secondary-subtle fw-normal px-2 py-1" style="font-size: 0.7rem;">
+                                                        <span class="badge bg-light text-secondary border border-secondary-subtle fw-normal px-2 py-1 badge-small">
                                                             {{ $attribute->AttributeName }}: <span class="text-dark fw-medium">{{ $attribute->AttributeValue }}</span>
                                                         </span>
                                                     @endforeach
@@ -100,6 +101,17 @@
                                     </div>
                                 </td>
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1">{{ $product->category->Name ?? __('products.uncategorized') }}</span></td>
+                                <td>
+                                    @if ($product->tax)
+                                        <div class="fw-bold text-dark">{{ $product->tax->Name }}</div>
+                                        <small class="text-muted">{{ number_format($product->tax->Rate, 2) }}%</small>
+                                    @elseif ($product->category?->tax)
+                                        <div class="fw-bold text-dark">{{ $product->category->tax->Name }}</div>
+                                        <small class="text-muted">{{ number_format($product->category->tax->Rate, 2) }}%</small>
+                                    @else
+                                        <span class="text-secondary">{{ __('products.no_tax') }}</span>
+                                    @endif
+                                </td>
                                 <td class="fw-medium text-success">${{ number_format($product->SellPrice, 2) }}</td>
                                 <td>
                                     <span
@@ -171,12 +183,24 @@
                                                     <div class="col-12 col-md-6">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }}</label>
-                                                        <select name="CategoryID" class="form-select"
+                                                        <select name="CategoryID" class="form-select searchable-select"
                                                             required>
                                                             @foreach ($categories as $cat)
                                                                 <option value="{{ $cat->CategoryID }}"
                                                                     {{ $product->CategoryID == $cat->CategoryID ? 'selected' : '' }}>
                                                                     {{ $cat->Name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="form-label small fw-bold text-muted">{{ __('products.lbl_tax') }}</label>
+                                                        <select name="TaxID" class="form-select">
+                                                            <option value="">{{ __('products.select_tax') }}</option>
+                                                            @foreach ($taxes as $tax)
+                                                                <option value="{{ $tax->TaxID }}" {{ $product->TaxID == $tax->TaxID ? 'selected' : '' }}>
+                                                                    {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -222,9 +246,11 @@
                                                     <div class="col-6 col-md-6">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_barcode') }}</label>
-                                                        <input type="text" name="Barcode"
+                                                        <input type="text"
                                                             class="form-control"
-                                                            value="{{ $product->Barcode }}">
+                                                            value="{{ $product->Barcode }}"
+                                                            disabled>
+                                                        <small class="text-muted">Barcode cannot be changed after creation.</small>
                                                     </div>
 
                                                     <div class="col-6 col-md-6">
@@ -286,7 +312,7 @@
                                                                             </div>
                                                                             <div class="col-2 text-end">
                                                                                 <button type="button"
-                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt" style="pointer-events: none;"></i></button>
+                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
                                                                             </div>
                                                                         </div>
                                                                     @empty
@@ -303,7 +329,7 @@
                                                                             </div>
                                                                             <div class="col-2 text-end">
                                                                                 <button type="button"
-                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt" style="pointer-events: none;"></i></button>
+                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
                                                                             </div>
                                                                         </div>
                                                                     @endforelse
@@ -326,11 +352,10 @@
                             </div>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-muted bg-white">
+                                <td colspan="8" class="text-center py-5 text-muted bg-white">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i>
                                         <h5 class="fw-medium text-dark">{{ __('products.no_data') }}</h5>
-                                        <p class="text-muted small mb-0">{{ __('products.no_data_desc') ?? 'No products found matching your criteria.' }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -368,12 +393,24 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }} <span
                                         class="text-danger">*</span></label>
-                                <select name="CategoryID" class="form-select" required>
+                                <select name="CategoryID" class="form-select searchable-select" required>
                                     <option value="">{{ __('products.select_category') }}</option>
                                     @foreach ($categories->where('status', 1) as $cat)
                                         <option value="{{ $cat->CategoryID }}"
                                             {{ old('CategoryID') == $cat->CategoryID ? 'selected' : '' }}>
                                             {{ $cat->Name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-muted">{{ __('products.lbl_tax') }}</label>
+                                <select name="TaxID" class="form-select">
+                                    <option value="">{{ __('products.select_tax') }}</option>
+                                    @foreach ($taxes as $tax)
+                                        <option value="{{ $tax->TaxID }}" {{ old('TaxID') == $tax->TaxID ? 'selected' : '' }}>
+                                            {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -415,7 +452,10 @@
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_barcode') }}</label>
                                 <input type="text" name="Barcode"
                                     class="form-control @error('Barcode') is-invalid @enderror"
-                                    value="{{ old('Barcode') }}">
+                                    value="{{ old('Barcode') }}"
+                                    placeholder="Leave blank to auto-generate by category"
+                                >
+                                {{-- <small class="text-muted">Leave blank to auto-generate barcode by category, e.g. LAPT-ABC123.</small> --}}
                                 @error('Barcode')
                                     <div class="invalid-feedback">
                                         {{ __('products.error_barcode_taken') }}
@@ -462,7 +502,7 @@
                                                     </div>
                                                     <div class="col-2 text-end">
                                                         <button type="button"
-                                                            class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt" style="pointer-events: none;"></i></button>
+                                                            class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
                                                     </div>
                                                 </div>
                                             @endfor
@@ -484,8 +524,32 @@
         </div>
     </div>
 
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
+        /**
+         * Initialize searchable search on a select element
+         */
+        function initSearch(element) {
+            let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
+            $(element).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: placeholderText.trim(),
+                dropdownParent: $(element).parent()
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all searchable selects on page load
+            $('.searchable-select').each(function() {
+                initSearch(this);
+            });
+
             const deleteButtons = document.querySelectorAll('.btn-delete');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -518,7 +582,7 @@
                         <input type="text" name="AttributeValue[]" class="form-control form-control-sm bg-light border-0" placeholder="{{ __('products.lbl_attribute_value') }}">
                     </div>
                     <div class="col-2 text-end">
-                        <button type="button" class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt" style="pointer-events: none;"></i></button>
+                        <button type="button" class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
                 return row;

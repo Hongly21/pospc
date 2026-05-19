@@ -3,7 +3,8 @@
 @section('title', __('POS Terminal'))
 
 @section('content')
-    <div class="row h-100">
+    <div class="row h-100 ">
+        {{-- =================== LEFT: PRODUCT GRID =================== --}}
         <div class="col-md-8">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
@@ -16,7 +17,7 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <select name="CategoryID" class="form-select">
+                            <select name="CategoryID" class="form-select searchable-select">
                                 <option value="">{{ __('pos.all_categories') }}</option>
                                 @foreach ($categories as $cat)
                                     <option value="{{ $cat->CategoryID }}"
@@ -31,29 +32,34 @@
                                 class="btn btn-outline-primary px-4 flex-grow-1">{{ __('pos.search_btn') }}</button>
                             @if (request()->filled('search') || request()->filled('CategoryID'))
                                 <a href="{{ route('pos.index') }}" class="btn btn-outline-danger">
-                                    <i class="fas fa-sync-alt"></i> {{ __('pos.clear_btn') }}
+                                    <i class="fas fa-sync-alt"></i>
                                 </a>
                             @endif
                         </div>
                     </form>
                 </div>
-                <div class="card-body overflow-auto" style="height: 70vh;">
+                <div class="card-body overflow-auto pos-scrollable-area">
                     <div class="row g-3" id="productGrid">
                         @foreach ($products as $product)
-                            <div class="col-md-3 col-6 product-card">
+                            <div class="col-6 col-sm-4 col-md-4 col-lg-3 product-card">
                                 <div class="card h-100 border-0 shadow-sm btn-add-cart" style="cursor: pointer;"
                                     data-id="{{ $product->ProductID }}" data-name="{{ $product->Name }}"
                                     data-price="{{ $product->SellPrice }}"
                                     data-stock="{{ $product->inventory->Quantity }}"
+                                    data-tax-rate="{{ $product->tax ? $product->tax->Rate : $product->category->tax->Rate ?? 0 }}"
                                     data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
-                                    <div class="card-body text-center p-2">
+                                    <div class="card-body text-center p-3 p-sm-2">
                                         <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                            class="img-fluid mb-2">
+                                            class="img-fluid mb-2 pos-product-img">
                                         <h6 class="card-title fw-bold">{{ $product->Name }}</h6>
                                         @if ($product->attributes->isNotEmpty())
                                             <small class="text-muted d-block mb-1">
                                                 @foreach ($product->attributes->take(2) as $attribute)
-                                                    <span>{{ $attribute->AttributeName }}: {{ $attribute->AttributeValue }}</span>@if (!$loop->last), @endif
+                                                    <span>{{ $attribute->AttributeName }}:
+                                                        {{ $attribute->AttributeValue }}</span>
+                                                    @if (!$loop->last)
+                                                        ,
+                                                    @endif
                                                 @endforeach
                                                 @if ($product->attributes->count() > 2)
                                                     <span>...</span>
@@ -62,6 +68,10 @@
                                         @endif
                                         <div class="text-primary">{{ __('pos.price') }}:
                                             ${{ number_format($product->SellPrice, 2) }}</div>
+                                        @if ($product->tax || $product->category->tax)
+                                            <small class="text-muted d-block">{{ __('pos.tax_rate') }}:
+                                                {{ number_format($product->tax?->Rate ?? ($product->category->tax?->Rate ?? 0), 2) }}%</small>
+                                        @endif
                                         <small class="text-muted">{{ __('pos.stock') }}:
                                             {{ $product->inventory->Quantity }}</small>
                                     </div>
@@ -72,18 +82,17 @@
                 </div>
             </div>
         </div>
-
         {{-- =================== RIGHT: CART =================== --}}
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-header text-black py-3 fw-bold bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">{{ __('pos.current_order') }}</h5>
                 </div>
-                <div class="card-body p-0 d-flex flex-column" style="height: 70vh;">
+                <div class="card-body p-0 d-flex flex-column pos-cart-body pos-scrollable-area">
                     <div class="p-3 border-bottom bg-light">
                         <label class="small fw-bold text-muted mb-1">{{ __('pos.customer_label') }}</label>
-                        <div class="input-group">
-                            <select class="form-select" id="customer_id">
+                        <div class="input-group flex-nowrap">
+                            <select class="form-select searchable-select" id="customer_id">
                                 <option value="">{{ __('pos.general_customer') }}</option>
                                 @foreach ($customers as $customer)
                                     @if ($customer->has_debt)
@@ -105,7 +114,7 @@
                         </div>
                     </div>
                     <div class="table-responsive flex-grow-1 p-2">
-                        <table class="table align-middle table-hover">
+                        <table class="table align-middle table-hover pos-cart-table  ">
                             <thead class="bg-light small text-muted">
                                 <tr>
                                     <th>{{ __('pos.product_col') }}</th>
@@ -114,7 +123,9 @@
                                     <th width="30"></th>
                                 </tr>
                             </thead>
-                            <tbody id="cartTable"></tbody>
+                            <tbody id="cartTable">
+
+                            </tbody>
                         </table>
                     </div>
                     <div class="bg-white p-3 border-top shadow-sm">
@@ -174,10 +185,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnClosePaymentModal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center mb-4">
+                    {{-- <div class="text-center mb-4">
                         <small class="text-muted text-uppercase fw-bold">{{ __('pos.total_to_pay') }}</small>
                         <h1 class="display-4 fw-bold text-success" id="modalTotalDisplay">$0.00</h1>
-                    </div>
+                    </div> --}}
 
                     {{-- CASH section --}}
                     <div id="cashPaymentSection" class="d-none">
@@ -196,44 +207,46 @@
                     </div>
 
                     {{-- QR / KHQR section --}}
-                    <div id="qrPaymentSection" class="d-none text-center">
-                        {{-- Loading state --}}
-                        <div id="qrLoading" class="py-4">
-                            <div class="spinner-border text-primary mb-3" role="status"></div>
-                            <p class="text-muted">{{ __('pos.generating_qr') }}</p>
-                        </div>
+                    <div id="qrPaymentSection" class="d-none d-flex justify-content-center">
+                        <div class="khqr-card text-center">
+                            <div class="khqr-card-header">
+                                <span class="khqr-brand">KHQR</span>
+                            </div>
+                            <div class="khqr-card-body">
+                                <div id="qrLoading" class="py-5">
+                                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                                    <p class="text-muted mb-0">{{ __('pos.generating_qr') }}</p>
+                                </div>
 
-                        {{-- QR display --}}
-                        <div id="qrDisplay" class="d-none">
-                            <p class="mb-1 fw-bold text-primary">{{ __('pos.scan_khqr_to_pay') }}</p>
-                            <div class="border p-2 rounded shadow-sm d-inline-block mb-2">
-                                <canvas id="qrCanvas"></canvas>
-                            </div>
-                            <p class="text-muted small mb-1">
-                                <span id="qrAccountDisplay"></span>
-                            </p>
-                            {{-- Polling status --}}
-                            <div id="qrWaiting" class="alert alert-info py-2 mb-0">
-                                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                                {{ __('pos.waiting_payment') }} (<span id="qrCountdown">60</span>s)
-                            </div>
-                            <div id="qrPaid" class="alert alert-success py-2 mb-0 d-none">
-                                <i class="fas fa-check-circle me-2"></i> {{ __('pos.payment_success') }}
-                            </div>
-                            <div id="qrExpired" class="alert alert-warning py-2 mb-0 d-none">
-                                QR Code {{ __('pos.qr_expired') }} — <a href="#"
-                                    id="btnRetryQr">{{ __('pos.click_to_regenerate') }}</a>
-                            </div>
-                        </div>
+                                <div id="qrDisplay" class="d-none">
+                                    <p class="text-muted fw-bold  mb-2" style="font-size: 1.5rem; id="qrMerchantName">{{ config('khqr.merchant_name') }}</p>
+                                    {{-- <p class="text-muted fw-bold small mb-1" id="qrMerchantName">{{ config('khqr.merchant_name') }}</p> --}}
+                                    <div class="khqr-amount mb-3 text-dark" id="qrAmountDisplay">$0.00</div>
+                                    <div class="khqr-qr-shell d-inline-block mb-3 p-3 bg-white rounded-4 shadow-sm">
+                                        <canvas id="qrCanvas"></canvas>
+                                    </div>
+                                    {{-- <p class="text-muted small mb-2" id="qrAccountDisplay"></p> --}}
 
-                        {{-- Error --}}
-                        <div id="qrError" class="d-none">
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                <span id="qrErrorMsg">{{ __('pos.cannot_generate_qr') }}</span>
+                                    <div id="qrWaiting" class="khqr-status d-flex align-items-center justify-content-center mx-auto">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                        <span>{{ __('pos.waiting_payment') }} (<span id="qrCountdown">60</span>s)</span>
+                                    </div>
+                                    <div id="qrPaid" class="alert alert-success py-2 mb-0 d-none">
+                                        <i class="fas fa-check-circle me-2"></i> {{ __('pos.payment_success') }}
+                                    </div>
+                                    <div id="qrExpired" class="alert alert-warning py-2 mb-0 d-none">
+                                        QR Code {{ __('pos.qr_expired') }} — <a href="#" id="btnRetryQr">{{ __('pos.click_to_regenerate') }}</a>
+                                    </div>
+                                </div>
+
+                                <div id="qrError" class="d-none">
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <span id="qrErrorMsg">{{ __('pos.cannot_generate_qr') }}</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" id="btnRetryQrError">{{ __('pos.try_again') }}</button>
+                                </div>
                             </div>
-                            <button class="btn btn-sm btn-outline-primary"
-                                id="btnRetryQrError">{{ __('pos.try_again') }}</button>
                         </div>
                     </div>
                 </div>
@@ -248,43 +261,18 @@
         </div>
     </div>
 
-    <style>
-        .click-anim {
-            animation: popClick 0.2s ease-out;
-        }
-        @keyframes popClick {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.92); }
-            100% { transform: scale(1); }
-        }
-        .cart-row-anim {
-            animation: highlightRow 0.6s ease-out;
-        }
-        @keyframes highlightRow {
-            0% { background-color: rgba(13, 110, 253, 0.2); transform: translateX(-5px); }
-            50% { background-color: rgba(13, 110, 253, 0.1); transform: translateX(0); }
-            100% { background-color: transparent; }
-        }
-        .cart-row-anim td {
-            transition: all 0.3s;
-        }
-        .shake-anim {
-            animation: shakeCard 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        @keyframes shakeCard {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-    </style>
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {{-- QR code renderer (qrcode.js) --}}
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
+        {{-- QR code renderer (qrcode.js) --}}
+        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+
+        <script>
         $(document).ready(function() {
             let cart = [];
             let currentTotal = 0;
@@ -293,6 +281,23 @@
             let qrPollingTimer = null; // setInterval reference
             let qrCountdownTimer = null;
             let qrConfirmed = false; // becomes true once Bakong confirms payment
+
+            /**
+             * Initialize searchable search on a select element
+             */
+            function initSearch(element) {
+                let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
+                $(element).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: placeholderText.trim(),
+                    dropdownParent: $(element).parent()
+                });
+            }
+
+            $('.searchable-select').each(function() {
+                initSearch(this);
+            });
 
             // ─────────────────────────────────────────────────────────
             // Toast helper
@@ -332,27 +337,28 @@
                 let name = card.data("name");
                 let price = parseFloat(card.data("price"));
                 let stock = parseInt(card.data("stock"));
+                let taxRate = parseFloat(card.data("tax-rate")) || 0;
                 let attributes = card.data("attributes");
 
                 lastUpdatedCartId = id; // Track for cart row animation
 
-                if (stock <= 0) {
-                    Toast.fire({
-                        icon: "error",
-                        title: "{{ __('pos.out_of_stock') }}"
-                    });
-                    return;
-                }
+                // if (stock <= 0) {
+                //     Toast.fire({
+                //         icon: "error",
+                //         title: "{{ __('pos.out_of_stock') }}"
+                //     });
+                //     return;
+                // }
 
                 let item = cart.find(i => i.id === id);
                 if (item) {
-                    if (item.qty >= stock) {
-                        Toast.fire({
-                            icon: "warning",
-                            title: `${name} has only stock of ${stock}`
-                        });
-                        return;
-                    }
+                    // if (item.qty >= stock) {
+                    //     Toast.fire({
+                    //         icon: "warning",
+                    //         title: `${name} has only stock of ${stock}`
+                    //     });
+                    //     return;
+                    // }
                     item.qty++;
                 } else {
                     cart.push({
@@ -361,6 +367,7 @@
                         price,
                         qty: 1,
                         stock,
+                        taxRate,
                         attributes
                     });
                 }
@@ -373,21 +380,61 @@
             function renderCart() {
                 let html = "",
                     total = 0;
+
+                const isTabletOrSmaller = window.innerWidth <= 992; // treat <=992px as tablet/mobile
+
                 cart.forEach((item, index) => {
-                    let sub = item.price * item.qty;
+                    let base = item.price * item.qty;
+                    let taxAmount = (base * item.taxRate) / 100;
+                    let sub = base + taxAmount;
                     total += sub;
-                    let attrHtml = item.attributes ? `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` : '';
+                    let attrHtml = item.attributes ?
+                        `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` :
+                        '';
+                    let taxHtml = item.taxRate ?
+                        `<br><small class="text-muted" style="font-size:0.75rem;">Tax: ${item.taxRate.toFixed(2)}% (+$${taxAmount.toFixed(2)})</small>` :
+                        '';
                     let rowClass = (item.id === lastUpdatedCartId) ? 'cart-row-anim' : '';
-                    html += `<tr class="${rowClass}">
-                    <td>${item.name}${attrHtml}<br><small>$${item.price}</small></td>
-                    <td class="text-center">x${item.qty}</td>
-                    <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
-                    <td><button class="btn btn-sm text-danger btn-remove" data-index="${index}">X</button></td>
-                </tr>`;
+
+                    if (isTabletOrSmaller) {
+                        // For tablet/mobile render a single-row card inside a td (keeps markup valid)
+                        html += `<tr class="${rowClass}"><td colspan="4">
+                            <div class="cart-item-card">
+                                <div class="cart-left">
+                                    <div class="fw-bold text-truncate">${item.name}${attrHtml}${taxHtml}</div>
+                                    <div><small>$${item.price}</small></div>
+                                </div>
+                                <div class="cart-right">
+                                    <div class="qty-control-group">
+                                        <button class="qty-btn btn-qty-dec" data-index="${index}" type="button">-</button>
+                                        <span class="qty-display">${item.qty}</span>
+                                        <button class="qty-btn btn-qty-inc" data-index="${index}" type="button">+</button>
+                                    </div>
+                                    <div class="text-end fw-bold">$${sub.toFixed(2)}</div>
+                                    <button class="btn btn-sm text-danger btn-remove" data-index="${index}" type="button"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </td></tr>`;
+                    } else {
+                        // Desktop: keep original table row layout
+                        html += `<tr class="${rowClass}">
+                            <td>${item.name}${attrHtml}${taxHtml}<br><small>$${item.price}</small></td>
+                            <td class="text-center">
+                                <div class="qty-control-group">
+                                    <button class="qty-btn btn-qty-dec" data-index="${index}" type="button">-</button>
+                                    <span class="qty-display">${item.qty}</span>
+                                    <button class="qty-btn btn-qty-inc" data-index="${index}" type="button">+</button>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
+                            <td><button class="btn btn-sm text-danger btn-remove" data-index="${index}" type="button"><i class="fas fa-trash"></i></button></td>
+                        </tr>`;
+                    }
                 });
+
                 $("#cartTable").html(html);
                 $("#cartTotal").text("$" + total.toFixed(2));
-                
+
                 // Clear the tracker so it doesn't animate on deletion
                 lastUpdatedCartId = null;
 
@@ -399,7 +446,7 @@
                     let id = $(this).data("id");
                     let stock = parseInt($(this).data("stock"));
                     let item = cart.find(i => i.id === id);
-                    
+
                     if (item && item.qty >= stock) {
                         // Max stock reached
                         $(this).addClass('disabled-card').css({
@@ -430,8 +477,42 @@
                 renderCart();
             });
 
+            $(document).on("click", ".btn-qty-inc", function() {
+                const index = Number($(this).data("index"));
+                if (Number.isNaN(index) || !cart[index]) return;
+                if (cart[index].qty >= cart[index].stock) {
+                    // Toast.fire({
+                    //     icon: "warning",
+                    //     title: `${cart[index].name} has only stock of ${cart[index].stock}`
+                    // });
+                        Swal.fire("{{ __('pos.warning') }}", `${cart[index].name} {{ __('pos.has_only_stock_of') }} ${cart[index].stock}`, 'warning');
+                    return;
+                }
+                cart[index].qty += 1;
+                renderCart();
+            });
+
+            $(document).on("click", ".btn-qty-dec", function() {
+                const index = Number($(this).data("index"));
+                if (Number.isNaN(index) || !cart[index]) return;
+                if (cart[index].qty <= 1) {
+                    cart.splice(index, 1);
+                } else {
+                    cart[index].qty -= 1;
+                }
+                renderCart();
+            });
+
             // Initial check to disable items that are out of stock on load
             updateProductCards();
+            // Re-render cart when window size changes to adapt layout between breakpoints
+            let _cartResizeTimer = null;
+            $(window).on('resize', function() {
+                clearTimeout(_cartResizeTimer);
+                _cartResizeTimer = setTimeout(function() {
+                    renderCart();
+                }, 150);
+            });
 
             // ─────────────────────────────────────────────────────────
             // Add customer
@@ -440,10 +521,11 @@
                 let name = $('#new_customer_name').val().trim();
                 let phone = $('#new_customer_phone').val().trim();
                 if (!name || !phone) {
-                    Toast.fire({
-                        icon: "warning",
-                        title: "{{ __('pos.fill_all_fields') }}"
-                    });
+                    // Toast.fire({
+                    //     icon: "warning",
+                    //     title: "{{ __('pos.fill_all_fields') }}"
+                    // });
+                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.fill_all_fields') }}", 'warning');
                     return;
                 }
                 $.ajax({
@@ -458,7 +540,7 @@
                         bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'))
                             ?.hide();
                         $('#customer_id').append(new Option(`${res.name} (${res.phone})`, res.id,
-                            true, true));
+                            true, true)).trigger('change');
                         $('#new_customer_name,#new_customer_phone').val('');
                         Toast.fire({
                             icon: "success",
@@ -466,7 +548,8 @@
                         });
                     },
                     error(xhr) {
-                        Swal.fire("{{ __('pos.error') }}", xhr.responseJSON?.message || "{{ __('pos.error') }}", 'error');
+                        Swal.fire("{{ __('pos.error') }}", xhr.responseJSON?.message ||
+                            "{{ __('pos.error') }}", 'error');
                     }
                 });
             });
@@ -495,9 +578,9 @@
             // ─────────────────────────────────────────────────────────
             $("#btnCheckout").click(function() {
                 if (cart.length === 0) {
-                    Toast.fire({
+                    Swal.fire({
                         icon: "warning",
-                        title: "{{ __('pos.no_items') }}"
+                        title: "{{ __('pos.cart_empty') }}"
                     });
                     return;
                 }
@@ -553,6 +636,7 @@
                 qrConfirmed = false;
 
                 // Reset UI
+                $("#qrAmountDisplay").text("$" + amount.toFixed(2));
                 $("#qrLoading").removeClass('d-none');
                 $("#qrDisplay,#qrError").addClass('d-none');
                 $("#qrWaiting").removeClass('d-none');
@@ -584,7 +668,7 @@
             function renderQrCanvas(qrString) {
                 $("#qrLoading").addClass('d-none');
                 $("#qrDisplay").removeClass('d-none');
-                $("#qrAccountDisplay").text("{{ config('khqr.account') }}");
+                // $("#qrAccountDisplay").text("{{ config('khqr.account') }}");
 
                 let canvas = document.getElementById('qrCanvas');
                 QRCode.toCanvas(canvas, qrString, {
@@ -684,9 +768,11 @@
                 }
 
                 if (received < currentTotal && !customerId) {
-                    Toast.fire({
-                        icon: "error",
-                        title: "{{ __('pos.select_customer_for_debt') }}"
+                    Swal.fire({
+                        title: "{{ __('pos.no_customer_debt') }}",
+                        text: "{{ __('pos.select_customer_for_debt') }}",
+                        icon: 'warning',
+                        confirmButtonText: "{{ __('pos.ok') }}"
                     });
                     return;
                 }
@@ -732,7 +818,7 @@
                             bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
                             Swal.fire({
                                 title: "{{ __('pos.success') }}",
-                                text: res.message ,
+                                text: res.message,
                                 icon: 'success',
                                 timer: 2000,
                                 showConfirmButton: false
@@ -748,7 +834,8 @@
                         }
                     },
                     error() {
-                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.something_went_wrong') }}", "error");
+                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.something_went_wrong') }}",
+                            "error");
                         $("#btnConfirmPayment").prop('disabled', false)
                             .html('<i class="fas fa-check me-2"></i> {{ __('pos.confirm') }}');
                     }
@@ -762,4 +849,5 @@
             });
         });
     </script>
+    @endpush
 @endsection
