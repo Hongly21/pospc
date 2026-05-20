@@ -183,31 +183,15 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const form = this.closest('form');
-
-                    Swal.fire({
-                        title: "{{ __('suppliers.delete_confirm') }}",
-                        text: "{{ __('suppliers.delete_text') }}",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "{{ __('suppliers.delete_btn') }}",
-                        cancelButtonText: "{{ __('suppliers.cancel') }}"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
+    @push('scripts')
+        <script>
+            window.suppliersIndexConfig = {
+                swalTitle: "{{ __('suppliers.delete_confirm') }}",
+                swalText: "{{ __('suppliers.delete_text') }}",
+                swalConfirmBtn: "{{ __('suppliers.delete_btn') }}",
+                swalCancelBtn: "{{ __('suppliers.cancel') }}"
+            };
+        </script>
+        <script src="{{ asset('js/pages/suppliers-index.js') }}"></script>
+    @endpush
 @endsection

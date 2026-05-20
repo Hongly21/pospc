@@ -176,63 +176,19 @@
         </div>
     </div>
 
-    <script>
-        function openDebtModal(orderId, remainingDebt, customerName) {
-            $('#debtOrderID').val(orderId);
-            $('#debtCustomerName').text(customerName);
-            $('#debtRemainingAmount').text('$' + parseFloat(remainingDebt).toFixed(2));
-            $('#debtPaidAmount').val('');
-            var myModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
-            myModal.show();
-            setTimeout(() => {
-                $('#debtPaidAmount').focus();
-            }, 500);
-        }
-
-        $('#btnSubmitDebtPayment').click(function() {
-            let orderId = $('#debtOrderID').val();
-            let paidAmount = $('#debtPaidAmount').val();
-            let paymentMethod = $('#debtPaymentMethod').val();
-
-            if (!paidAmount || paidAmount <= 0) {
-                Swal.fire("{{ __('Warning') }}", "{{ __('Please enter a valid amount!') }}", 'warning');
-                return;
-            }
-
-            $(this).prop('disabled', true).html(
-            '<i class="fas fa-spinner fa-spin"></i> {{ __('Processing...') }}');
-
-            $.ajax({
-                url: "/pos/order/" + orderId + "/pay-debt",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    paid_amount: paidAmount,
-                    payment_method: paymentMethod
-                },
-                success: function(res) {
-                    if (res.status === 'success') {
-                        bootstrap.Modal.getInstance(document.getElementById('payDebtModal')).hide();
-                        Swal.fire({
-                            title: "{{ __('Success!') }}",
-                            html: res.message,
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "{{ __('Error') }}",
-                            html: res.message,
-                            icon: 'error'
-                        });
-                        $('#btnSubmitDebtPayment').prop('disabled', false).text(
-                            "{{ __('Confirm Payment') }}");
-                    }
+    @push('scripts')
+        <script>
+            window.posHistoryConfig = {
+                payDebtUrlTemplate: "{{ url('/pos/order/{orderId}/pay-debt') }}",
+                messages: {
+                    invalidAmount: "{{ __('Please enter a valid amount!') }}",
+                    processing: "{{ __('Processing...') }}",
+                    successTitle: "{{ __('Success!') }}",
+                    errorTitle: "{{ __('Error') }}",
+                    confirmBtn: "{{ __('Confirm Payment') }}"
                 }
-            });
-        });
-    </script>
+            };
+        </script>
+        <script src="{{ asset('js/pages/pos-history.js') }}"></script>
+    @endpush
 @endsection

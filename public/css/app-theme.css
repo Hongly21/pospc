@@ -695,7 +695,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.201);
+    /* background-color: rgba(255, 255, 255, 0.201); */
     /* Match the sidebar's transition for a smooth experience when toggling */
     transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, visibility 0.2s ease;
 }
@@ -706,10 +706,10 @@ body {
     left: 84px;
 }
 
-
+/*
 [data-theme="dark"] #global-loader {
     background-color: rgba(15, 23, 42, 0.85);
-}
+} */
 
 .global-loader-spinner {
     width: 3rem;

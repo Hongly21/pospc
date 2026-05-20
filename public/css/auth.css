@@ -31,6 +31,7 @@ body {
     position: relative;
     flex: 1.2;
     display: none; /* Hidden on mobile for responsiveness */
+    background-image: url('/assets/images/bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

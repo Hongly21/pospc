@@ -190,28 +190,15 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: "{{ __('taxes.swal_delete_title') }}",
-                        text: "{{ __('taxes.swal_delete_text') }}",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: "{{ __('taxes.swal_confirm_btn') }}",
-                        cancelButtonText: "{{ __('taxes.swal_cancel_btn') }}"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
+    @push('scripts')
+        <script>
+            window.taxesIndexConfig = {
+                swalTitle: "{{ __('taxes.swal_delete_title') }}",
+                swalText: "{{ __('taxes.swal_delete_text') }}",
+                swalConfirmBtn: "{{ __('taxes.swal_confirm_btn') }}",
+                swalCancelBtn: "{{ __('taxes.swal_cancel_btn') }}"
+            };
+        </script>
+        <script src="{{ asset('js/pages/taxes-index.js') }}"></script>
+    @endpush
 @endsection

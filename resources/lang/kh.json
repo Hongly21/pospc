@@ -185,6 +185,8 @@
     "pos.customer_will_owe": "អតិថិជននឹងជំពាក់",
     "pos.yes_sell_debt": "យល់ព្រម លក់",
     "pos.cancel": "បោះបង់",
+    "Product_Purchases": "ការទិញចូលស្តុក",
+    "Walk-in": "អតិថិជនទូទៅ",
 
     "expenses.msg_created": "បានបញ្ចូលចំណាយដោយជោគជ័យ!",
     "expenses.msg_updated": "បានកែតម្រូវចំណាយដោយជោគជ័យ!",

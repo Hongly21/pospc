@@ -528,141 +528,23 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-        /**
-         * Initialize searchable search on a select element
-         */
-        function initSearch(element) {
-            let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
-            $(element).select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: placeholderText.trim(),
-                dropdownParent: $(element).parent()
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all searchable selects on page load
-            $('.searchable-select').each(function() {
-                initSearch(this);
-            });
-
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: "{{ __('products.swal_delete_title') }}",
-                        text: "{{ __('products.swal_delete_text') }}",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "{{ __('products.swal_confirm_btn') }}",
-                        cancelButtonText: "{{ __('products.swal_cancel_btn') }}"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-
-            const createAttributeRow = () => {
-                const row = document.createElement('div');
-                row.className = 'row g-2 align-items-center mb-2 attribute-row';
-                row.innerHTML = `
-                    <div class="col-5">
-                        <input type="text" name="AttributeName[]" class="form-control form-control-sm bg-light border-0" placeholder="{{ __('products.lbl_attribute_name') }}">
-                    </div>
-                    <div class="col-5">
-                        <input type="text" name="AttributeValue[]" class="form-control form-control-sm bg-light border-0" placeholder="{{ __('products.lbl_attribute_value') }}">
-                    </div>
-                    <div class="col-2 text-end">
-                        <button type="button" class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                `;
-                return row;
-            };
-
-            document.querySelectorAll('.btn-add-attribute').forEach(button => {
-                button.addEventListener('click', function() {
-                    const wrapper = this.closest('.card-body, .col-12, .col-md-12');
-                    const container = wrapper ? wrapper.querySelector('.attribute-rows') : null;
-                    if (!container) return;
-                    container.appendChild(createAttributeRow());
-                });
-            });
-
-            document.addEventListener('click', function(event) {
-                if (!event.target.classList.contains('btn-remove-attribute')) {
-                    return;
-                }
-
-                const container = event.target.closest('.attribute-rows');
-                const rows = container.querySelectorAll('.attribute-row');
-
-                if (rows.length === 1) {
-                    rows[0].querySelectorAll('input').forEach(input => input.value = '');
-                    return;
-                }
-
-                event.target.closest('.attribute-row').remove();
-            });
-
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function() {
-                    const scope = this.closest('.modal-content') || this;
-                    const rows = scope.querySelectorAll('.attribute-rows .attribute-row');
-
-                    if (!rows.length) {
-                        return;
-                    }
-
-                    const attributes = [];
-                    rows.forEach(row => {
-                        const nameInput = row.querySelector('input[name="AttributeName[]"]');
-                        const valueInput = row.querySelector('input[name="AttributeValue[]"]');
-                        const name = (nameInput?.value || '').trim();
-                        const value = (valueInput?.value || '').trim();
-
-                        if (name !== '' || value !== '') {
-                            attributes.push({
-                                name,
-                                value
-                            });
-                        }
-                    });
-
-                    let payloadInput = this.querySelector('input[name="AttributesPayload"]');
-                    if (!payloadInput) {
-                        payloadInput = document.createElement('input');
-                        payloadInput.type = 'hidden';
-                        payloadInput.name = 'AttributesPayload';
-                        this.appendChild(payloadInput);
-                    }
-
-                    payloadInput.value = JSON.stringify(attributes);
-                });
-            });
-        });
-    </script>
-
-
-    @if ($errors->any())
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                // This checks if we just tried to add a product and failed validation
-                // It prevents the Edit modal from accidentally popping open
-                @if (old('Name') && !$errors->has('Status'))
-                    var addModal = new bootstrap.Modal(document.getElementById('addProductModal'));
-                    addModal.show();
-                @endif
-            });
+            window.productsPageConfig = {
+                messages: {
+                    selectPlaceholder: "{{ __('Select') }}",
+                    deleteTitle: "{{ __('products.swal_delete_title') }}",
+                    deleteText: "{{ __('products.swal_delete_text') }}",
+                    deleteConfirmBtn: "{{ __('products.swal_confirm_btn') }}",
+                    deleteCancelBtn: "{{ __('products.swal_cancel_btn') }}",
+                    attributeNamePlaceholder: "{{ __('products.lbl_attribute_name') }}",
+                    attributeValuePlaceholder: "{{ __('products.lbl_attribute_value') }}"
+                },
+                showAddModalOnError: {{ ($errors->any() && old('Name') && !$errors->has('Status')) ? 'true' : 'false' }}
+            };
         </script>
-    @endif
-
+        <script src="{{ asset('js/pages/products-index.js') }}"></script>
+    @endpush
 @endsection

@@ -6,7 +6,7 @@
 
     <main class="login-wrapper">
 
-        <div class="brand-side" style="background-image: url('{{ asset('assets/images/bg.png') }}');">
+        <div class="brand-side">
             <div class="brand-overlay">
                 <i class="fas fa-user-plus fa-3x mb-4 text-info"></i>
                 <h1>{{ __('auth.join_system') }}</h1>
@@ -87,19 +87,7 @@
         </div>
     </main>
 
-    <script>
-        function toggleField(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    </script>
+    @push('scripts')
+        <script src="{{ asset('js/pages/auth-register.js') }}"></script>
+    @endpush
 @endsection

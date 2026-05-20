@@ -7,7 +7,7 @@
     <!-- Semantic <main> tag for SEO -->
     <main class="login-wrapper">
 
-        <div class="brand-side" style="background-image: url('{{ asset('assets/images/bg.png') }}');">
+        <div class="brand-side">
             <div class="brand-overlay">
                 <i class="fas fa-layer-group fa-3x mb-4 text-info"></i>
                 <h1>{{ __('auth.pos_system') }}</h1>
@@ -83,50 +83,16 @@
         </div>
     </main>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function togglePassword() {
-            const input = document.getElementById('password');
-            const icon = document.getElementById('toggleIcon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    </script>
-
-    @if (isset($login_success) && $login_success)
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                let timerInterval;
-                Swal.fire({
-                    title: "Login Successful!",
-                    html: "Loading your dashboard in <b></b> milliseconds.",
-                    icon: "success",
-                    timer: 1500,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                        const timer = Swal.getPopup().querySelector("b");
-                        timerInterval = setInterval(() => {
-                            timer.textContent = `${Swal.getTimerLeft()}`;
-                        }, 100);
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval);
-                    }
-                }).then(() => {
-                    window.location.href = "{!! $redirect_url !!}";
-                });
-            });
+            window.authLoginConfig = {
+                loginSuccess: {{ isset($login_success) && $login_success ? 'true' : 'false' }},
+                redirectUrl: "{{ $redirect_url ?? url('/') }}",
+                successTitle: "Login Successful!",
+                successMessage: "Loading your dashboard in <b></b> milliseconds."
+            };
         </script>
-    @endif
+        <script src="{{ asset('js/pages/auth-login.js') }}"></script>
+    @endpush
 @endsection

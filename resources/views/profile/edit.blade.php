@@ -81,25 +81,8 @@
         </div>
     </div>
 
-    <script>
-        // Image preview before upload
-        document.getElementById('imageUpload').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const imgElement = document.querySelector('.card-body img, .card-body .rounded-circle');
-                    if (imgElement.tagName.toLowerCase() === 'img') {
-                        imgElement.src = e.target.result;
-                    } else {
-                        imgElement.style.backgroundImage = `url(${e.target.result})`;
-                        imgElement.textContent = '';
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-    </script>
+    @push('scripts')
+        <script src="{{ asset('js/pages/profile-edit.js') }}"></script>
+    @endpush
 
 @endsection

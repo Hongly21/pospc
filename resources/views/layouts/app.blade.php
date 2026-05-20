@@ -40,11 +40,6 @@
     <div class="sidebar-backdrop"></div>
 
     <div class="main-content">
-        <div id="global-loader" class="global-loader">
-            <div class="spinner-border text-primary global-loader-spinner" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
         <div class="top-navbar">
             <div class="top-navbar-wrapper">
                 <!-- Left Side: Toggle & Title -->
@@ -201,6 +196,11 @@
 
         <!-- Main Content Area -->
         <main class="content-wrapper">
+            <div id="global-loader" class="global-loader">
+                <div class="spinner-border text-primary global-loader-spinner" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             @yield('content')
         </main>
     </div>
@@ -241,221 +241,27 @@
 
     @stack('scripts')
 
-    <!-- Global Application Scripts -->
     <script>
-        // Desktop Sidebar Toggle Logic
-        window.toggleDesktopSidebar = function() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleIcon = document.querySelector('.sidebar-toggle-btn');
-
-            if (sidebar && mainContent) {
-                sidebar.classList.toggle('mini');
-                mainContent.classList.toggle('expanded');
-                localStorage.setItem(SIDEBAR_STATE_KEY, sidebar.classList.contains('mini') ? 'mini' : 'expanded');
-
-                if (sidebar.classList.contains('mini')) {
-                    if (toggleIcon) {
-                        toggleIcon.classList.remove('fa-angles-left');
-                        toggleIcon.classList.add('fa-angles-right');
-                    }
-                } else {
-                    if (toggleIcon) {
-                        toggleIcon.classList.remove('fa-angles-right');
-                        toggleIcon.classList.add('fa-angles-left');
-                    }
-                }
-            }
+        window.appLayoutConfig = {
+            messages: {
+                aiAssistantLabel: "{{ __('AI Assistant') }}",
+                thinking: "{{ __('Thinking...') }}",
+                chatbotErrorGeneric: "{{ __('Sorry, I could not process that.') }}",
+                chatbotErrorFallback: "{{ __('Sorry, something went wrong. Please try again.') }}"
+            },
+            routes: {
+                chatbot: "{{ route('chatbot.chat') }}"
+            },
+            sidebar: {
+                logoutConfirmTitle: "{{ __('Are you sure you want to logout?') }}",
+                logoutConfirmText: "{{ __('You will be logged out of the system.') }}",
+                logoutButton: "{{ __('Logout') }}",
+                cancelButton: "{{ __('Cancel') }}",
+                logoutRoute: "{{ route('logout') }}"
+            },
+            csrfToken: "{{ csrf_token() }}"
         };
-
-        const SIDEBAR_STATE_KEY = 'sidebarState';
-
-        function applySavedSidebarState() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleIcon = document.querySelector('.sidebar-toggle-btn');
-            const savedState = localStorage.getItem(SIDEBAR_STATE_KEY) || 'expanded';
-
-            if (!sidebar || !mainContent) return;
-
-            if (window.innerWidth > 768 && savedState === 'mini') {
-                sidebar.classList.add('mini');
-                mainContent.classList.add('expanded');
-                if (toggleIcon) {
-                    toggleIcon.classList.remove('fa-angles-left');
-                    toggleIcon.classList.add('fa-angles-right');
-                }
-            } else {
-                sidebar.classList.remove('mini');
-                mainContent.classList.remove('expanded');
-                if (toggleIcon) {
-                    toggleIcon.classList.remove('fa-angles-right');
-                    toggleIcon.classList.add('fa-angles-left');
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            applySavedSidebarState();
-        });
-
-        // jQuery Logics
-        $(document).ready(function() {
-            // --- Loader Logic ---
-            $(window).on('load', function() {
-                $('#global-loader').fadeOut(1000);
-            });
-
-            // $(window).on('beforeunload', function() {
-            //     $('#global-loader').fadeIn(150);
-            // });
-
-            window.addEventListener('pageshow', function(event) {
-                if (event.persisted) {
-                    $('#global-loader').hide();
-                }
-            });
-
-            // --- Sidebar Toggle Logic (Mobile & Desktop) ---
-            const $sidebar = $('.sidebar');
-            const $sidebarBackdrop = $('.sidebar-backdrop');
-
-            $('.sidebar-toggle').on('click', function(e) {
-                e.preventDefault();
-                if (window.innerWidth <= 768) {
-                    $sidebar.toggleClass('active');
-                    $sidebarBackdrop.toggleClass('active', $sidebar.hasClass('active'));
-                } else {
-                    window.toggleDesktopSidebar();
-                }
-            });
-
-            // Close sidebar on mobile when clicking outside
-            $sidebarBackdrop.on('click', function() {
-                $sidebar.removeClass('active');
-                $sidebarBackdrop.removeClass('active');
-            });
-
-            // Close sidebar on mobile when a link is clicked
-            $('.sidebar').on('click', 'a', function() {
-                if (window.innerWidth <= 768) {
-                    $sidebar.removeClass('active');
-                    $sidebarBackdrop.removeClass('active');
-                }
-            });
-
-            // Handle resize events
-            let resizeTimer;
-            $(window).on('resize', function() {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    if (window.innerWidth > 768) {
-                        $sidebarBackdrop.removeClass('active');
-                        $sidebar.removeClass('active'); // Remove mobile class on resize
-                    }
-                }, 100);
-            });
-
-            // --- Chatbot Logic ---
-            const $chatWindow = $('#chat-window');
-            const $chatContent = $('#chat-content');
-            const $userInput = $('#user-input');
-            const $sendBtn = $('#send-chat');
-
-            $('#chat-bubble').click(function() {
-                $chatWindow.toggleClass('d-none');
-                if (!$chatWindow.hasClass('d-none')) {
-                    $userInput.focus();
-                    scrollToBottom();
-                }
-            });
-
-            $('#close-chat').click(function() {
-                $chatWindow.addClass('d-none');
-            });
-
-            function scrollToBottom() {
-                $chatContent.scrollTop($chatContent[0].scrollHeight);
-            }
-
-            function appendUserMessage(text) {
-                const escapedText = $('<div>').text(text).html();
-                $chatContent.append(`
-                    <div class="message-user mb-3 d-flex flex-column align-items-end">
-                        <div class="chat-message-bubble bg-primary text-white p-2 px-3 rounded-3 shadow-sm">
-                            ${escapedText}
-                        </div>
-                    </div>
-                `);
-                scrollToBottom();
-            }
-
-            function appendAiMessage(htmlContent, id = null) {
-                const idAttr = id ? `id="${id}"` : '';
-                $chatContent.append(`
-                    <div ${idAttr} class="message-ai mb-3 d-flex flex-column align-items-start">
-                        <small class="text-muted ms-1 mb-1 chat-message-label">{{ __('AI Assistant') }}</small>
-                        <div class="chat-message-bubble bg-white p-2 px-3 rounded-3 shadow-sm border border-light text-dark">
-                            ${htmlContent}
-                        </div>
-                    </div>
-                `);
-                scrollToBottom();
-            }
-
-            function sendChat() {
-                let message = $userInput.val().trim();
-                if (!message) return;
-
-                appendUserMessage(message);
-                $userInput.val('');
-                $sendBtn.prop('disabled', true);
-
-                let typingId = 'typing-' + Date.now();
-                appendAiMessage('<i class="fas fa-circle-notch fa-spin text-primary"></i> {{ __('Thinking...') }}', typingId);
-
-                $.ajax({
-                    url: "{{ route('chatbot.chat') }}",
-                    method: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        message: message
-                    },
-                    success: function(response) {
-                        $('#' + typingId).remove();
-                        let reply = response.reply || '{{ __('Sorry, I could not process that.') }}';
-
-                        // Basic Markdown Parsing
-                        reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                        reply = reply.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                        reply = reply.replace(/\n/g, '<br>');
-                        reply = reply.replace(/^- (.*?)(<br>|$)/gm, '• $1$2');
-
-                        appendAiMessage(reply);
-                    },
-                    error: function(xhr) {
-                        $('#' + typingId).remove();
-                        let errMsg = '{{ __('Sorry, something went wrong. Please try again.') }}';
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            errMsg = xhr.responseJSON.error;
-                        }
-                        appendAiMessage(`<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> ${errMsg}</span>`);
-                    },
-                    complete: function() {
-                        $sendBtn.prop('disabled', false);
-                        $userInput.focus();
-                    }
-                });
-            }
-
-            $sendBtn.click(sendChat);
-            $userInput.keypress(function(e) {
-                if (e.which === 13) {
-                    e.preventDefault();
-                    sendChat();
-                }
-            });
-        });
     </script>
+    <script src="{{ asset('js/layouts/app.js') }}"></script>
 </body>
 </html>

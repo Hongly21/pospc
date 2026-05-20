@@ -42,7 +42,7 @@
                     <div class="row g-3" id="productGrid">
                         @foreach ($products as $product)
                             <div class="col-6 col-sm-4 col-md-4 col-lg-3 product-card">
-                                <div class="card h-100 border-0 shadow-sm btn-add-cart" style="cursor: pointer;"
+                                <div class="card h-100 border-0 shadow-sm btn-add-cart"
                                     data-id="{{ $product->ProductID }}" data-name="{{ $product->Name }}"
                                     data-price="{{ $product->SellPrice }}"
                                     data-stock="{{ $product->inventory->Quantity }}"
@@ -96,8 +96,7 @@
                                 <option value="">{{ __('pos.general_customer') }}</option>
                                 @foreach ($customers as $customer)
                                     @if ($customer->has_debt)
-                                        <option value="{{ $customer->CustomerID }}"
-                                            style="color:#dc3545;font-weight:bold;">
+                                        <option value="{{ $customer->CustomerID }}" class="debt-customer-option">
                                             {{ $customer->Name }} {{ $customer->PhoneNumber }} ({{ __('pos.has_debt') }})
                                         </option>
                                     @else
@@ -219,7 +218,7 @@
                                 </div>
 
                                 <div id="qrDisplay" class="d-none">
-                                    <p class="text-muted fw-bold  mb-2" style="font-size: 1.5rem; id="qrMerchantName">{{ config('khqr.merchant_name') }}</p>
+                                    <p class="text-muted fw-bold mb-2 qr-merchant-name" id="qrMerchantName">{{ config('khqr.merchant_name') }}</p>
                                     {{-- <p class="text-muted fw-bold small mb-1" id="qrMerchantName">{{ config('khqr.merchant_name') }}</p> --}}
                                     <div class="khqr-amount mb-3 text-dark" id="qrAmountDisplay">$0.00</div>
                                     <div class="khqr-qr-shell d-inline-block mb-3 p-3 bg-white rounded-4 shadow-sm">
@@ -264,6 +263,7 @@
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <link rel="stylesheet" href="{{ asset('css/pages/pos-index.css') }}" />
     @endpush
 
     @push('scripts')
@@ -273,581 +273,42 @@
         <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
         <script>
-        $(document).ready(function() {
-            let cart = [];
-            let currentTotal = 0;
-            let lastUpdatedCartId = null;
-            let qrMd5 = null; // MD5 hash from Bakong for polling
-            let qrPollingTimer = null; // setInterval reference
-            let qrCountdownTimer = null;
-            let qrConfirmed = false; // becomes true once Bakong confirms payment
-
-            /**
-             * Initialize searchable search on a select element
-             */
-            function initSearch(element) {
-                let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
-                $(element).select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: placeholderText.trim(),
-                    dropdownParent: $(element).parent()
-                });
-            }
-
-            $('.searchable-select').each(function() {
-                initSearch(this);
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Toast helper
-            // ─────────────────────────────────────────────────────────
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: t => {
-                    t.onmouseenter = Swal.stopTimer;
-                    t.onmouseleave = Swal.resumeTimer;
+            window.posIndexConfig = {
+                routes: {
+                    addCustomer: "{{ route('customers.store.ajax') }}",
+                    khqrGenerate: "{{ route('pos.khqr.generate') }}",
+                    khqrCheck: "{{ route('pos.khqr.check') }}",
+                    checkout: "{{ route('pos.store') }}"
+                },
+                messages: {
+                    selectPlaceholder: "{{ __('Select') }}",
+                    warning: "{{ __('pos.warning') }}",
+                    hasOnlyStockOf: "{{ __('pos.has_only_stock_of') }}",
+                    cartEmpty: "{{ __('pos.cart_empty') }}",
+                    added: "{{ __('pos.added') }}",
+                    error: "{{ __('pos.error') }}",
+                    fillAllFields: "{{ __('pos.fill_all_fields') }}",
+                    customerHasDebt: "{{ __('pos.customer_has_debt') }}",
+                    ok: "{{ __('pos.ok') }}",
+                    waitKhqrPayment: "{{ __('pos.wait_khqr_payment') }}",
+                    noCustomerDebt: "{{ __('pos.no_customer_debt') }}",
+                    selectCustomerForDebt: "{{ __('pos.select_customer_for_debt') }}",
+                    insufficientPayment: "{{ __('pos.insufficient_payment') }}",
+                    customerWillOwe: "{{ __('pos.customer_will_owe') }}",
+                    yesSellDebt: "{{ __('pos.yes_sell_debt') }}",
+                    cancel: "{{ __('cancel') }}",
+                    processing: "{{ __('pos.processing') }}",
+                    success: "{{ __('pos.success') }}",
+                    confirm: "{{ __('pos.confirm') }}",
+                    cannotGenerateQr: "{{ __('pos.cannot_generate_qr') }}",
+                    serverErrorQr: "{{ __('pos.server_error_qr') }}",
+                    qrRenderFailed: "{{ __('pos.qr_render_failed') }}",
+                    somethingWentWrong: "{{ __('pos.something_went_wrong') }}",
+                    debtAmountLabel: "{{ __('pos.debt_amount') }} $",
+                    changeAmountLabel: "{{ __('pos.change_amount') }} $"
                 }
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Add to cart
-            // ─────────────────────────────────────────────────────────
-            $(".btn-add-cart").click(function() {
-                let card = $(this);
-
-                if (card.hasClass('disabled-card')) {
-                    // Give error feedback by shaking the card
-                    card.removeClass('shake-anim'); // reset animation if clicked quickly
-                    void card[0].offsetWidth; // trigger reflow to restart animation
-                    card.addClass('shake-anim');
-                    setTimeout(() => card.removeClass('shake-anim'), 400);
-                    return; // Prevent adding if disabled
-                }
-
-                // Add pop animation to product card
-                card.addClass('click-anim');
-                setTimeout(() => card.removeClass('click-anim'), 200);
-
-                let id = card.data("id");
-                let name = card.data("name");
-                let price = parseFloat(card.data("price"));
-                let stock = parseInt(card.data("stock"));
-                let taxRate = parseFloat(card.data("tax-rate")) || 0;
-                let attributes = card.data("attributes");
-
-                lastUpdatedCartId = id; // Track for cart row animation
-
-                // if (stock <= 0) {
-                //     Toast.fire({
-                //         icon: "error",
-                //         title: "{{ __('pos.out_of_stock') }}"
-                //     });
-                //     return;
-                // }
-
-                let item = cart.find(i => i.id === id);
-                if (item) {
-                    // if (item.qty >= stock) {
-                    //     Toast.fire({
-                    //         icon: "warning",
-                    //         title: `${name} has only stock of ${stock}`
-                    //     });
-                    //     return;
-                    // }
-                    item.qty++;
-                } else {
-                    cart.push({
-                        id,
-                        name,
-                        price,
-                        qty: 1,
-                        stock,
-                        taxRate,
-                        attributes
-                    });
-                }
-                renderCart();
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Render cart
-            // ─────────────────────────────────────────────────────────
-            function renderCart() {
-                let html = "",
-                    total = 0;
-
-                const isTabletOrSmaller = window.innerWidth <= 992; // treat <=992px as tablet/mobile
-
-                cart.forEach((item, index) => {
-                    let base = item.price * item.qty;
-                    let taxAmount = (base * item.taxRate) / 100;
-                    let sub = base + taxAmount;
-                    total += sub;
-                    let attrHtml = item.attributes ?
-                        `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` :
-                        '';
-                    let taxHtml = item.taxRate ?
-                        `<br><small class="text-muted" style="font-size:0.75rem;">Tax: ${item.taxRate.toFixed(2)}% (+$${taxAmount.toFixed(2)})</small>` :
-                        '';
-                    let rowClass = (item.id === lastUpdatedCartId) ? 'cart-row-anim' : '';
-
-                    if (isTabletOrSmaller) {
-                        // For tablet/mobile render a single-row card inside a td (keeps markup valid)
-                        html += `<tr class="${rowClass}"><td colspan="4">
-                            <div class="cart-item-card">
-                                <div class="cart-left">
-                                    <div class="fw-bold text-truncate">${item.name}${attrHtml}${taxHtml}</div>
-                                    <div><small>$${item.price}</small></div>
-                                </div>
-                                <div class="cart-right">
-                                    <div class="qty-control-group">
-                                        <button class="qty-btn btn-qty-dec" data-index="${index}" type="button">-</button>
-                                        <span class="qty-display">${item.qty}</span>
-                                        <button class="qty-btn btn-qty-inc" data-index="${index}" type="button">+</button>
-                                    </div>
-                                    <div class="text-end fw-bold">$${sub.toFixed(2)}</div>
-                                    <button class="btn btn-sm text-danger btn-remove" data-index="${index}" type="button"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>
-                        </td></tr>`;
-                    } else {
-                        // Desktop: keep original table row layout
-                        html += `<tr class="${rowClass}">
-                            <td>${item.name}${attrHtml}${taxHtml}<br><small>$${item.price}</small></td>
-                            <td class="text-center">
-                                <div class="qty-control-group">
-                                    <button class="qty-btn btn-qty-dec" data-index="${index}" type="button">-</button>
-                                    <span class="qty-display">${item.qty}</span>
-                                    <button class="qty-btn btn-qty-inc" data-index="${index}" type="button">+</button>
-                                </div>
-                            </td>
-                            <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
-                            <td><button class="btn btn-sm text-danger btn-remove" data-index="${index}" type="button"><i class="fas fa-trash"></i></button></td>
-                        </tr>`;
-                    }
-                });
-
-                $("#cartTable").html(html);
-                $("#cartTotal").text("$" + total.toFixed(2));
-
-                // Clear the tracker so it doesn't animate on deletion
-                lastUpdatedCartId = null;
-
-                updateProductCards();
-            }
-
-            function updateProductCards() {
-                $(".btn-add-cart").each(function() {
-                    let id = $(this).data("id");
-                    let stock = parseInt($(this).data("stock"));
-                    let item = cart.find(i => i.id === id);
-
-                    if (item && item.qty >= stock) {
-                        // Max stock reached
-                        $(this).addClass('disabled-card').css({
-                            'opacity': '0.6',
-                            'cursor': 'not-allowed',
-                            'background-color': '#f8f9fa'
-                        });
-                    } else if (stock <= 0) {
-                        // Out of stock
-                        $(this).addClass('disabled-card').css({
-                            'opacity': '0.6',
-                            'cursor': 'not-allowed',
-                            'background-color': '#f8f9fa'
-                        });
-                    } else {
-                        // Normal state
-                        $(this).removeClass('disabled-card').css({
-                            'opacity': '1',
-                            'cursor': 'pointer',
-                            'background-color': '#fff'
-                        });
-                    }
-                });
-            }
-
-            $(document).on("click", ".btn-remove", function() {
-                cart.splice($(this).data("index"), 1);
-                renderCart();
-            });
-
-            $(document).on("click", ".btn-qty-inc", function() {
-                const index = Number($(this).data("index"));
-                if (Number.isNaN(index) || !cart[index]) return;
-                if (cart[index].qty >= cart[index].stock) {
-                    // Toast.fire({
-                    //     icon: "warning",
-                    //     title: `${cart[index].name} has only stock of ${cart[index].stock}`
-                    // });
-                        Swal.fire("{{ __('pos.warning') }}", `${cart[index].name} {{ __('pos.has_only_stock_of') }} ${cart[index].stock}`, 'warning');
-                    return;
-                }
-                cart[index].qty += 1;
-                renderCart();
-            });
-
-            $(document).on("click", ".btn-qty-dec", function() {
-                const index = Number($(this).data("index"));
-                if (Number.isNaN(index) || !cart[index]) return;
-                if (cart[index].qty <= 1) {
-                    cart.splice(index, 1);
-                } else {
-                    cart[index].qty -= 1;
-                }
-                renderCart();
-            });
-
-            // Initial check to disable items that are out of stock on load
-            updateProductCards();
-            // Re-render cart when window size changes to adapt layout between breakpoints
-            let _cartResizeTimer = null;
-            $(window).on('resize', function() {
-                clearTimeout(_cartResizeTimer);
-                _cartResizeTimer = setTimeout(function() {
-                    renderCart();
-                }, 150);
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Add customer
-            // ─────────────────────────────────────────────────────────
-            $('#btn_save_customer').click(function() {
-                let name = $('#new_customer_name').val().trim();
-                let phone = $('#new_customer_phone').val().trim();
-                if (!name || !phone) {
-                    // Toast.fire({
-                    //     icon: "warning",
-                    //     title: "{{ __('pos.fill_all_fields') }}"
-                    // });
-                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.fill_all_fields') }}", 'warning');
-                    return;
-                }
-                $.ajax({
-                    url: "{{ route('customers.store.ajax') }}",
-                    type: "POST",
-                    data: {
-                        name,
-                        phone,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success(res) {
-                        bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'))
-                            ?.hide();
-                        $('#customer_id').append(new Option(`${res.name} (${res.phone})`, res.id,
-                            true, true)).trigger('change');
-                        $('#new_customer_name,#new_customer_phone').val('');
-                        Toast.fire({
-                            icon: "success",
-                            title: "{{ __('pos.added') }}"
-                        });
-                    },
-                    error(xhr) {
-                        Swal.fire("{{ __('pos.error') }}", xhr.responseJSON?.message ||
-                            "{{ __('pos.error') }}", 'error');
-                    }
-                });
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Customer debt check
-            // ─────────────────────────────────────────────────────────
-            $('#customer_id').change(function() {
-                let id = $(this).val();
-                if (!id) return;
-                $.get(`/pos/customer-debt/${id}`, function(res) {
-                    if (res.has_debt) {
-                        Swal.fire({
-                            title: "{{ __('pos.customer_has_debt') }}",
-                            text: res.message,
-                            icon: 'warning',
-                            confirmButtonText: "{{ __('pos.ok') }}",
-                            confirmButtonColor: '#d33'
-                        });
-                    }
-                });
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Checkout button
-            // ─────────────────────────────────────────────────────────
-            $("#btnCheckout").click(function() {
-                if (cart.length === 0) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "{{ __('pos.cart_empty') }}"
-                    });
-                    return;
-                }
-
-                currentTotal = parseFloat($("#cartTotal").text().replace('$', ''));
-                qrConfirmed = false;
-                let payType = $("#paymentType").val();
-
-                $("#modalTotalDisplay").text("$" + currentTotal.toFixed(2));
-                $("#cashPaymentSection").addClass('d-none');
-                $("#qrPaymentSection").addClass('d-none');
-                $("#btnConfirmPayment").prop('disabled', false);
-
-                if (payType === 'QR') {
-                    // KHQR flow
-                    $("#qrPaymentSection").removeClass('d-none');
-                    $("#btnConfirmPayment").prop('disabled', true); // disabled until payment confirmed
-                    startKhqrFlow(currentTotal);
-                } else {
-                    // Cash / Card flow
-                    $("#cashPaymentSection").removeClass('d-none');
-                    $("#txtReceivedAmount").val(currentTotal).trigger('keyup');
-                    setTimeout(() => $("#txtReceivedAmount").select(), 500);
-                }
-
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('paymentModal')).show();
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Cash: change calculation
-            // ─────────────────────────────────────────────────────────
-            $("#txtReceivedAmount").on('keyup change', function() {
-                let received = parseFloat($(this).val()) || 0;
-                let diff = received - currentTotal;
-                if (diff < 0) {
-                    $("#changeLabel").text("{{ __('pos.debt_amount') }} $");
-                    $("#txtChangeAmount").val(Math.abs(diff).toFixed(2)).addClass('text-danger')
-                        .removeClass('text-success');
-                } else {
-                    $("#changeLabel").text("{{ __('pos.change_amount') }} $");
-                    $("#txtChangeAmount").val(diff.toFixed(2)).removeClass('text-danger').addClass(
-                        'text-success');
-                }
-                $("#btnConfirmPayment").prop('disabled', false);
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // KHQR: generate QR and start polling
-            // ─────────────────────────────────────────────────────────
-            function startKhqrFlow(amount) {
-                cancelQrPolling();
-                qrMd5 = null;
-                qrConfirmed = false;
-
-                // Reset UI
-                $("#qrAmountDisplay").text("$" + amount.toFixed(2));
-                $("#qrLoading").removeClass('d-none');
-                $("#qrDisplay,#qrError").addClass('d-none');
-                $("#qrWaiting").removeClass('d-none');
-                $("#qrPaid,#qrExpired").addClass('d-none');
-
-                $.ajax({
-                    url: "{{ route('pos.khqr.generate') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        amount: amount,
-                        currency: 'USD'
-                    },
-                    success(res) {
-                        if (res.status === 'success') {
-                            qrMd5 = res.md5;
-                            renderQrCanvas(res.qr);
-                            startPolling();
-                        } else {
-                            showQrError(res.message || "{{ __('pos.cannot_generate_qr') }}");
-                        }
-                    },
-                    error() {
-                        showQrError("{{ __('pos.server_error_qr') }}");
-                    }
-                });
-            }
-
-            function renderQrCanvas(qrString) {
-                $("#qrLoading").addClass('d-none');
-                $("#qrDisplay").removeClass('d-none');
-                // $("#qrAccountDisplay").text("{{ config('khqr.account') }}");
-
-                let canvas = document.getElementById('qrCanvas');
-                QRCode.toCanvas(canvas, qrString, {
-                    width: 240,
-                    margin: 2
-                }, function(err) {
-                    if (err) showQrError("{{ __('pos.qr_render_failed') }}");
-                });
-            }
-
-            function showQrError(msg) {
-                $("#qrLoading").addClass('d-none');
-                $("#qrDisplay").addClass('d-none');
-                $("#qrError").removeClass('d-none');
-                $("#qrErrorMsg").text(msg);
-            }
-
-            // Poll every 3 seconds for up to 60 seconds
-            function startPolling() {
-                let secondsLeft = 60;
-                $("#qrCountdown").text(secondsLeft);
-
-                qrCountdownTimer = setInterval(function() {
-                    secondsLeft--;
-                    $("#qrCountdown").text(secondsLeft);
-                    if (secondsLeft <= 0) expireQr();
-                }, 1000);
-
-                qrPollingTimer = setInterval(function() {
-                    if (!qrMd5) return;
-                    $.ajax({
-                        url: "{{ route('pos.khqr.check') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            md5: qrMd5
-                        },
-                        success(res) {
-                            if (res.paid) {
-                                onQrPaid();
-                            }
-                        }
-                    });
-                }, 3000);
-            }
-
-            function onQrPaid() {
-                cancelQrPolling();
-                qrConfirmed = true;
-                $("#qrWaiting").addClass('d-none');
-                $("#qrPaid").removeClass('d-none');
-                $("#btnConfirmPayment").prop('disabled', false);
-
-                // Auto-confirm after 1.5s
-                setTimeout(function() {
-                    processCheckout('QR', currentTotal, $('#customer_id').val(), true);
-                }, 1500);
-            }
-
-            function expireQr() {
-                cancelQrPolling();
-                $("#qrWaiting").addClass('d-none');
-                $("#qrExpired").removeClass('d-none');
-            }
-
-            window.cancelQrPolling = function() {
-                clearInterval(qrPollingTimer);
-                clearInterval(qrCountdownTimer);
-                qrPollingTimer = null;
-                qrCountdownTimer = null;
             };
-
-            $('#btnRetryQr,#btnRetryQrError').click(function(e) {
-                e.preventDefault();
-                startKhqrFlow(currentTotal);
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Confirm button (Cash / Card only — QR auto-confirms)
-            // ─────────────────────────────────────────────────────────
-            $("#btnConfirmPayment").click(function() {
-                let payType = $("#paymentType").val();
-                let received = parseFloat($("#txtReceivedAmount").val()) || 0;
-                let customerId = $('#customer_id').val();
-
-                // QR should auto-confirm, but allow manual confirm if already paid
-                if (payType === 'QR') {
-                    if (!qrConfirmed) {
-                        Toast.fire({
-                            icon: "warning",
-                            title: "{{ __('pos.wait_khqr_payment') }}"
-                        });
-                        return;
-                    }
-                    processCheckout('QR', currentTotal, customerId, true);
-                    return;
-                }
-
-                if (received < currentTotal && !customerId) {
-                    Swal.fire({
-                        title: "{{ __('pos.no_customer_debt') }}",
-                        text: "{{ __('pos.select_customer_for_debt') }}",
-                        icon: 'warning',
-                        confirmButtonText: "{{ __('pos.ok') }}"
-                    });
-                    return;
-                }
-
-                if (received < currentTotal) {
-                    Swal.fire({
-                        title: "{{ __('pos.insufficient_payment') }}",
-                        text: `{{ __('pos.customer_will_owe') }} $${(currentTotal - received).toFixed(2)}`,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: "{{ __('pos.yes_sell_debt') }}",
-                        cancelButtonText: "{{ __('pos.cancel') }}"
-                    }).then(r => {
-                        if (r.isConfirmed) processCheckout(payType, received, customerId, false);
-                    });
-                } else {
-                    processCheckout(payType, received, customerId, false);
-                }
-            });
-
-            // ─────────────────────────────────────────────────────────
-            // Submit order to server
-            // ─────────────────────────────────────────────────────────
-            function processCheckout(paymentType, receivedAmount, customerId, paymentConfirmed) {
-                $("#btnConfirmPayment").prop('disabled', true)
-                    .html('<i class="fas fa-spinner fa-spin"></i> {{ __('pos.processing') }}');
-
-                $.ajax({
-                    url: "{{ route('pos.store') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        cart: cart,
-                        customer_id: customerId,
-                        total_amount: currentTotal,
-                        payment_type: paymentType,
-                        paid_amount: receivedAmount,
-                        payment_confirmed: paymentConfirmed ? 1 : 0,
-                    },
-                    success(res) {
-                        if (res.status === 'success') {
-                            cancelQrPolling();
-                            bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
-                            Swal.fire({
-                                title: "{{ __('pos.success') }}",
-                                text: res.message,
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                window.open("/pos/receipt/" + res.order_id, "_blank",
-                                    "width=620,height=800");
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire("{{ __('pos.error') }}", res.message, "error");
-                            $("#btnConfirmPayment").prop('disabled', false)
-                                .html('<i class="fas fa-check me-2"></i> {{ __('pos.confirm') }}');
-                        }
-                    },
-                    error() {
-                        Swal.fire("{{ __('pos.error') }}", "{{ __('pos.something_went_wrong') }}",
-                            "error");
-                        $("#btnConfirmPayment").prop('disabled', false)
-                            .html('<i class="fas fa-check me-2"></i> {{ __('pos.confirm') }}');
-                    }
-                });
-            }
-
-            // Stop polling when modal is closed
-            $('#paymentModal').on('hide.bs.modal', function() {
-                cancelQrPolling();
-                $('#txtReceivedAmount').blur();
-            });
-        });
-    </script>
+        </script>
+        <script src="{{ asset('js/pages/pos-index.js') }}"></script>
     @endpush
 @endsection

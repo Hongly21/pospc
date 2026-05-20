@@ -194,26 +194,13 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        /**
-         * Initialize searchable search on a select element
-         */
-        function initSearch(element) {
-            let placeholderText = $(element).find('option[value=""]').text() || "{{ __('Select') }}";
-            $(element).select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: placeholderText.trim(),
-                dropdownParent: $(element).parent()
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            $('.searchable-select').each(function() {
-                initSearch(this);
-            });
-        });
-    </script>
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script>
+            window.reportsSalesConfig = {
+                selectPlaceholder: "{{ __('Select') }}"
+            };
+        </script>
+        <script src="{{ asset('js/pages/reports-sales.js') }}"></script>
+    @endpush
 @endsection

@@ -297,92 +297,27 @@
             </div>
         </div>
     </div>
-    <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $(document).ready(function() {
-            $('.edit-btn').click(function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var email = $(this).data('email');
-                var roleID = $(this).data('roleid');
-
-                $('#update_id').val(id);
-                $('#update_name').val(name);
-                $('#update_email').val(email);
-                $('#update_role').val(roleID);
-            });
-
-            $('.btn_save_user').click(function() {
-                var data = {
-                    name: $('#add_name').val(),
-                    email: $('#add_email').val(),
-                    password: $('#add_password').val(),
-                    password_confirmation: $('#add_password_confirmation').val(),
-                    role: $('#add_role').val()
-                };
-
-                $.post("{{ route('users.store') }}", data, function(res) {
-                    if (res.status == 'success' || res == 'success') {
-                        // Using translation keys for "Success" and the message
-                        Swal.fire("{{ __('success') }}", "{{ __('success_add') }}", 'success')
-                            .then(
-                                () => location.reload()
-                            );
-                    }
-                }).fail(function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMsg = '';
-                    $.each(errors, function(key, value) {
-                        errorMsg += value[0] + '<br>';
-                    });
-                    Swal.fire({
-                        icon: 'error',
-                        title: "{{ __('validation_error') }}",
-                        html: errorMsg,
-                    });
-                });
-            });
-
-            window.deleteUser = function(id) {
-                Swal.fire({
-                    title: "{{ __('confirm_delete') }}",
-                    text: "{{ __('delete_warning') }}",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: "{{ __('delete_btn_confirm') }}",
-                    cancelButtonText: "{{ __('cancel_btn') }}"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post("{{ route('users.delete') }}", {
-                            id: id
-                        }, function(res) {
-                            Swal.fire("{{ __('users.msg_deleted') }}",
-                                    "{{ __('users.msg_deleted') }}", 'success')
-                                .then(() => location.reload());
-                        });
-                    }
-                });
-            }
-
-            window.toggleField = function(inputId, iconId) {
-                const input = document.getElementById(inputId);
-                const icon = document.getElementById(iconId);
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
+    @push('scripts')
+        <script>
+            window.usersPageConfig = {
+                routes: {
+                    store: "{{ route('users.store') }}",
+                    delete: "{{ route('users.delete') }}"
+                },
+                messages: {
+                    validationError: "{{ __('validation_error') }}",
+                    success: "{{ __('success') }}",
+                    successAdd: "{{ __('success_add') }}",
+                    error: "{{ __('pos.error') }}",
+                    confirmDelete: "{{ __('confirm_delete') }}",
+                    deleteWarning: "{{ __('delete_warning') }}",
+                    deleteConfirmBtn: "{{ __('delete_btn_confirm') }}",
+                    cancelBtn: "{{ __('cancel_btn') }}",
+                    deletedMsg: "{{ __('users.msg_deleted') }}"
                 }
-            }
-        });
-    </script>
+            };
+        </script>
+        <script src="{{ asset('js/pages/users-index.js') }}"></script>
+    @endpush
 
 @endsection

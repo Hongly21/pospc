@@ -233,28 +233,15 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: "{{ __('confirm_delete') }}",
-                        text: "{{ __('delete_warning') }}",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "{{ __('delete_btn_confirm') }}",
-                        cancelButtonText: "{{ __('cancel_btn') }}"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
+    @push('scripts')
+        <script>
+            window.expensesIndexConfig = {
+                swalTitle: "{{ __('confirm_delete') }}",
+                swalText: "{{ __('delete_warning') }}",
+                swalConfirmBtn: "{{ __('delete_btn_confirm') }}",
+                swalCancelBtn: "{{ __('cancel_btn') }}"
+            };
+        </script>
+        <script src="{{ asset('js/pages/expenses-index.js') }}"></script>
+    @endpush
 @endsection

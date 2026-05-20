@@ -1,0 +1,12 @@
+.btn-add-cart {
+    cursor: pointer;
+}
+
+.debt-customer-option {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.qr-merchant-name {
+    font-size: 1.5rem;
+}

@@ -1,0 +1,48 @@
+@media (max-width: 768px) {
+    #purchaseTable thead {
+        display: none;
+    }
+
+    #purchaseTable,
+    #purchaseTable tbody,
+    #purchaseTable tr,
+    #purchaseTable td {
+        display: block;
+        width: 100%;
+    }
+
+    #purchaseTable tr {
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 10px;
+        margin-bottom: 0.85rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 0.75rem;
+    }
+
+    #purchaseTable td {
+        border: 0 !important;
+        padding: 0.35rem 0;
+    }
+
+    #purchaseTable td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+
+    #purchaseTable td.action-cell::before {
+        display: none;
+    }
+
+    #purchaseTable .remove-row {
+        margin-top: 0.2rem;
+    }
+
+    #addRow,
+    .purchase-submit-btn {
+        width: 100%;
+    }
+}
