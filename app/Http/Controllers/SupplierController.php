@@ -21,6 +21,9 @@ class SupplierController extends Controller
                     ->orWhere('Address', 'LIKE', "%{$search}%");
             });
         }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
         $suppliers = $query->paginate(10);
         return view('suppliers.index', compact('suppliers'));
     }

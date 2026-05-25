@@ -81,9 +81,7 @@
                         <td class="text-center receipt-cell-top">{{ $index + 1 }}</td>
                         <td class="text-start">
                             {{ $detail->product->Name }}
-                            @if ($detail->product && $detail->product->attributes->isNotEmpty())
-                                <div class="receipt-detail-meta">{{ $detail->product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}</div>
-                            @endif
+
                         </td>
                         <td class="text-center">{{ $detail->Quantity }}</td>
                         <td class="text-center">${{ number_format($detail->unit_price, 2) }}</td>

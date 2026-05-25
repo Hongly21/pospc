@@ -31,11 +31,42 @@ class InventoryController extends Controller
             $query->where('CategoryID', $request->CategoryID);
         }
 
-        $products = $query->get();
+        if ($request->filled('stock_status')) {
+            $stockStatus = $request->stock_status;
+            if (in_array($stockStatus, ['normal', 'low', 'out'], true)) {
+                $query->whereHas('inventory', function ($inventoryQuery) use ($stockStatus) {
+                    if ($stockStatus === 'low') {
+                        $inventoryQuery->where('Quantity', '>', 0)
+                            ->whereColumn('Quantity', '<=', 'ReorderLevel');
+                    } elseif ($stockStatus === 'out') {
+                        $inventoryQuery->where('Quantity', 0);
+                    } elseif ($stockStatus === 'normal') {
+                        $inventoryQuery->where(function ($normalQuery) {
+                            $normalQuery->whereColumn('Quantity', '>', 'ReorderLevel')
+                                ->orWhere(function ($fallbackQuery) {
+                                    $fallbackQuery->whereNull('ReorderLevel')
+                                        ->where('Quantity', '>', 0);
+                                });
+                        });
+                    }
+                });
+            }
+        }
+
+        $products = $query->orderBy('Name')
+            ->paginate(15)
+            ->appends($request->query());
 
         $categories = \App\Models\Category::where('status', 1)->get();
 
-        return view('inventory.index', compact('products', 'categories'));
+        // Get all products for the search dropdown
+        $allProducts = Product::where('status', 1)
+            ->whereHas('inventory')
+            ->with(['inventory', 'category'])
+            ->orderBy('Name')
+            ->get();
+
+        return view('inventory.index', compact('products', 'categories', 'allProducts'));
     }
 
     public function update(Request $request)

@@ -16,18 +16,25 @@
 
         <div class="card-body bg-light rounded-bottom">
             <form action="{{ route('suppliers.index') }}" method="GET" class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
-                <div class="col-12 col-md-5">
+                <div class="col-12 col-md-4">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
                         <input type="text" name="search" class="form-control border-start-0 bg-light"
                             placeholder="{{ __('suppliers.search_placeholder') }}" value="{{ request('search') }}">
                     </div>
                 </div>
+                <div class="col-12 col-md-2">
+                    <select name="status" class="form-select form-select-sm bg-light border-0">
+                        <option value="" {{ !request()->filled('status') ? 'selected' : '' }}>{{ __('suppliers.all_status') }}</option>
+                        <option value="1" {{ request('status') == 1  }}>{{ __('suppliers.active') }}</option>
+                        <option value="0" {{ request('status') == 0 }}>{{ __('suppliers.inactive') }}</option>
+                    </select>
+                </div>
                 <div class="col-12 col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-sm btn-primary px-4 w-100">
                         {{ __('search_btn') }}
                     </button>
-                    @if (request()->has('search') && request('search') != '')
+                    @if ((request()->has('search') && request('search') != '') || request()->has('status'))
                         <a href="{{ route('suppliers.index') }}" class="btn btn-sm btn-outline-secondary px-3">
                             <i class="fas fa-sync-alt"></i>
                         </a>
@@ -142,8 +149,8 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end mt-4">
-                {{ $suppliers->links() }}
+            <div class="d-flex justify-content-start mt-4">
+                {{ $suppliers->appends(request()->query())->links() }}
             </div>
         </div>
     </div>

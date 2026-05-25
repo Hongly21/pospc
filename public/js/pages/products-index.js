@@ -2,15 +2,33 @@
     const config = window.productsPageConfig || {};
     const messages = config.messages || {};
 
-    function initSearch(element) {
+    // function initSearch(element) {
+    //     let placeholderText = messages.selectPlaceholder || 'Select';
+    //     $(element).select2({
+    //         theme: 'bootstrap-5',
+    //         width: '100%',
+    //         placeholder: placeholderText.trim(),
+    //         dropdownParent: $(element).parent()
+    //     });
+    // }
+
+
+        function initSearch(element) {
+        const $element = $(element);
         let placeholderText = messages.selectPlaceholder || 'Select';
-        $(element).select2({
+        const emptyOptionText = $element.find('option[value=""]').first().text().trim();
+        if (emptyOptionText) {
+            placeholderText = emptyOptionText;
+        }
+
+        $element.select2({
             theme: 'bootstrap-5',
             width: '100%',
-            placeholder: placeholderText.trim(),
-            dropdownParent: $(element).parent()
+            placeholder: placeholderText,
+            dropdownParent: $element.parent()
         });
     }
+
 
     function createAttributeRow() {
         const row = document.createElement('div');

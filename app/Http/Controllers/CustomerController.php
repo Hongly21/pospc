@@ -93,7 +93,7 @@ class CustomerController extends Controller
             'Points' => 0
         ]);
 
-        return redirect()->route('customers.index')->with('success', __('customers.msg_created'));
+        return redirect()->route('customers.index')->with('complete', __('customers.msg_created'));
     }
 
 

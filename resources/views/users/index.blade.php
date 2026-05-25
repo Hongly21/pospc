@@ -223,7 +223,7 @@
             <div class="mt-4">
                 {{-- User pagination if exists --}}
                 @if(method_exists($users, 'links'))
-                    <div class="d-flex justify-content-end mt-3">
+                    <div class="d-flex justify-content-start mt-3">
                         {{ $users->links() }}
                     </div>
                 @endif

@@ -20,15 +20,32 @@
             {{-- Filter Form --}}
             <form action="{{ route('inventory.index') }}" method="GET" class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
                 <div class="col-12 col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                        <input type="text" name="search" class="form-control border-start-0 bg-light"
-                            placeholder="{{ __('inventory.search_placeholder') }}" value="{{ request('search') }}">
-                    </div>
+                    <select name="product_search" id="product_search" class="form-select form-select-sm bg-light searchable-select" style="width: 100%;">
+                        <option value="">{{ __('inventory.search_placeholder') }}</option>
+                        @foreach ($allProducts ?? [] as $product)
+                            @php
+                                $quantity = $product->inventory->Quantity ?? 0;
+                                $reorderLevel = $product->inventory->ReorderLevel ?? 0;
+                                if ($quantity == 0) {
+                                    $stockStatus = 'out';
+                                    $statusLabel = __('inventory.stock_status_out');
+                                } elseif ($quantity <= $reorderLevel) {
+                                    $stockStatus = 'low';
+                                    $statusLabel = __('inventory.stock_status_low');
+                                } else {
+                                    $stockStatus = 'normal';
+                                    $statusLabel = __('inventory.stock_status_normal');
+                                }
+                            @endphp
+                            <option value="{{ $product->ProductID }}" data-stock="{{ $quantity }}" data-status="{{ $stockStatus }}">
+                                {{ $product->Name }} - {{ $product->category->Name ?? 'N/A' }} ({{ $quantity }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
-                <div class="col-12 col-md-4">
-                    <select name="CategoryID" class="form-select form-select-sm bg-light">
+                <div class="col-12 col-md-3">
+                    <select name="CategoryID" class="form-select form-select-sm bg-light searchable-select">
                         <option value="">{{ __('inventory.all_categories') }}</option>
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->CategoryID }}"
@@ -39,12 +56,21 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-md-4 d-flex gap-2">
+                <div class="col-12 col-md-2">
+                    <select name="stock_status" class="form-select form-select-sm bg-light">
+                        <option value="">{{ __('inventory.stock_status_all') }}</option>
+                        <option value="normal" {{ request('stock_status') === 'normal' ? 'selected' : '' }}>{{ __('inventory.stock_status_normal') }}</option>
+                        <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>{{ __('inventory.stock_status_low') }}</option>
+                        <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>{{ __('inventory.stock_status_out') }}</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-sm btn-primary px-4 flex-grow-1">
                         {{ __('inventory.search_button') }}
                     </button>
 
-                    @if (request()->filled('search') || request()->filled('CategoryID'))
+                    @if (request()->filled('CategoryID') || request()->filled('stock_status'))
                         <a href="{{ route('inventory.index') }}" class="btn btn-sm btn-outline-secondary px-3">
                             <i class="fas fa-sync-alt"></i>
                         </a>
@@ -85,8 +111,19 @@
                                 </td>
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1">{{ $product->category->Name ?? '-' }}</span></td>
                                 <td>
-                                    <span class="badge rounded-pill {{ ($product->inventory->Quantity ?? 0) <= ($product->inventory->ReorderLevel ?? 0) ? 'bg-danger' : 'bg-success' }} px-2 py-1">
-                                        {{ __('inventory.qty') }}: {{ $product->inventory->Quantity ?? 0 }}
+                                    @php
+                                        $quantity = $product->inventory->Quantity ?? 0;
+                                        $reorderLevel = $product->inventory->ReorderLevel ?? 0;
+                                        if ($quantity == 0) {
+                                            $statusClass = 'bg-danger';
+                                        } elseif ($quantity <= $reorderLevel) {
+                                            $statusClass = 'bg-warning text-dark';
+                                        } else {
+                                            $statusClass = 'bg-success';
+                                        }
+                                    @endphp
+                                    <span class="badge rounded-pill {{ $statusClass }} px-2 py-1">
+                                        {{ __('inventory.qty') }}: {{ $quantity }}
                                     </span>
                                 </td>
                                 <td>
@@ -193,9 +230,34 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end mt-4">
-                {{-- Pagination Placeholder if needed later --}}
+            <div class="d-flex justify-content-start mt-4">
+                @if(method_exists($products, 'links'))
+                    {{ $products->appends(request()->query())->links() }}
+                @endif
             </div>
         </div>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        window.inventoryPageConfig = {
+            routes: {
+                search: "{{ route('inventory.index') }}"
+            },
+            messages: {
+                searchPlaceholder: "{{ __('inventory.search_placeholder') }}",
+                selectCategory: "{{ __('inventory.select_category') }}",
+                selectStatus: "{{ __('inventory.select_status') }}",
+                statusNormal: "{{ __('inventory.stock_status_normal') }}",
+                statusLow: "{{ __('inventory.stock_status_low') }}",
+                statusOut: "{{ __('inventory.stock_status_out') }}"
+            }
+        };
+    </script>
+
+    <script src="{{ asset('js/pages/inventory.js') }}"></script>
 @endsection

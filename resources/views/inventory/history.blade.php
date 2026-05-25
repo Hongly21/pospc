@@ -3,7 +3,7 @@
 @section('title', __('inventory.history_page_title'))
 
 @section('content')
-    <div class="card border-0 shadow-sm rounded-3"> 
+    <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white border-bottom pt-3 pb-3 d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold text-dark">
                 <i class="fas fa-history text-primary me-2"></i>{{ __('inventory.history_header') }}
@@ -109,10 +109,18 @@
                     </tbody>
                 </table>
             </div>
-
+{{--
             <div class="d-flex justify-content-end mt-4">
                 {{ $histories->links() }}
-            </div>
+            </div> --}}
+            <div class="mt-4">
+                {{-- Pagination --}}
+                @if(method_exists($histories, 'links'))
+                    <div class="d-flex justify-content-start mt-3">
+                        {{ $histories->appends(request()->query())->links() }}
+                    </div>
+                @endif
+             </div>
         </div>
     </div>
 @endsection

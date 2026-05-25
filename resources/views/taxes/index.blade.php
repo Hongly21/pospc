@@ -136,9 +136,13 @@
                     </tbody>
                 </table>
             </div>
-
             <div class="mt-4">
-                {{ $taxes->links() }}
+                {{-- Pagination --}}
+                @if(method_exists($taxes, 'links'))
+                    <div class="d-flex justify-content-start mt-3">
+                        {{ $taxes->appends(request()->query())->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

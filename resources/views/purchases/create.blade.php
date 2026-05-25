@@ -58,20 +58,22 @@
                                         @foreach ($products as $p)
                                             @php
                                                 $qty = floatval($p->inventory->Quantity ?? 0);
+                                                $reorder = floatval($p->inventory->ReorderLevel ?? 0);
+
                                                 if ($qty <= 0) {
                                                     $statusText = __('Out of Stock');
-                                                } elseif ($qty <= 5) {
+                                                    $statusKey = 'out_of_stock';
+                                                } elseif ($qty <= $reorder) {
                                                     $statusText = __('Low Stock');
+                                                    $statusKey = 'low_stock';
                                                 } else {
                                                     $statusText = __('In Stock');
+                                                    $statusKey = 'in_stock';
                                                 }
                                             @endphp
 
-                                            <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}">
-                                                {{ $p->Name }} @if ($p->attributes->isNotEmpty())
-                                                    ({{ $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }})
-                                                @endif - {{ $statusText }} ({{ __('Qty') }}:
-                                                {{ $qty }})
+                                            <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}" data-status="{{ $statusKey }}" data-stock="{{ $qty }}" data-reorder="{{ $reorder }}">
+                                                {{ $p->Name }} - {{ $statusText }} ({{ $qty }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -101,19 +103,22 @@
                                     @foreach ($products as $p)
                                         @php
                                             $qty = floatval($p->inventory->Quantity ?? 0);
+                                            $reorder = floatval($p->inventory->ReorderLevel ?? 0);
+
                                             if ($qty <= 0) {
                                                 $statusText = __('Out of Stock');
-                                            } elseif ($qty <= 5) {
+                                                $statusKey = 'out_of_stock';
+                                            } elseif ($qty <= $reorder) {
                                                 $statusText = __('Low Stock');
+                                                $statusKey = 'low_stock';
                                             } else {
                                                 $statusText = __('In Stock');
+                                                $statusKey = 'in_stock';
                                             }
                                         @endphp
 
-                                        <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}">
-                                            {{ $p->Name }} @if ($p->attributes->isNotEmpty())
-                                                ({{ $p->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }})
-                                            @endif - {{ $statusText }} ({{ __('Qty') }}: {{ $qty }})
+                                        <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}" data-status="{{ $statusKey }}" data-stock="{{ $qty }}" data-reorder="{{ $reorder }}">
+                                            {{ $p->Name }} - {{ $statusText }} ({{ $qty }})
                                         </option>
                                     @endforeach
                                 </select>

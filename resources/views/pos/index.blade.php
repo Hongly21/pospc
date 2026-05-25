@@ -3,20 +3,21 @@
 @section('title', __('POS Terminal'))
 
 @section('content')
-    <div class="row h-100 ">
+    <div class="row h-100">
         {{-- =================== LEFT: PRODUCT GRID =================== --}}
-        <div class="col-md-8">
+        {{-- Changed to col-lg-8 and added mb-4 for tablet spacing --}}
+        <div class="col-lg-8 mb-4 mb-lg-0">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
-                    <form action="{{ route('pos.index') }}" method="GET" class="row g-2 align-items-center mb-3">
-                        <div class="col-12 col-md-4">
+                    <form action="{{ route('pos.index') }}" method="GET" class="row g-2 align-items-center">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                                 <input type="text" name="search" class="form-control"
                                     placeholder="{{ __('pos.search_placeholder') }}" value="{{ request('search') }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <select name="CategoryID" class="form-select searchable-select">
                                 <option value="">{{ __('pos.all_categories') }}</option>
                                 @foreach ($categories as $cat)
@@ -27,7 +28,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-12 col-md-4 d-flex gap-2">
+                        <div class="col-12 col-md-12 col-lg-4 d-flex gap-2 mt-2 ">
                             <button type="submit"
                                 class="btn btn-outline-primary px-4 flex-grow-1">{{ __('pos.search_btn') }}</button>
                             @if (request()->filled('search') || request()->filled('CategoryID'))
@@ -42,9 +43,8 @@
                     <div class="row g-3" id="productGrid">
                         @foreach ($products as $product)
                             <div class="col-6 col-sm-4 col-md-4 col-lg-3 product-card">
-                                <div class="card h-100 border-0 shadow-sm btn-add-cart"
-                                    data-id="{{ $product->ProductID }}" data-name="{{ $product->Name }}"
-                                    data-price="{{ $product->SellPrice }}"
+                                <div class="card h-100 border-0 shadow-sm btn-add-cart" data-id="{{ $product->ProductID }}"
+                                    data-name="{{ $product->Name }}" data-price="{{ $product->SellPrice }}"
                                     data-stock="{{ $product->inventory->Quantity }}"
                                     data-tax-rate="{{ $product->tax ? $product->tax->Rate : $product->category->tax->Rate ?? 0 }}"
                                     data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
@@ -82,8 +82,9 @@
                 </div>
             </div>
         </div>
+
         {{-- =================== RIGHT: CART =================== --}}
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="card shadow-sm h-100">
                 <div class="card-header text-black py-3 fw-bold bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">{{ __('pos.current_order') }}</h5>
@@ -97,6 +98,7 @@
                                 @foreach ($customers as $customer)
                                     @if ($customer->has_debt)
                                         <option value="{{ $customer->CustomerID }}" class="debt-customer-option">
+
                                             {{ $customer->Name }} {{ $customer->PhoneNumber }} ({{ __('pos.has_debt') }})
                                         </option>
                                     @else
@@ -113,7 +115,7 @@
                         </div>
                     </div>
                     <div class="table-responsive flex-grow-1 p-2">
-                        <table class="table align-middle table-hover pos-cart-table  ">
+                        <table class="table align-middle table-hover pos-cart-table">
                             <thead class="bg-light small text-muted">
                                 <tr>
                                     <th>{{ __('pos.product_col') }}</th>
@@ -184,11 +186,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnClosePaymentModal"></button>
                 </div>
                 <div class="modal-body">
-                    {{-- <div class="text-center mb-4">
-                        <small class="text-muted text-uppercase fw-bold">{{ __('pos.total_to_pay') }}</small>
-                        <h1 class="display-4 fw-bold text-success" id="modalTotalDisplay">$0.00</h1>
-                    </div> --}}
-
                     {{-- CASH section --}}
                     <div id="cashPaymentSection" class="d-none">
                         <div class="form-group mb-3">
@@ -218,23 +215,25 @@
                                 </div>
 
                                 <div id="qrDisplay" class="d-none">
-                                    <p class="text-muted fw-bold mb-2 qr-merchant-name" id="qrMerchantName">{{ config('khqr.merchant_name') }}</p>
-                                    {{-- <p class="text-muted fw-bold small mb-1" id="qrMerchantName">{{ config('khqr.merchant_name') }}</p> --}}
-                                    <div class="khqr-amount mb-3 text-dark" id="qrAmountDisplay">$0.00</div>
+                                    <p class="text-muted fw-bold mb-2 qr-merchant-name" id="qrMerchantName">
+                                        {{ config('khqr.merchant_name') }}</p>
+                                    <div class="khqr-amount mb-3" id="qrAmountDisplay">$0.00</div>
                                     <div class="khqr-qr-shell d-inline-block mb-3 p-3 bg-white rounded-4 shadow-sm">
                                         <canvas id="qrCanvas"></canvas>
                                     </div>
-                                    {{-- <p class="text-muted small mb-2" id="qrAccountDisplay"></p> --}}
 
-                                    <div id="qrWaiting" class="khqr-status d-flex align-items-center justify-content-center mx-auto">
-                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    <div id="qrWaiting"
+                                        class="khqr-status d-flex align-items-center justify-content-center mx-auto">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                        </div>
                                         <span>{{ __('pos.waiting_payment') }} (<span id="qrCountdown">60</span>s)</span>
                                     </div>
                                     <div id="qrPaid" class="alert alert-success py-2 mb-0 d-none">
                                         <i class="fas fa-check-circle me-2"></i> {{ __('pos.payment_success') }}
                                     </div>
                                     <div id="qrExpired" class="alert alert-warning py-2 mb-0 d-none">
-                                        QR Code {{ __('pos.qr_expired') }} — <a href="#" id="btnRetryQr">{{ __('pos.click_to_regenerate') }}</a>
+                                        QR Code {{ __('pos.qr_expired') }} — <a href="#"
+                                            id="btnRetryQr">{{ __('pos.click_to_regenerate') }}</a>
                                     </div>
                                 </div>
 
@@ -243,7 +242,8 @@
                                         <i class="fas fa-exclamation-circle me-2"></i>
                                         <span id="qrErrorMsg">{{ __('pos.cannot_generate_qr') }}</span>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary" id="btnRetryQrError">{{ __('pos.try_again') }}</button>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                        id="btnRetryQrError">{{ __('pos.try_again') }}</button>
                                 </div>
                             </div>
                         </div>
@@ -262,7 +262,8 @@
 
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
         <link rel="stylesheet" href="{{ asset('css/pages/pos-index.css') }}" />
     @endpush
 

@@ -41,7 +41,7 @@
         <a href="#" class="dropdown-toggle" onclick="toggleSubmenu(this); return false;"
             aria-expanded="{{ request()->is('products*') || request()->is('categories*') || request()->is('inventory*') ? 'true' : 'false' }}">
             <i class="fas fa-box-open icon"></i> <span class="nav-label">{{ __('Products') }}</span>
-            <i class="fas fa-chevron-down arrow-icon"></i>
+            {{-- <i class="fas fa-chevron-down arrow-icon"></i> --}}
         </a>
 
         <div id="productMenu" class="submenu {{ request()->is('products*') || request()->is('categories*') || request()->is('inventory*') ? 'show' : '' }}">
@@ -99,7 +99,7 @@
             // $pendingCount = \App\Models\User::where('Status', 'Pending')->count();
             $pendingCount = \App\Models\User::where('Status', 'Pending')->count();
             $lowStockCount = \App\Models\Inventory::whereRaw('Quantity <= ReorderLevel')->count();
-            $totalNotifications = $pendingCount + $lowStockCount;
+            $totalNotifications = $pendingCount;
         @endphp
 
         <div class="menu-header">{{ __('Administration') }}</div>

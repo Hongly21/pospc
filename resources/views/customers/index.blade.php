@@ -220,8 +220,11 @@
                 </table>
             </div>
 
-            <div class="mt-4 d-flex justify-content-end">
-                {{ $customers->appends(request()->query())->links() }}
+            <div class="mt-4 d-flex justify-content-start">
+                {{-- Pagination --}}
+                @if(method_exists($customers, 'links'))
+                    {{ $customers->appends(request()->query())->links() }}
+                @endif
             </div>
         </div>
     </div>

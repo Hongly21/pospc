@@ -1,10 +1,59 @@
+function formatProductOption(option) {
+    if (!option.id || !option.element) {
+        return option.text;
+    }
+
+    const $option = $(option.element);
+    const status = $option.data('status');
+    const stock = $option.data('stock');
+    const statusLabelMap = {
+        in_stock: 'In Stock',
+        low_stock: 'Low Stock',
+        out_of_stock: 'Out of Stock'
+    };
+    const label = status ? statusLabelMap[status] || status : null;
+    const statusHtml = label ? `<span class="stock-status-badge stock-status-${status}">${label}</span>` : '';
+    return $(`<span class="d-flex justify-content-between align-items-center">
+        <span>${option.text}</span>
+        ${statusHtml}
+    </span>`);
+}
+
+function formatProductSelection(option) {
+    if (!option.id || !option.element) {
+        return option.text;
+    }
+
+    const $option = $(option.element);
+    const status = $option.data('status');
+    const statusLabelMap = {
+        in_stock: 'In Stock',
+        low_stock: 'Low Stock',
+        out_of_stock: 'Out of Stock'
+    };
+    const label = status ? statusLabelMap[status] || status : null;
+    const statusHtml = label ? ` <span class="stock-status-badge stock-status-${status}">${label}</span>` : '';
+    return $(`<span>${option.text}${statusHtml}</span>`);
+}
+
 function initSearch(element) {
-    let placeholderText = $(element).find('option[value=""]').text() || "Select";
-    $(element).select2({
+    if (!element) return;
+
+    const $element = $(element);
+    let placeholderText = $element.find('option[value=""]').text() || "Select";
+
+    if ($element.hasClass('select2-hidden-accessible')) {
+        $element.select2('destroy');
+    }
+
+    $element.select2({
         theme: 'bootstrap-5',
         width: '100%',
         placeholder: placeholderText.trim(),
-        dropdownParent: $(element).parent(),
+        dropdownParent: $element.parent(),
+        templateResult: formatProductOption,
+        templateSelection: formatProductSelection,
+        escapeMarkup: function(markup) { return markup; }
     });
 }
 
@@ -62,7 +111,7 @@ function addPurchaseRow() {
     tbody.appendChild(newRowFragment);
     const newRow = tbody.lastElementChild;
     if (newRow) {
-        initSearch(newRow.querySelector('.product-select'));
+        newRow.querySelectorAll('.product-select').forEach(select => initSearch(select));
     }
 
     window.purchaseRowIndex = currentRowIdx + 1;

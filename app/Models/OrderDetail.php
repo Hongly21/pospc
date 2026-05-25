@@ -31,10 +31,10 @@ class OrderDetail extends Model
             return (float) $value;
         }
 
-        if ($this->TaxAmount !== null && $this->Quantity > 0 && $this->Subtotal !== null) {
-            $base = ($this->Subtotal - $this->TaxAmount) / $this->Quantity;
-            if ($base > 0) {
-                return round(($this->TaxAmount / $base) * 100, 2);
+        if ($this->TaxAmount !== null && $this->Subtotal !== null) {
+            $baseTotal = $this->Subtotal - $this->TaxAmount;
+            if ($baseTotal > 0) {
+                return round(($this->TaxAmount / $baseTotal) * 100, 2);
             }
         }
 

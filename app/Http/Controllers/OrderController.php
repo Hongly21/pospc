@@ -152,6 +152,8 @@ class OrderController extends Controller
                 $status = 'Partial';
             }
 
+            $now = Carbon::now()->setTimezone(config('app.timezone'));
+
             $order = Order::create([
                 'UserID'      => Auth::id() ?? 1,
                 'CustomerID'  => $request->customer_id,
@@ -159,7 +161,7 @@ class OrderController extends Controller
                 'TotalTax'    => round($totalTax, 2),
                 'PaymentType' => $request->payment_type,
                 'Status'      => $status,
-                'OrderDate'   => Carbon::now(),
+                'OrderDate'   => $now,
             ]);
 
             if ($paidAmount > 0) {
@@ -169,7 +171,7 @@ class OrderController extends Controller
                     'PaymentMethod' => $request->payment_type,
                     'PaidAmount'    => $paidAmount,
                     'ChangeAmount'  => ($paidAmount > $calculatedTotal) ? ($paidAmount - $calculatedTotal) : 0,
-                    'CreatedAt'     => Carbon::now(),
+                    'CreatedAt'     => $now,
                 ]);
             }
 

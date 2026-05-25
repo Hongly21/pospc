@@ -38,7 +38,7 @@
 
         if (!sidebar || !mainContent) return;
 
-        if (window.innerWidth > 768 && savedState === 'mini') {
+        if (window.innerWidth > 1024 && savedState === 'mini') {
             sidebar.classList.add('mini');
             mainContent.classList.add('expanded');
             if (toggleIcon) {
@@ -63,11 +63,15 @@
         function adjustContentWrapperHeight() {
             const topNavbar = document.querySelector('.top-navbar');
             const contentWrapper = document.querySelector('.content-wrapper');
+            const mainContent = document.querySelector('.main-content');
             if (!contentWrapper) return;
 
             const navbarHeight = topNavbar ? topNavbar.getBoundingClientRect().height : 0;
             const navbarMarginBottom = topNavbar ? parseFloat(getComputedStyle(topNavbar).marginBottom || '0') : 0;
-            const totalOffset = navbarHeight + navbarMarginBottom;
+            const mainContentStyle = mainContent ? getComputedStyle(mainContent) : null;
+            const mainContentPaddingTop = mainContentStyle ? parseFloat(mainContentStyle.paddingTop || '0') : 0;
+            const mainContentPaddingBottom = mainContentStyle ? parseFloat(mainContentStyle.paddingBottom || '0') : 0;
+            const totalOffset = navbarHeight + navbarMarginBottom + mainContentPaddingTop + mainContentPaddingBottom;
             contentWrapper.style.minHeight = `calc(100vh - ${totalOffset}px)`;
         }
 
@@ -89,7 +93,7 @@
 
         $('.sidebar-toggle').on('click', function(e) {
             e.preventDefault();
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1024) {
                 $sidebar.toggleClass('active');
                 $sidebarBackdrop.toggleClass('active', $sidebar.hasClass('active'));
             } else {
@@ -102,8 +106,20 @@
             $sidebarBackdrop.removeClass('active');
         });
 
-        $('.sidebar').on('click', 'a', function() {
-            if (window.innerWidth <= 768) {
+        // $('.sidebar').on('click', 'a', function() {
+        //     if (window.innerWidth <= 1024) {
+        //         $sidebar.removeClass('active');
+        //         $sidebarBackdrop.removeClass('active');
+        //     }
+        // });
+
+        $('.sidebar').on('click', 'a', function(e) {
+            // Prevent the sidebar from closing if the clicked link is a dropdown toggle
+            if ($(this).hasClass('dropdown-toggle')) {
+                return;
+            }
+
+            if (window.innerWidth <= 1024) {
                 $sidebar.removeClass('active');
                 $sidebarBackdrop.removeClass('active');
             }
@@ -113,7 +129,7 @@
         $(window).on('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
-                if (window.innerWidth > 768) {
+                if (window.innerWidth > 1024) {
                     $sidebarBackdrop.removeClass('active');
                     $sidebar.removeClass('active');
                 }
@@ -216,7 +232,7 @@
 })();
 
 function isCompactTabletSidebar() {
-    return window.matchMedia('(min-width: 769px) and (max-width: 1100px)').matches || document.querySelector('.sidebar')?.classList.contains('mini');
+    return window.matchMedia('(max-width: 1024px)').matches || document.querySelector('.sidebar')?.classList.contains('mini');
 }
 
 function closeSidebarMobile() {
@@ -228,13 +244,14 @@ function toggleSubmenu(element) {
     let submenu = document.getElementById('productMenu');
     let isExpanded = element.getAttribute('aria-expanded') === 'true';
 
+    element.setAttribute('aria-expanded', String(!isExpanded));
+
     if (isCompactTabletSidebar()) {
-        element.setAttribute('aria-expanded', !isExpanded);
+        submenu.classList.toggle('show', !isExpanded);
         submenu.classList.toggle('compact-open', !isExpanded);
         return;
     }
 
-    element.setAttribute('aria-expanded', !isExpanded);
     $(submenu).stop(true, true).slideToggle(350, 'swing');
 }
 
@@ -295,6 +312,7 @@ document.addEventListener('click', function(e) {
     if (!productMenu || !trigger) return;
     if (trigger.contains(e.target) || productMenu.contains(e.target)) return;
     productMenu.classList.remove('compact-open');
+    productMenu.classList.remove('show');
     trigger.setAttribute('aria-expanded', 'false');
 });
 
@@ -302,4 +320,5 @@ window.addEventListener('resize', function() {
     const productMenu = document.getElementById('productMenu');
     if (!productMenu || isCompactTabletSidebar()) return;
     productMenu.classList.remove('compact-open');
+    productMenu.classList.remove('show');
 });

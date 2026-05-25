@@ -30,15 +30,6 @@
                             {{ __('Unpaid/Debt') }}</option>
                     </select>
                 </div>
-                {{-- <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-outline-primary flex-grow-1">
-                        <i class="fas fa-filter fa-sm me-1"></i> {{ __('Search') }}
-                    </button>
-                    <a href="{{ route('pos.history') }}" class="btn btn-outline-danger px-3"
-                        title="{{ __('Clear Filter') }}">
-                        <i class="fas fa-sync-alt"></i>
-                    </a>
-                </div> --}}
                 <div class="col-12 col-md-3 d-flex gap-2">
                     <button type="submit"
                         class="btn btn-sm btn-primary px-4 w-100">{{ __('products.btn_search') }}
@@ -129,9 +120,13 @@
 
             </div>
 
-            <div class="d-flex justify-content-end mt-3">
-                {{ $orders->links() }}
-            </div>
+            <div class="mt-3 d-flex justify-content-start">
+                 {{-- If the orders variable is paginated, show pagination links --}}
+                {{-- Pagination --}}
+                @if(method_exists($orders, 'links'))
+                    {{ $orders->appends(request()->query())->links() }}
+                @endif
+             </div>
         </div>
     </div>
 

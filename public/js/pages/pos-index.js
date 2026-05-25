@@ -5,12 +5,18 @@
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
     function initSearch(element) {
+        const $element = $(element);
         let placeholderText = messages.selectPlaceholder || 'Select';
-        $(element).select2({
+        const emptyOptionText = $element.find('option[value=""]').first().text().trim();
+        if (emptyOptionText) {
+            placeholderText = emptyOptionText;
+        }
+
+        $element.select2({
             theme: 'bootstrap-5',
             width: '100%',
-            placeholder: placeholderText.trim(),
-            dropdownParent: $(element).parent()
+            placeholder: placeholderText,
+            dropdownParent: $element.parent()
         });
     }
 
@@ -54,6 +60,7 @@
             }
         });
     }
+
 
     function renderCart() {
         let html = '';
@@ -366,7 +373,13 @@
                     bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'))?.hide();
                     $('#customer_id').append(new Option(`${res.name} (${res.phone})`, res.id, true, true)).trigger('change');
                     $('#new_customer_name,#new_customer_phone').val('');
-                    showToast({ icon: 'success', title: messages.added || 'Added' });
+                    Swal.fire({
+                        text: messages.added || 'Customer added successfully',
+                        icon: 'success',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    // showToast({ icon: 'success', title: messages.added || 'Customer added successfully' });
                 },
                 error(xhr) {
                     Swal.fire(messages.error || 'Error', xhr.responseJSON?.message || messages.error || 'Error', 'error');

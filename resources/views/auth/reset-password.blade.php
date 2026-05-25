@@ -32,22 +32,34 @@
                 <input type="hidden" name="email" value="{{ $email }}">
 
                 <div class="mb-4">
-                    <label for="otp" class="form-label text-uppercase fw-bold">{{ __('auth.otp_code') }}</label>
+                    <label for="otp" class="form-label text-uppercase">{{ __('auth.otp_code') }}</label>
                     <input type="text" name="otp" id="otp" class="form-control form-control-lg text-center fw-bold bg-light otp-input"
-                        autocomplete="one-time-code" required autofocus>
+                        autocomplete="one-time-code" required autofocus placeholder="------">
                 </div>
 
                 <div class="mb-3">
-                    <label for="password" class="form-label text-uppercase fw-bold">{{ __('auth.new_password') }}</label>
+                    <label for="password" class="form-label text-uppercase">{{ __('auth.new_password') }}</label>
                     <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control" autocomplete="new-password" required>
+                        <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" id="password" class="form-control border-start-0 border-end-0 px-0" autocomplete="new-password" required placeholder="••••••••">
+                        <span class="input-group-text bg-transparent border-start-0 text-muted toggle-password px-3" onclick="toggleResetField('password', 'toggle-icon-1')">
+                            <i class="fas fa-eye" id="toggle-icon-1"></i>
+                        </span>
                     </div>
                 </div>
 
                 <div class="mb-5">
-                    <label for="password_confirmation" class="form-label text-uppercase fw-bold">{{ __('auth.confirm_password') }}</label>
+                    <label for="password_confirmation" class="form-label text-uppercase">{{ __('auth.confirm_password') }}</label>
                     <div class="input-group">
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password" required>
+                        <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control border-start-0 border-end-0 px-0" autocomplete="new-password" required placeholder="••••••••">
+                        <span class="input-group-text bg-transparent border-start-0 text-muted toggle-password px-3" onclick="toggleResetField('password_confirmation', 'toggle-icon-2')">
+                            <i class="fas fa-eye" id="toggle-icon-2"></i>
+                        </span>
                     </div>
                 </div>
 
@@ -57,4 +69,22 @@
             </form>
         </div>
     </main>
+
+    @push('scripts')
+        <script>
+            function toggleResetField(fieldId, iconId) {
+                const field = document.getElementById(fieldId);
+                const icon = document.getElementById(iconId);
+                if (field.type === "password") {
+                    field.type = "text";
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
+                } else {
+                    field.type = "password";
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
+                }
+            }
+        </script>
+    @endpush
 @endsection

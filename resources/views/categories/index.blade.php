@@ -190,6 +190,11 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4 d-flex justify-content-start">
+                @if(method_exists($categories, 'links'))
+                    {{ $categories->appends(request()->query())->links() }}
+                @endif
+            </div>
         </div>
     </div>
 

@@ -44,7 +44,8 @@ public function login(Request $request)
                 return back()->withErrors(['email' => __('auth.account_unauthorized')]);
             }
 
-            Auth::login($user);
+            $remember = $request->boolean('remember');
+            Auth::login($user, $remember);
             $request->session()->regenerate();
 
             $roleName = strtolower($user->role->RoleName ?? '');

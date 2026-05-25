@@ -30,10 +30,12 @@
             <form action="{{ route('password.email') }}" method="POST">
                 @csrf
                 <div class="mb-4">
-                    <label for="email" class="form-label text-uppercase fw-bold">{{ __('auth.email_label') }}</label>
+                    <label for="email" class="form-label text-uppercase">{{ __('auth.email_label') }}</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                        <input type="email" name="email" id="email" class="form-control border-start-0 ps-0" autocomplete="email" required autofocus>
+                        <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" name="email" id="email" class="form-control border-start-0 ps-0" autocomplete="email" required autofocus placeholder="name@company.com">
                     </div>
                 </div>
 

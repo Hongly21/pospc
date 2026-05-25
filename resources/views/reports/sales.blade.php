@@ -39,10 +39,9 @@
                 </div>
 
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-sm btn-primary btn-sm ">{{ __('taxes.btn_search') }}</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('taxes.btn_search') }}</button>
 
                     {{-- reset button --}}
-
                     <a href="{{ route('reports.sales') }}" class="btn btn-sm btn-outline-secondary px-3 ms-2">
                         <i class="fas fa-sync-alt"></i>
                     </a>
@@ -53,14 +52,13 @@
     </div>
 
     <div class="row mb-4 g-3">
-        {{-- Orders Count --}}
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-start shadow-sm h-100 py-2">
+        {{-- 1. Orders Count --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ __('order_count') }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ __('order_count') }}</div>
                             <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($totalOrders) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-gray-300"></i></div>
@@ -69,16 +67,14 @@
             </div>
         </div>
 
-        {{-- Total Sales --}}
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-start shadow-sm h-100 py-2">
+        {{-- 2. Total Sales --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card  shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ __('total_sales') }}
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($totalRevenue, 2) }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ __('total_sales') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($totalRevenue, 2) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                     </div>
@@ -86,16 +82,44 @@
             </div>
         </div>
 
-        {{-- Received Amount --}}
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-start shadow-sm h-100 py-2">
+        {{-- 3. Cost of Items Sold (COGS) --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ __('received_amount') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($totalReceived, 2) }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" title="Cost of Goods Sold">{{ __('cost_of_items_sold') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">-${{ number_format($cogs ?? 0, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-boxes fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- 4. Net Profit --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ __('Net_Profit') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($netProfit ?? 0, 2) }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- 5. Received Amount --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card  shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #20c997;">{{ __('received_amount') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">${{ number_format($totalReceived, 2) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i></div>
                     </div>
@@ -103,14 +127,13 @@
             </div>
         </div>
 
-        {{-- Total Debt --}}
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-start shadow-sm h-100 py-2">
+        {{-- 6. Total Debt --}}
+        <div class="col-xl-4 col-md-6">
+            <div class="card  border-danger shadow-sm h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ __('total_debt') }}
-                            </div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ __('total_debt') }}</div>
                             <div class="h4 mb-0 font-weight-bold text-danger">${{ number_format($totalDebt, 2) }}</div>
                         </div>
                         <div class="col-auto"><i class="fas fa-user-clock fa-2x text-danger opacity-50"></i></div>
@@ -123,9 +146,14 @@
     <div class="card shadow mb-4 border-0">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 fw-bold text-primary">{{ __('sales_history_detail') }}</h6>
-            <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print">
-                <i class="fas fa-print"></i> {{ __('print') }}
-            </button>
+            <div>
+                {{-- <button type="button" class="btn btn-sm btn-outline-success no-print me-2" onclick="alert('Export to Excel logic needs to be added to controller next!')">
+                    <i class="fas fa-file-excel"></i> {{ __('Export Excel') }}
+                </button> --}}
+                <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print">
+                    <i class="fas fa-print"></i> {{ __('print') }}
+                </button>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -138,6 +166,9 @@
                             <th class="text-end">{{ __('total_amount') }}</th>
                             <th class="text-end">{{ __('paid_amount') }}</th>
                             <th class="text-end">{{ __('debt_amount') }}</th>
+
+                            <th class="text-center">{{ __('Payment Type') }}</th>
+
                             <th class="text-center">{{ __('status') }}</th>
                             <th class="text-center pe-3">{{ __('actions') }}</th>
                         </tr>
@@ -149,8 +180,7 @@
                                 $debt = max(0, $order->TotalAmount - $paid);
                             @endphp
                             <tr>
-                                <td class="ps-3 fw-bold text-primary">#{{ str_pad($order->OrderID, 6, '0', STR_PAD_LEFT) }}
-                                </td>
+                                <td class="ps-3 fw-bold text-primary">#{{ str_pad($order->OrderID, 6, '0', STR_PAD_LEFT) }}</td>
                                 <td>{{ $order->created_at->format('d-M-Y H:i') }}</td>
                                 <td class="fw-bold">{{ $order->customer->Name ?? __('general_customer') }}</td>
                                 <td class="text-end fw-bold">${{ number_format($order->TotalAmount, 2) }}</td>
@@ -158,13 +188,24 @@
                                 <td class="text-end fw-bold {{ $debt > 0 ? 'text-danger' : 'text-muted' }}">
                                     ${{ number_format($debt, 2) }}
                                 </td>
+
+                                <td class="text-center">
+                                    @if($order->PaymentType == 'Cash')
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-2"><i class="fas fa-money-bill-wave"></i> {{ __('Cash') }}</span>
+                                    @elseif($order->PaymentType == 'QR')
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info px-2"><i class="fas fa-qrcode"></i> {{ __('QR') }}</span>
+                                    @elseif($order->PaymentType == 'Card')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2"><i class="fas fa-credit-card"></i> {{ __('Card') }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+
                                 <td class="text-center">
                                     @if ($order->Status == 'Paid')
-                                        <span
-                                            class="badge bg-success bg-opacity-10 text-success border border-success px-2">{{ __('paid_completed') }}</span>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-2">{{ __('paid_completed') }}</span>
                                     @else
-                                        <span
-                                            class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2">{{ __('still_debt') }}</span>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2">{{ __('still_debt') }}</span>
                                     @endif
                                 </td>
                                 <td class="text-center pe-3">
@@ -172,21 +213,25 @@
                                         onclick="window.open(this.href, 'targetWindow', 'width=620,height=800'); return false;"
                                         class="btn btn-sm btn-light text-primary border shadow-sm">
                                         <i class="fas fa-print fa-sm "></i>
-                                        {{-- {{ __('print_receipt') }} --}}
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">{{ __('no_data_found') }}</td>
+                                <td colspan="9" class="text-center py-5 text-muted">{{ __('no_data_found') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end p-3 border-top">
-                {{ $orders->links() }}
-            </div>
+            <div class="mt-4">
+                {{-- Pagination --}}
+                @if(method_exists($orders, 'links'))
+                    <div class="d-flex justify-content-start mt-3">
+                        {{ $orders->appends(request()->query())->links() }}
+                    </div>
+                @endif
+             </div>
         </div>
     </div>
 

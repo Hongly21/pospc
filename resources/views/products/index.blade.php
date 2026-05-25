@@ -363,9 +363,14 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end mt-4">
-                {{ $products->links() }}
-            </div>
+                <div class="mt-4">
+                    {{-- Pagination --}}
+                    @if(method_exists($products, 'links'))
+                        <div class="d-flex justify-content-start mt-3">
+                            {{ $products->appends(request()->query())->links() }}
+                        </div>
+                    @endif
+                </div>
         </div>
     </div>
 

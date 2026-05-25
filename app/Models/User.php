@@ -21,7 +21,8 @@ class User extends Authenticatable
         'UserImage',
         'Status',
         'ActionBy',
-        'ActionAt'
+        'ActionAt',
+        'remember_token'
     ];
 
     public function getAuthPassword()

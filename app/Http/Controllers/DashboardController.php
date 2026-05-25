@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Inventory;
-use App\Models\Expense; // កុំភ្លេច Model នេះ
+use App\Models\Expense;
 use Carbon\Carbon;
 use App\Models\Purchase;
 use Illuminate\Support\Facades\DB;
@@ -19,10 +19,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $periodOptions = [
-            1  => __('1 Month'),
-            3  => __('3 Months'),
-            6  => __('6 Months'),
-            12 => __('1 Year'),
+            1  => __('1_Month'),
+            3  => __('3_Months'),
+            6  => __('6_Months'),
+            12 => __('1_Year'),
         ];
 
         $selectedPeriod = (int) $request->query('period', 1);
@@ -31,7 +31,7 @@ class DashboardController extends Controller
         }
 
         $startDate = Carbon::now()->subMonths($selectedPeriod)->startOfDay();
-        $rangeLabel = __('Last :period', ['period' => $periodOptions[$selectedPeriod]]);
+        $rangeLabel = __(' :period', ['period' => $periodOptions[$selectedPeriod]]);
 
         // 1. SALES & REVENUE
         $totalRevenue = Order::whereDate('OrderDate', '>=', $startDate)->sum('TotalAmount');
@@ -49,12 +49,33 @@ class DashboardController extends Controller
             $paidAlready = $order->receipts->sum('PaidAmount') - $order->receipts->sum('ChangeAmount');
             $totalDebt += max(0, $order->TotalAmount - $paidAlready);
         }
-        // Product Purchases / Stock Cost (Red)
+
+        // 3. EXPENSES & PURCHASES
+        // Total money sent to suppliers (Cash Outflow)
         $totalPurchases = Purchase::whereDate('Date', '>=', $startDate)->sum('Total');
 
+        // General Shop Expenses (Electric, Rent, etc.)
         $totalExpenses = Expense::whereDate('expense_date', '>=', $startDate)->sum('amount');
-        $netProfit = $totalRevenue - $totalExpenses - $totalPurchases;
 
+
+        // 4. COST OF ITEMS SOLD (COGS) & TRUE PROFIT
+        // Calculates the original cost of ONLY the items that were successfully sold in this period
+        $cogs = DB::table('orderdetails')
+            ->join('orders', 'orders.OrderID', '=', 'orderdetails.OrderID')
+            ->join('products', 'products.ProductID', '=', 'orderdetails.ProductID')
+            ->whereDate('orders.OrderDate', '>=', $startDate)
+            ->sum(DB::raw('orderdetails.Quantity * products.CostPrice'));
+
+        // TRUE PROFIT FORMULA: Revenue - General Expenses - Cost of Items Sold
+        $netProfit = $totalRevenue - $totalExpenses - $cogs;
+
+        // Optional: Ensure profit doesn't show as negative if you prefer (though real businesses can have negative profit!)
+        if($netProfit < 0){
+            $netProfit = 0;
+        }
+
+
+        // 5. INVENTORY ALERTS
         $totalStock = Inventory::sum('Quantity');
 
         $lowStockItems = Product::where('status', 1)->whereHas('inventory', function ($q) {
@@ -66,10 +87,10 @@ class DashboardController extends Controller
                 $q->where('Quantity', '<=', 0);
             })->with('inventory')->get();
 
-        // 5. USERS
+        // 6. USERS
         $totalUsers = User::count();
 
-        // 6. SALES CHART FOR SELECTED RANGE
+        // 7. SALES CHART FOR SELECTED RANGE
         $chartDates = [];
         $chartSales = [];
 
@@ -92,7 +113,7 @@ class DashboardController extends Controller
             }
         }
 
-        // 7. TOP SELLING PRODUCTS
+        // 8. TOP SELLING PRODUCTS
         $topSellingProducts = OrderDetail::select('orderdetails.ProductID', DB::raw('SUM(orderdetails.Quantity) as quantity_sold'), DB::raw('SUM(orderdetails.Subtotal) as total_sales'))
             ->with('product')
             ->join('orders', 'orders.OrderID', '=', 'orderdetails.OrderID')
@@ -102,26 +123,22 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 8. RECENT TRANSACTIONS
+        // 9. RECENT TRANSACTIONS
         $recentTransactions = Order::with('customer')
             ->whereDate('OrderDate', '>=', $startDate)
             ->orderByDesc('OrderDate')
             ->take(5)
             ->get();
 
-        // 9. PAYMENT METHOD BREAKDOWN
+        // 10. PAYMENT METHOD BREAKDOWN
         $paymentCounts = Order::select('PaymentType', DB::raw('count(*) as total'))
             ->groupBy('PaymentType')
             ->pluck('total', 'PaymentType')
             ->toArray();
 
-
         $cashCount = $paymentCounts['Cash'] ?? 0;
         $cardCount = $paymentCounts['Card'] ?? 0;
         $qrCount   = $paymentCounts['QR'] ?? 0;
-        if($netProfit<0){
-            $netProfit=0;
-        }
 
         return view('dashboard.index', compact(
             'selectedPeriod',
@@ -131,6 +148,7 @@ class DashboardController extends Controller
             'totalRevenue',
             'totalDebt',
             'totalExpenses',
+            'cogs',                 // Make sure to pass $cogs to the view!
             'netProfit',
             'totalStock',
             'totalUsers',

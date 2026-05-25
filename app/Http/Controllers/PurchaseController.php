@@ -13,10 +13,88 @@ use Illuminate\Support\Facades\Auth;
 
 class PurchaseController extends Controller
 {
-    public function index()
+    // public function index()
+    // {
+    //     $purchases = Purchase::with('supplier')->orderBy('PurchaseID', 'desc')
+    //         ->paginate(15)
+    //         ->appends(request()->query());
+
+    //     return view('purchases.index', compact('purchases'));
+    // }
+
+    // public function index(Request $request)
+    // {
+    //     $query = Purchase::with('supplier');
+
+    //     // 1. Search by Supplier Name, Total Amount, or Purchase ID
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         $query->where(function ($q) use ($search) {
+    //             // Search Total
+    //             $q->where('Total', 'like', "%{$search}%")
+    //               // Search Supplier Name
+    //               ->orWhereHas('supplier', function ($qSupplier) use ($search) {
+    //                   $qSupplier->where('Name', 'like', "%{$search}%");
+    //               })
+    //               // Search Purchase ID (Optional but helpful)
+    //               ->orWhere('PurchaseID', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // 2. Filter by Date Range
+    //     if ($request->filled('start_date')) {
+    //         $query->whereDate('Date', '>=', $request->start_date);
+    //     }
+
+    //     if ($request->filled('end_date')) {
+    //         $query->whereDate('Date', '<=', $request->end_date);
+    //     }
+
+    //     // Execute query with pagination and append query strings to pagination links
+    //     $purchases = $query->orderBy('PurchaseID', 'desc')
+    //         ->paginate(15)
+    //         ->appends(request()->query());
+
+    //     return view('purchases.index', compact('purchases'));
+    // }
+    public function index(Request $request)
     {
-        $purchases = Purchase::with('supplier')->orderBy('PurchaseID', 'desc')->get();
-        return view('purchases.index', compact('purchases'));
+        $query = Purchase::with('supplier');
+
+        // 1. Search by Supplier Name, Total Amount, or Purchase ID
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                // Search Total
+                $q->where('Total', 'like', "%{$search}%")
+                  // Search Supplier Name
+                  ->orWhereHas('supplier', function ($qSupplier) use ($search) {
+                      $qSupplier->where('Name', 'like', "%{$search}%");
+                  })
+                  // Search Purchase ID
+                  ->orWhere('PurchaseID', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Filter by Date Range
+        if ($request->filled('start_date')) {
+            $query->whereDate('Date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('Date', '<=', $request->end_date);
+        }
+
+        // 3. Calculate total spent for the CURRENT filter (before pagination)
+        $totalSpent = $query->sum('Total');
+
+        // Execute query with pagination
+        $purchases = $query->orderBy('PurchaseID', 'desc')
+            ->paginate(15)
+            ->appends(request()->query());
+
+        // Pass $totalSpent to the view as well
+        return view('purchases.index', compact('purchases', 'totalSpent'));
     }
 
 

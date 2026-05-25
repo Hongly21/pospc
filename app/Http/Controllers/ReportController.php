@@ -5,19 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Customer;
-use App\Models\Receipt; 
+use App\Models\Receipt;
+use App\Models\Expense; // Added to calculate expenses for the date range
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-
     public function sales(Request $request)
     {
-        $startDate  = $request->input('start_date', Carbon::today()->toDateString());
-        $endDate    = $request->input('end_date', Carbon::today()->toDateString());
-        $customerId = $request->input('customer_id');
+        $startDate    = $request->input('start_date', Carbon::today()->toDateString());
+        $endDate      = $request->input('end_date', Carbon::today()->toDateString());
+        $customerId   = $request->input('customer_id');
         $statusFilter = $request->input('status');
 
+        // 1. Build the Main Order Query
         $query = Order::with(['user', 'customer', 'receipts'])
             ->whereDate('OrderDate', '>=', $startDate)
             ->whereDate('OrderDate', '<=', $endDate)
@@ -35,17 +37,35 @@ class ReportController extends Controller
             }
         }
 
+        // 2. Calculate Order Totals
         $totalOrders  = $query->clone()->count();
         $totalRevenue = $query->clone()->sum('TotalAmount');
 
         $orderIds = $query->clone()->pluck('OrderID');
 
-        $totalPaidRaw = Receipt::whereIn('OrderID', $orderIds)->sum('PaidAmount');
+        // 3. Calculate Received & Debt
+        $totalPaidRaw   = Receipt::whereIn('OrderID', $orderIds)->sum('PaidAmount');
         $totalChangeRaw = Receipt::whereIn('OrderID', $orderIds)->sum('ChangeAmount');
 
         $totalReceived = $totalPaidRaw - $totalChangeRaw;
+        $totalDebt     = max(0, $totalRevenue - $totalReceived);
 
-        $totalDebt = max(0, $totalRevenue - $totalReceived);
+        // --- NEW: PROFITABILITY CALCULATION FOR THIS REPORT ---
+
+        // A. General Expenses within this date range
+        $totalExpenses = Expense::whereDate('expense_date', '>=', $startDate)
+                                ->whereDate('expense_date', '<=', $endDate)
+                                ->sum('amount');
+
+        // B. Cost of Goods Sold (COGS) strictly for the filtered orders
+        $cogs = DB::table('orderdetails')
+            ->join('products', 'orderdetails.ProductID', '=', 'products.ProductID')
+            ->whereIn('orderdetails.OrderID', $orderIds)
+            ->sum(DB::raw('orderdetails.Quantity * products.CostPrice'));
+
+        // C. True Net Profit for the report
+        $netProfit = $totalRevenue - $totalExpenses - $cogs;
+        // -----------------------------------------------------
 
         $orders = $query->paginate(15)->appends([
             'start_date'  => $startDate,
@@ -66,10 +86,9 @@ class ReportController extends Controller
             'totalRevenue',
             'totalOrders',
             'totalReceived',
-            'totalDebt'
+            'totalDebt',
+            'cogs',        // Passed to view
+            'netProfit'    // Passed to view
         ));
     }
-
-
-
 }

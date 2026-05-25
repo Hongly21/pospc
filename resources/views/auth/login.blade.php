@@ -4,7 +4,6 @@
 
 @section('content')
 
-    <!-- Semantic <main> tag for SEO -->
     <main class="login-wrapper">
 
         <div class="brand-side">
@@ -15,7 +14,6 @@
             </div>
         </div>
 
-        <!-- Right Side: Form -->
         <div class="form-side">
             <div class="form-container">
                 <div class="login-header">
@@ -39,18 +37,23 @@
                     @csrf
 
                     <div class="mb-4">
-                        <!-- SEO: 'for' matches 'id' -->
                         <label for="email" class="form-label text-uppercase">{{ __('auth.email_label') }}</label>
                         <div class="input-group">
-                            <input type="email" name="email" id="email" class="form-control" autocomplete="email" required>
+                            <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" name="email" id="email" class="form-control border-start-0 ps-0" autocomplete="email" required value="{{ old('email') }}" placeholder="your@email.com">
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label for="password" class="form-label text-uppercase">{{ __('auth.password_label') }}</label>
                         <div class="input-group">
-                            <input type="password" name="password" id="password" class="form-control" autocomplete="current-password" required>
-                            <span class="input-group-text toggle-password" onclick="togglePassword()">
+                            <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" name="password" id="password" class="form-control border-start-0 border-end-0 px-0" autocomplete="current-password" required placeholder="••••••••">
+                            <span class="input-group-text bg-transparent border-start-0 text-muted toggle-password px-3" onclick="togglePassword()">
                                 <i class="fas fa-eye" id="toggleIcon"></i>
                             </span>
                         </div>
@@ -58,7 +61,7 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                             <label class="form-check-label text-muted small" for="remember">
                                 {{ __('auth.remember_me') }}
                             </label>

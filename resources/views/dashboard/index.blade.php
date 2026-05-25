@@ -9,17 +9,18 @@
             <div class="card shadow-sm">
                 <div class="card-body d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                     <div>
-                        {{-- <h5 class="mb-1 fw-bold text-primary">{{ __('Dashboard Range') }}</h5> --}}
-                        <p class="text-muted mb-0">{{ $rangeLabel }}</p>
+                        <p class="text-muted mb-0"> {{__('last')}} {{ $rangeLabel }}</p>
                     </div>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-primary dropdown-toggle rounded-pill px-4 py-2" type="button" id="dashboardRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle rounded-pill px-4 py-2" type="button"
+                            id="dashboardRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ $periodOptions[$selectedPeriod] }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dashboardRangeDropdown">
                             @foreach ($periodOptions as $value => $label)
                                 <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center {{ $selectedPeriod === $value ? 'active' : '' }}" href="{{ route('dashboard', ['period' => $value]) }}">
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center {{ $selectedPeriod === $value ? 'active' : '' }}"
+                                        href="{{ route('dashboard', ['period' => $value]) }}">
                                         <span>{{ $label }}</span>
                                         @if ($selectedPeriod === $value)
                                             <i class="fas fa-check text-primary"></i>
@@ -34,128 +35,6 @@
         </div>
     </div>
 
-    {{-- <div class="row g-3 mb-4">
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start  shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ __('Total Revenue') }}
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-primary">${{ number_format($totalRevenue, 2) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-primary opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ __('Total Debt') }}
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-warning">${{ number_format($totalDebt, 2) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-hand-holding-usd fa-2x text-warning opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                {{ __('General Expenses') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalExpenses, 2) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-danger opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                {{ __('Product_Purchases') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalPurchases, 2) }}
-                            </div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-boxes fa-2x text-danger opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ __('Estimated Profit') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-success">${{ number_format($netProfit, 2) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-success"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                {{ __('Total Orders') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-info">{{ number_format($totalOrders) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-shopping-cart fa-2x text-info opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
-                                {{ __('Total Products') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-secondary">{{ number_format($totalProducts) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-box-open fa-2x text-secondary opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-start shadow h-100 py-2 bg-white">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
-                                {{ __('Total Categories') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-dark">{{ number_format($totalCategories) }}</div>
-                        </div>
-                        <div class="col-auto"><i class="fas fa-tags fa-2x text-dark opacity-50"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
     <div class="row g-2 mb-4">
         <div class="col-12 col-md-6 col-xl-4">
             <div class="card border-start  shadow h-100 py-2 bg-white">
@@ -194,7 +73,8 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                 {{ __('General Expenses') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalExpenses, 2) }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalExpenses, 2) }}
+                            </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-danger opacity-50"></i></div>
                     </div>
@@ -208,8 +88,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                {{ __('Product_Purchases') }}</div>
-                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($totalPurchases, 2) }}
+                                {{ __('cost_of_items_sold') }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-danger">-${{ number_format($cogs, 2) }}
                             </div>
                         </div>
                         <div class="col-auto"><i class="fas fa-boxes fa-2x text-danger opacity-50"></i></div>
@@ -238,7 +118,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ __('Total Orders') }}
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ __('Total_Orders') }}
                             </div>
                             <div class="h4 mb-0 font-weight-bold text-info">{{ number_format($totalOrders) }}</div>
                         </div>
@@ -253,7 +133,7 @@
         <div class="col-12 col-lg-4">
             <div class="card shadow h-100 bg-white">
                 <div class="card-header py-3 bg-white">
-                    <h6 class="m-0 fw-bold text-primary">{{ __('Top Selling Products') }}</h6>
+                    <h6 class="m-0 fw-bold text-primary">{{ __('Top_Selling_Products') }}</h6>
                 </div>
                 <div class="card-body">
                     @if ($topSellingProducts->count() > 0)
@@ -289,8 +169,8 @@
         <div class="col-12 col-lg-8">
             <div class="card shadow h-100 bg-white">
                 <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-primary">{{ __('Recent Transactions') }}</h6>
-                    <span class="small text-muted">{{ __('Last 5 orders') }}</span>
+                    <h6 class="m-0 fw-bold text-primary">{{ __('Recent_Transactions') }}</h6>
+                    <span class="small text-muted">{{ __('Last_5_orders') }}</span>
                 </div>
                 <div class="card-body">
                     @if ($recentTransactions->count() > 0)
@@ -355,8 +235,6 @@
         </div>
     </div>
 
-
-
     <div class="card shadow mb-4 border-start">
         <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
             <h6 class="m-0 fw-bold text-danger">{{ __('Low/Out of Stock Items') }}</h6>
@@ -407,6 +285,7 @@
         </div>
     </div>
 
+
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
@@ -417,7 +296,8 @@
                 paymentLabels: ["{{ __('Cash') }}", "{{ __('Card') }}", "{{ __('QR Scan') }}"],
                 paymentData: [{{ $cashCount }}, {{ $cardCount }}, {{ $qrCount }}],
                 chartTextColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#d1d5db' : '#6b7280',
-                chartGridColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                chartGridColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255,255,255,0.1)' :
+                    'rgba(0,0,0,0.1)'
             };
         </script>
         <script src="{{ asset('js/pages/dashboard-index.js') }}"></script>

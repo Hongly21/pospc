@@ -218,7 +218,6 @@ body {
     .tab-pane {
         padding: 0.85rem;
     }
-
     .tab-pane table th:nth-child(1),
     .tab-pane table td:nth-child(1),
     .tab-pane table th:nth-child(2),

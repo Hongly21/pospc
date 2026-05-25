@@ -169,9 +169,14 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end mt-4">
-                {{ $expenses->links() }}
-            </div>
+            <div class="mt-4">
+                {{-- Pagination --}}
+                @if(method_exists($expenses, 'links'))
+                    <div class="d-flex justify-content-start mt-3">
+                        {{ $expenses->appends(request()->query())->links() }}
+                    </div>
+                @endif
+             </div>
         </div>
     </div>
 

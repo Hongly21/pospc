@@ -17,6 +17,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+
         $query = Product::with(['category', 'inventory', 'attributes'])->withCount('orderDetails');
 
         if ($request->has('status') && $request->status != '') {
@@ -118,7 +119,6 @@ class ProductController extends Controller
             DB::commit();
 
             return redirect()->route('products.index')->with('success', __('products.msg_created'));
-
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e;
@@ -185,7 +185,6 @@ class ProductController extends Controller
             }
 
             DB::commit();
-
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e;
