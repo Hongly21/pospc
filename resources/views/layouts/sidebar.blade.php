@@ -1,17 +1,17 @@
 <div id="sidebar" class="sidebar">
-    <div class="d-md-none text-end ">
+    {{-- <div class="d-md-none text-end ">
         <button class="btn btn-sm btn-outline-secondary btn-close-slide-mobile" onclick="closeSidebarMobile()">
             <i class="fas fa-times"></i>
         </button>
-    </div>
+    </div> --}}
 
     <div class="sidebar-brand">
         <div class="brand-logo-wrapper">
-            <i class="fas fa-layer-group"></i>
-            <span class="nav-label">{{ __('POS System') }}</span>
+            {{-- <i class="fas fa-layer-group"></i> --}}
+            {{-- <img style="width: 40px;" src="{{ asset('assets/images/logo.png') }}" alt="POS Logo" class="brand-logo"> --}}
+            {{-- <span class="nav-label">{{ __('POS System') }}</span> --}}
+            <img style="width: 95%;" src="{{asset('assets/images/image.png')}}" alt="POS Logo" class="brand-logo">
         </div>
-        <i class="fas fa-angles-left sidebar-toggle-btn d-none d-md-block" onclick="toggleDesktopSidebar()"
-            data-tooltip="{{ __('open_sidebar') }}"></i>
     </div>
 
     @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
@@ -80,7 +80,7 @@
         </a>
     @endif
 
-    @if (auth()->user()->hasRole('Admin'))
+    @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
         <div class="menu-header">{{ __('Finance & Reports') }}</div>
 
         <a href="{{ url('/expenses') }}" class="{{ request()->is('expenses*') ? 'active' : '' }}"
@@ -92,9 +92,10 @@
             data-tooltip="{{ __('Sales Reports') }}">
             <i class="fas fa-fw fa-chart-area icon "></i> <span class="nav-label">{{ __('Sales Reports') }}</span>
         </a>
+
     @endif
 
-    @if (auth()->user()->hasRole('Admin'))
+    @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))
         @php
             // $pendingCount = \App\Models\User::where('Status', 'Pending')->count();
             $pendingCount = \App\Models\User::where('Status', 'Pending')->count();

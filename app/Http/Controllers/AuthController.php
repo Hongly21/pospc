@@ -46,6 +46,11 @@ public function login(Request $request)
 
             $remember = $request->boolean('remember');
             Auth::login($user, $remember);
+            // record last login
+            $user->last_login_at = now();
+            $user->last_login_ip = $request->ip();
+            $user->save();
+
             $request->session()->regenerate();
 
             $roleName = strtolower($user->role->RoleName ?? '');
@@ -110,6 +115,11 @@ public function login(Request $request)
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            $user->last_logout_at = now();
+            $user->save();
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

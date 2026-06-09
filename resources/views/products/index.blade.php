@@ -79,7 +79,7 @@
                                     <div class="d-flex align-items-center py-1">
                                         @if ($product->Image)
                                             <img src="{{ asset('storage/' . $product->Image) }}"
-                                                class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48" alt="{{ $product->Name }}">
+                                                class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
                                         @else
                                             <div
                                                 class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light square-48">
@@ -176,34 +176,43 @@
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_name') }}</label>
                                                         <input type="text" name="Name"
-                                                            class="form-control"
-                                                            value="{{ $product->Name }}" required>
+                                                            class="form-control @error('Name') is-invalid @enderror"
+                                                            value="{{ old('Name', $product->Name) }}" maxlength="255" required>
+                                                        @error('Name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }}</label>
-                                                        <select name="CategoryID" class="form-select searchable-select"
+                                                        <select name="CategoryID" class="form-select searchable-select @error('CategoryID') is-invalid @enderror"
                                                             required>
                                                             @foreach ($categories as $cat)
                                                                 <option value="{{ $cat->CategoryID }}"
-                                                                    {{ $product->CategoryID == $cat->CategoryID ? 'selected' : '' }}>
+                                                                    {{ old('CategoryID', $product->CategoryID) == $cat->CategoryID ? 'selected' : '' }}>
                                                                     {{ $cat->Name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @error('CategoryID')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
                                                         <label class="form-label small fw-bold text-muted">{{ __('products.lbl_tax') }}</label>
-                                                        <select name="TaxID" class="form-select">
+                                                        <select name="TaxID" class="form-select @error('TaxID') is-invalid @enderror">
                                                             <option value="">{{ __('products.select_tax') }}</option>
                                                             @foreach ($taxes as $tax)
-                                                                <option value="{{ $tax->TaxID }}" {{ $product->TaxID == $tax->TaxID ? 'selected' : '' }}>
+                                                                <option value="{{ $tax->TaxID }}" {{ old('TaxID', $product->TaxID) == $tax->TaxID ? 'selected' : '' }}>
                                                                     {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @error('TaxID')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-6 col-md-6">
@@ -224,23 +233,32 @@
                                                     <div class="col-6 col-md-4">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_cost') }}</label>
-                                                        <input type="number" step="0.01" name="CostPrice"
-                                                            class="form-control"
-                                                            value="{{ $product->CostPrice }}" required>
+                                                        <input type="number" step="0.01" min="0" name="CostPrice"
+                                                            class="form-control @error('CostPrice') is-invalid @enderror"
+                                                            value="{{ old('CostPrice', $product->CostPrice) }}" required>
+                                                        @error('CostPrice')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                     <div class="col-6 col-md-4">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_price') }}</label>
-                                                        <input type="number" step="0.01" name="SellPrice"
-                                                            class="form-control"
-                                                            value="{{ $product->SellPrice }}" required>
+                                                        <input type="number" step="0.01" min="0" name="SellPrice"
+                                                            class="form-control @error('SellPrice') is-invalid @enderror"
+                                                            value="{{ old('SellPrice', $product->SellPrice) }}" required>
+                                                        @error('SellPrice')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_warranty') }}</label>
-                                                        <input type="number" name="WarrantyMonths"
-                                                            class="form-control"
-                                                            value="{{ $product->WarrantyMonths }}">
+                                                        <input type="number" min="0" name="WarrantyMonths"
+                                                            class="form-control @error('WarrantyMonths') is-invalid @enderror"
+                                                            value="{{ old('WarrantyMonths', $product->WarrantyMonths) }}">
+                                                        @error('WarrantyMonths')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-6 col-md-6">
@@ -257,21 +275,27 @@
                                                         <label
                                                             class="form-label small fw-bold text-primary">{{ __('products.status') }}</label>
                                                         <select name="Status"
-                                                            class="form-select border-primary bg-primary bg-opacity-10">
+                                                            class="form-select border-primary bg-primary bg-opacity-10 @error('Status') is-invalid @enderror" required>
                                                             <option value="1"
-                                                                {{ $product->Status == 1 ? 'selected' : '' }}>
+                                                                {{ old('Status', $product->Status) == 1 ? 'selected' : '' }}>
                                                                 {{ __('active') }}</option>
                                                             <option value="0"
-                                                                {{ $product->Status == 0 ? 'selected' : '' }}>
+                                                                {{ old('Status', $product->Status) == 0 ? 'selected' : '' }}>
                                                                 {{ __('inactive') }}</option>
                                                         </select>
+                                                        @error('Status')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-md-12">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_image') }}</label>
                                                         <input type="file" name="Image"
-                                                            class="form-control">
+                                                            class="form-control @error('Image') is-invalid @enderror" accept="image/*">
+                                                        @error('Image')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                         @if ($product->Image)
                                                             <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
                                                                 <small
@@ -285,7 +309,10 @@
                                                     <div class="col-md-12">
                                                         <label
                                                             class="form-label small fw-bold text-muted">{{ __('products.lbl_description') }}</label>
-                                                        <textarea name="Description" class="form-control" rows="2">{{ $product->Description }}</textarea>
+                                                        <textarea name="Description" class="form-control @error('Description') is-invalid @enderror" rows="2" maxlength="1000">{{ old('Description', $product->Description) }}</textarea>
+                                                        @error('Description')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
 
                                                     <div class="col-12">
@@ -374,8 +401,6 @@
         </div>
     </div>
 
-
-
     {{-- Add Modal --}}
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -392,13 +417,16 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_name') }} <span
                                         class="text-danger">*</span></label>
-                                <input type="text" name="Name" class="form-control"
-                                    value="{{ old('Name') }}" required>
+                                <input type="text" name="Name" class="form-control @error('Name') is-invalid @enderror"
+                                    value="{{ old('Name') }}" maxlength="255" required>
+                                @error('Name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }} <span
                                         class="text-danger">*</span></label>
-                                <select name="CategoryID" class="form-select searchable-select" required>
+                                <select name="CategoryID" class="form-select searchable-select @error('CategoryID') is-invalid @enderror" required>
                                     <option value="">{{ __('products.select_category') }}</option>
                                     @foreach ($categories->where('status', 1) as $cat)
                                         <option value="{{ $cat->CategoryID }}"
@@ -406,6 +434,9 @@
                                             {{ $cat->Name }}</option>
                                     @endforeach
                                 </select>
+                                @error('CategoryID')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -433,24 +464,36 @@
 
                             <div class="col-6 col-md-4">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_cost') }} ($)</label>
-                                <input type="number" step="0.01" name="CostPrice"
-                                    class="form-control" value="{{ old('CostPrice') }}" required>
+                                <input type="number" step="0.01" min="0" name="CostPrice"
+                                    class="form-control @error('CostPrice') is-invalid @enderror" value="{{ old('CostPrice') }}" required>
+                                @error('CostPrice')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 col-md-4">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_price') }} ($)</label>
-                                <input type="number" step="0.01" name="SellPrice"
-                                    class="form-control" value="{{ old('SellPrice') }}" required>
+                                <input type="number" step="0.01" min="0" name="SellPrice"
+                                    class="form-control @error('SellPrice') is-invalid @enderror" value="{{ old('SellPrice') }}" required>
+                                @error('SellPrice')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-6 col-md-4">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_stock') }}</label>
-                                <input type="number" name="StockQuantity" class="form-control"
+                                <input type="number" min="0" name="StockQuantity" class="form-control @error('StockQuantity') is-invalid @enderror"
                                     value="{{ old('StockQuantity', 0) }}" required>
+                                @error('StockQuantity')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_warranty') }}</label>
-                                <input type="number" name="WarrantyMonths" class="form-control"
+                                <input type="number" min="0" name="WarrantyMonths" class="form-control @error('WarrantyMonths') is-invalid @enderror"
                                     value="{{ old('WarrantyMonths') }}" placeholder="0">
+                                @error('WarrantyMonths')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -470,12 +513,18 @@
 
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_image') }}</label>
-                                <input type="file" name="Image" class="form-control">
+                                <input type="file" name="Image" class="form-control @error('Image') is-invalid @enderror" accept="image/*">
+                                @error('Image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">{{ __('products.lbl_description') }}</label>
-                                <textarea name="Description" class="form-control" rows="2">{{ old('Description') }}</textarea>
+                                <textarea name="Description" class="form-control @error('Description') is-invalid @enderror" rows="2" maxlength="1000">{{ old('Description') }}</textarea>
+                                @error('Description')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
@@ -535,7 +584,7 @@
     @endpush
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             window.productsPageConfig = {
                 messages: {
@@ -550,6 +599,6 @@
                 showAddModalOnError: {{ ($errors->any() && old('Name') && !$errors->has('Status')) ? 'true' : 'false' }}
             };
         </script>
-        <script src="{{ asset('js/pages/products-index.js') }}"></script>
+        <script defer src="{{ asset('js/pages/products-index.js') }}"></script>
     @endpush
 @endsection

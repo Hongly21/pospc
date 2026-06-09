@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Order;
 
 class OrderDetail extends Model
 {
@@ -23,6 +24,11 @@ class OrderDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'ProductID', 'ProductID');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'OrderID', 'OrderID');
     }
 
     public function getTaxRateAttribute($value)

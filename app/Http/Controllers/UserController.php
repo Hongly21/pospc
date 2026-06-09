@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('role');
+        $query = User::with('role')->withCount('orders');
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -29,6 +29,18 @@ class UserController extends Controller
 
         if ($request->filled('status')) {
             $query->where('Status', $request->status);
+        }
+
+        // Admin-only filter: recent logins (24h / 7d / 30d)
+        if ($request->filled('recent_login') && Auth::user() && Auth::user()->hasRole('Admin')) {
+            $recent = $request->recent_login;
+            if ($recent === '24h') {
+                $query->where('last_login_at', '>=', now()->subDay());
+            } elseif ($recent === '7d') {
+                $query->where('last_login_at', '>=', now()->subDays(7));
+            } elseif ($recent === '30d') {
+                $query->where('last_login_at', '>=', now()->subDays(30));
+            }
         }
 
         $users = $query->orderBy('UserID', 'desc')->paginate(15)->appends($request->query());
@@ -146,11 +158,27 @@ class UserController extends Controller
 
     public function destroy(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        $user = User::where('UserID', $request->id)->withCount('orders')->firstOrFail();
+
+        if ($user->orders_count > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('users.cannot_delete_with_orders'),
+            ], 409);
+        }
+
         try {
-            User::destroy($request->id);
+            $user->delete();
             return response()->json('success');
         } catch (\Exception $e) {
-            return response()->json('error');
+            return response()->json([
+                'status' => 'error',
+                'message' => __('users.msg_delete_failed') ?? 'Unable to delete user.',
+            ], 500);
         }
     }
 }

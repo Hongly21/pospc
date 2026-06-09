@@ -8,7 +8,7 @@
 
         <div class="brand-side">
             <div class="brand-overlay">
-                <i class="fas fa-user-plus fa-3x mb-4 text-info"></i>
+                {{-- <i class="fas fa-user-plus fa-3x mb-4 text-info"></i> --}}
                 <h1>{{ __('auth.join_system') }}</h1>
                 <p>{{ __('auth.register_description') }}</p>
             </div>
@@ -100,6 +100,6 @@
     </main>
 
     @push('scripts')
-        <script src="{{ asset('js/pages/auth-register.js') }}"></script>
+        <script defer src="{{ asset('js/pages/auth-register.js') }}"></script>
     @endpush
 @endsection

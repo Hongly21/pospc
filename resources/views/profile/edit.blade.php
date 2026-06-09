@@ -19,7 +19,7 @@
                         <div class="text-center mb-4">
                             @if ($user->UserImage)
                                 <img src="{{ asset('storage/' . $user->UserImage) }}" alt="Profile Picture"
-                                    class="rounded-circle mb-2 profile-avatar">
+                                    class="rounded-circle profile-avatar rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2 profile-avatar-placeholder">
                             @else
                                 <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2 profile-avatar-placeholder">
                                     {{ strtoupper(substr($user->Username, 0, 1)) }}
@@ -82,7 +82,7 @@
     </div>
 
     @push('scripts')
-        <script src="{{ asset('js/pages/profile-edit.js') }}"></script>
+        <script defer src="{{ asset('js/pages/profile-edit.js') }}"></script>
     @endpush
 
 @endsection

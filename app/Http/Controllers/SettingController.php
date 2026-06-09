@@ -13,8 +13,26 @@ class SettingController extends Controller
         return view('settings.index', compact('setting'));
     }
 
+    // public function update(Request $request)
+    // {
+    //     $setting = Setting::first();
+
+    //     $setting->shop_name = $request->shop_name;
+    //     $setting->shop_phone = $request->shop_phone;
+    //     $setting->shop_address = $request->shop_address;
+    //     $setting->save();
+
+    //     return back()->with('success', __('settings.msg_updated'));
+    // }
+
     public function update(Request $request)
     {
+        $request->validate([
+            'shop_name'    => 'required|string|max:50',
+            'shop_address' => 'required|string|max:255',
+            'shop_phone'   => 'required|numeric',
+        ]);
+
         $setting = Setting::first();
 
         $setting->shop_name = $request->shop_name;

@@ -190,11 +190,14 @@
                                 </td>
 
                                 <td class="text-center">
-                                    @if($order->PaymentType == 'Cash')
+                                    @php
+                                        $paymentMethod = $order->receipts->first()?->PaymentMethod ?? 'Cash';
+                                    @endphp
+                                    @if($paymentMethod == 'Cash')
                                         <span class="badge bg-success bg-opacity-10 text-success border border-success px-2"><i class="fas fa-money-bill-wave"></i> {{ __('Cash') }}</span>
-                                    @elseif($order->PaymentType == 'QR')
+                                    @elseif($paymentMethod == 'QR')
                                         <span class="badge bg-info bg-opacity-10 text-info border border-info px-2"><i class="fas fa-qrcode"></i> {{ __('QR') }}</span>
-                                    @elseif($order->PaymentType == 'Card')
+                                    @elseif($paymentMethod == 'Card')
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2"><i class="fas fa-credit-card"></i> {{ __('Card') }}</span>
                                     @else
                                         <span class="text-muted">-</span>
@@ -240,12 +243,12 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             window.reportsSalesConfig = {
                 selectPlaceholder: "{{ __('Select') }}"
             };
         </script>
-        <script src="{{ asset('js/pages/reports-sales.js') }}"></script>
+        <script defer src="{{ asset('js/pages/reports-sales.js') }}"></script>
     @endpush
 @endsection

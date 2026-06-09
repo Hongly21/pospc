@@ -100,19 +100,6 @@ Route::middleware(['auth', 'role:Admin,Manager'])->group(function () {
     Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
 
     Route::resource('expenses', ExpenseController::class);
-});
-
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-
-    // User Management
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-    Route::post('/users/update', [UserController::class, 'update'])->name('users.update');
-    Route::post('/users/delete', [UserController::class, 'destroy'])->name('users.delete');
-
-    // User Approvals
-    Route::get('/users/approve/{id}', [UserController::class, 'approve'])->name('users.approve');
-    Route::get('/users/reject/{id}', [UserController::class, 'reject'])->name('users.reject');
 
     // System Reports
     Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
@@ -120,6 +107,16 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     // Global Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // User Approvals
+    Route::get('/users/approve/{id}', [UserController::class, 'approve'])->name('users.approve');
+    Route::get('/users/reject/{id}', [UserController::class, 'reject'])->name('users.reject');
+
+    // User Management
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::post('/users/update', [UserController::class, 'update'])->name('users.update');
+    Route::post('/users/delete', [UserController::class, 'destroy'])->name('users.delete');
 });
 
 

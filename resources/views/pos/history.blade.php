@@ -65,10 +65,13 @@
                                 <td>{{ $order->customer->Name ?? __('General Customer') }}</td>
                                 <td class="fw-bold text-success">${{ number_format($order->TotalAmount, 2) }}</td>
                                 <td>
-                                    @if ($order->PaymentType == 'Cash')
+                                    @php
+                                        $paymentMethod = $order->receipts->first()?->PaymentMethod ?? 'Cash';
+                                    @endphp
+                                    @if ($paymentMethod == 'Cash')
                                         <span class="badge bg-success"><i class="fas fa-money-bill-wave fa-sm me-1"></i>
                                             {{ __('Cash') }}</span>
-                                    @elseif($order->PaymentType == 'QR')
+                                    @elseif($paymentMethod == 'QR')
                                         <span class="badge bg-info"><i class="fas fa-qrcode fa-sm me-1"></i> KHQR</span>
                                     @else
                                         <span class="badge bg-secondary"><i class="fas fa-credit-card fa-sm me-1"></i>
@@ -184,6 +187,6 @@
                 }
             };
         </script>
-        <script src="{{ asset('js/pages/pos-history.js') }}"></script>
+        <script defer src="{{ asset('js/pages/pos-history.js') }}"></script>
     @endpush
 @endsection

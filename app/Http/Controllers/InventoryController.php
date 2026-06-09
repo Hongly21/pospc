@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Inventory;
 use App\Models\InventoryAdjustment;
+use App\Models\OrderDetail;
+use App\Models\PurchaseDetail;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
@@ -128,30 +132,139 @@ class InventoryController extends Controller
 
     public function history(Request $request)
     {
-        $query = InventoryAdjustment::with(['product', 'user']);
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
+        $search = $request->filled('search') ? trim($request->search) : null;
 
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $startDate = \Carbon\Carbon::parse($request->start_date)->startOfDay();
-            $endDate = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+        $sales = OrderDetail::with(['product', 'order.user'])
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereHas('order', function ($orderQuery) use ($startDate) {
+                    $orderQuery->where('OrderDate', '>=', $startDate);
+                });
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereHas('order', function ($orderQuery) use ($endDate) {
+                    $orderQuery->where('OrderDate', '<=', $endDate);
+                });
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($sub) use ($search) {
+                    $sub->whereHas('product', function ($productQuery) use ($search) {
+                        $productQuery->where('Name', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('order.user', function ($userQuery) use ($search) {
+                        $userQuery->where('Username', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('order', function ($orderQuery) use ($search) {
+                        $orderQuery->where('OrderID', 'LIKE', "%{$search}%");
+                    });
+                });
+            })
+            ->get()
+            ->map(function ($detail) {
+                return (object) [
+                    'date' => $detail->order->OrderDate ?? now(),
+                    'source' => 'Sale',
+                    'actor' => $detail->order->user->Username ?? 'POS',
+                    'product' => $detail->product->Name ?? 'Deleted Product',
+                    'qty' => -abs($detail->Quantity),
+                    'action' => 'Sale',
+                    'note' => 'Order #' . $detail->OrderID,
+                ];
+            });
 
-            $query->whereBetween('created_at', [$startDate, $endDate]);
-        }
+        $purchases = PurchaseDetail::with(['product', 'purchase.supplier'])
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereHas('purchase', function ($purchaseQuery) use ($startDate) {
+                    $purchaseQuery->where('Date', '>=', $startDate);
+                });
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereHas('purchase', function ($purchaseQuery) use ($endDate) {
+                    $purchaseQuery->where('Date', '<=', $endDate);
+                });
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($sub) use ($search) {
+                    $sub->whereHas('product', function ($productQuery) use ($search) {
+                        $productQuery->where('Name', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('purchase.supplier', function ($supplierQuery) use ($search) {
+                        $supplierQuery->where('Name', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('purchase', function ($purchaseQuery) use ($search) {
+                        $purchaseQuery->where('PurchaseID', 'LIKE', "%{$search}%");
+                    });
+                });
+            })
+            ->get()
+            ->map(function ($detail) {
+                return (object) [
+                    'date' => $detail->purchase->Date ?? now(),
+                    'source' => 'Purchase',
+                    'actor' => $detail->purchase->supplier->Name ?? 'Supplier',
+                    'product' => $detail->product->Name ?? 'Deleted Product',
+                    'qty' => abs($detail->Qty),
+                    'action' => 'Purchase',
+                    'note' => 'Purchase #' . $detail->PurchaseID,
+                ];
+            });
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('product', function ($productQuery) use ($search) {
-                    $productQuery->where('Name', 'LIKE', "%{$search}%");
-                })
+        $adjustments = InventoryAdjustment::with(['product', 'user'])
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->where('created_at', '<=', $endDate);
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($sub) use ($search) {
+                    $sub->whereHas('product', function ($productQuery) use ($search) {
+                        $productQuery->where('Name', 'LIKE', "%{$search}%");
+                    })
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('Username', 'LIKE', "%{$search}%");
-                    });
+                    })
+                    ->orWhere('Reason', 'LIKE', "%{$search}%");
+                });
+            })
+            ->get()
+            ->map(function ($history) {
+                return (object) [
+                    'date' => $history->created_at,
+                    'source' => 'Adjustment',
+                    'actor' => $history->user->Username ?? 'Unknown',
+                    'product' => $history->product->Name ?? 'Deleted Product',
+                    'qty' => $history->Action === 'add' ? abs($history->Quantity) : -abs($history->Quantity),
+                    'action' => $history->Action === 'add' ? 'Add' : 'Subtract',
+                    'note' => $history->Reason ?: 'Manual adjustment',
+                ];
             });
-        }
 
-        $histories = $query->orderBy('created_at', 'desc')
-            ->paginate(20)
-            ->appends($request->query());
+        // Convert all activity lists to base/support collections to avoid
+        // Eloquent Collection methods calling model helpers (e.g. getKey())
+        // when items are plain objects/arrays. This prevents errors when
+        // merging Eloquent collections with mapped stdClass objects.
+        $sales = collect($sales);
+        $purchases = collect($purchases);
+        $adjustments = collect($adjustments);
+
+        $historyItems = $sales->merge($purchases)->merge($adjustments)
+            ->sortByDesc('date')
+            ->values();
+
+        $page = Paginator::resolveCurrentPage('page');
+        $perPage = 20;
+        $histories = new LengthAwarePaginator(
+            $historyItems->slice(($page - 1) * $perPage, $perPage)->values(),
+            $historyItems->count(),
+            $perPage,
+            $page,
+            [
+                'path' => Paginator::resolveCurrentPath(),
+                'query' => $request->query(),
+            ]
+        );
 
         return view('inventory.history', compact('histories'));
     }

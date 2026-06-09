@@ -184,6 +184,8 @@
         qrCountdownTimer = null;
     }
 
+    window.cancelQrPolling = cancelQrPolling;
+
     function expireQr() {
         cancelQrPolling();
         $('#qrWaiting').addClass('d-none');

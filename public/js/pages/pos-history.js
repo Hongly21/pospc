@@ -10,16 +10,15 @@
         $('#debtCustomerName').text(customerName);
         $('#debtRemainingAmount').text('$' + parseFloat(remainingDebt).toFixed(2));
         $('#debtPaidAmount').val('');
-        const myModal = new bootstrap.Modal(document.getElementById('payDebtModal'));
-        myModal.show();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('payDebtModal')).show();
         setTimeout(() => {
             $('#debtPaidAmount').focus();
         }, 500);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        window.openDebtModal = openDebtModal;
+    window.openDebtModal = openDebtModal;
 
+    document.addEventListener('DOMContentLoaded', function() {
         $('#btnSubmitDebtPayment').click(function() {
             const orderId = $('#debtOrderID').val();
             const paidAmount = $('#debtPaidAmount').val();

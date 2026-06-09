@@ -56,7 +56,7 @@
             <div class="customer-info">
                 <div class="fw-bold text-uppercase receipt-section-title">{{ __('receipt.order_info') }}</div>
                 <div><strong>{{ __('receipt.seller') }}</strong> {{ $order->user->Username ?? 'Admin' }}</div>
-                <div><strong>{{ __('receipt.payment_method') }}</strong> {{ $order->PaymentType }}</div>
+                <div><strong>{{ __('receipt.payment_method') }}</strong> {{ $order->receipts->first()?->PaymentMethod ?? 'N/A' }}</div>
                 <div><strong>{{ __('receipt.status') }}</strong> <span
                         class="{{ $debt > 0 ? 'text-danger fw-bold' : '' }}">{{ $order->Status }}</span></div>
             </div>

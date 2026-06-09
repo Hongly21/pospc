@@ -18,7 +18,7 @@ class CustomerController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'required|string|max:20|unique:customers,PhoneNumber'
+            'phone' => 'required|digits_between:8,20|unique:customers,PhoneNumber'
         ]);
 
         $customer = new Customer();
@@ -79,9 +79,15 @@ class CustomerController extends Controller
             'phone' => trim((string) $request->input('phone')),
         ]);
 
+        // $request->validate([
+        //     'name' => 'required|string|max:100',
+        //     'phone' => 'required|numeric|max:20|unique:customers,PhoneNumber',
+        //     'status' => 'nullable|boolean',
+        // ]);
+
         $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'required|string|max:20|unique:customers,PhoneNumber',
+            'phone' => 'required|digits_between:8,20|unique:customers,PhoneNumber',
             'status' => 'nullable|boolean',
         ]);
 
@@ -93,7 +99,7 @@ class CustomerController extends Controller
             'Points' => 0
         ]);
 
-        return redirect()->route('customers.index')->with('complete', __('customers.msg_created'));
+        return redirect()->route('customers.index')->with('success', __('customers.msg_created'));
     }
 
 
@@ -108,7 +114,7 @@ class CustomerController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => ['required', 'string', 'max:20', Rule::unique('customers', 'PhoneNumber')->ignore($id, 'CustomerID')],
+            'phone' => ['required', 'digits_between:8,20', Rule::unique('customers', 'PhoneNumber')->ignore($id, 'CustomerID')],
             'status' => 'nullable|boolean',
         ]);
 

@@ -287,7 +287,7 @@
 
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             window.dashboardIndexConfig = {
                 chartDates: {!! json_encode($chartDates) !!},
@@ -300,6 +300,6 @@
                     'rgba(0,0,0,0.1)'
             };
         </script>
-        <script src="{{ asset('js/pages/dashboard-index.js') }}"></script>
+        <script defer src="{{ asset('js/pages/dashboard-index.js') }}"></script>
     @endpush
 @endsection

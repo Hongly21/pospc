@@ -8,7 +8,7 @@
 
         <div class="brand-side">
             <div class="brand-overlay">
-                <i class="fas fa-layer-group fa-3x mb-4 text-info"></i>
+                {{-- <i class="fas fa-layer-group fa-3x mb-4 text-info"></i> --}}
                 <h1>{{ __('auth.pos_system') }}</h1>
                 <p>{{ __('auth.pos_description') }}</p>
             </div>
@@ -20,15 +20,17 @@
                     <h2>{{ __('auth.welcome') }}</h2>
                     <p class="text-muted">{{ __('auth.login_subtitle') }}</p>
                 </div>
-
+                
                 @if (session('success'))
-                    <div class="alert alert-success d-flex align-items-center mb-4 bg-success bg-opacity-10 text-success" role="alert">
+                    <div class="alert alert-success d-flex align-items-center mb-4 bg-success bg-opacity-10 text-success"
+                        role="alert">
                         <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert alert-danger d-flex align-items-center mb-4 bg-danger bg-opacity-10 text-danger" role="alert">
+                    <div class="alert alert-danger d-flex align-items-center mb-4 bg-danger bg-opacity-10 text-danger"
+                        role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i> {{ $errors->first() }}
                     </div>
                 @endif
@@ -42,7 +44,8 @@
                             <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <input type="email" name="email" id="email" class="form-control border-start-0 ps-0" autocomplete="email" required value="{{ old('email') }}" placeholder="your@email.com">
+                            <input type="email" name="email" id="email" class="form-control border-start-0 ps-0"
+                                autocomplete="email" required value="{{ old('email') }}" placeholder="your@email.com">
                         </div>
                     </div>
 
@@ -52,8 +55,11 @@
                             <span class="input-group-text bg-transparent border-end-0 text-muted px-3">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            <input type="password" name="password" id="password" class="form-control border-start-0 border-end-0 px-0" autocomplete="current-password" required placeholder="••••••••">
-                            <span class="input-group-text bg-transparent border-start-0 text-muted toggle-password px-3" onclick="togglePassword()">
+                            <input type="password" name="password" id="password"
+                                class="form-control border-start-0 border-end-0 px-0" autocomplete="current-password"
+                                required placeholder="••••••••">
+                            <span class="input-group-text bg-transparent border-start-0 text-muted toggle-password px-3"
+                                onclick="togglePassword()">
                                 <i class="fas fa-eye" id="toggleIcon"></i>
                             </span>
                         </div>
@@ -61,12 +67,14 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember"
+                                {{ old('remember') ? 'checked' : '' }}>
                             <label class="form-check-label text-muted small" for="remember">
                                 {{ __('auth.remember_me') }}
                             </label>
                         </div>
-                        <a href="{{ route('password.request') }}" class="small fw-bold text-decoration-none text-primary auth-link-primary">
+                        <a href="{{ route('password.request') }}"
+                            class="small fw-bold text-decoration-none text-primary auth-link-primary">
                             {{ __('auth.forgot_password') }}
                         </a>
                     </div>
@@ -96,6 +104,6 @@
                 successMessage: "Loading your dashboard in <b></b> milliseconds."
             };
         </script>
-        <script src="{{ asset('js/pages/auth-login.js') }}"></script>
+        <script defer src="{{ asset('js/pages/auth-login.js') }}"></script>
     @endpush
 @endsection

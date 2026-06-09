@@ -14,7 +14,6 @@ class Order extends Model
         'CustomerID',
         'TotalAmount',
         'TotalTax',
-        'PaymentType',
         'Status',
         'OrderDate'
     ];
@@ -47,10 +46,5 @@ class Order extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'CustomerID', 'CustomerID');
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'OrderID', 'OrderID');
     }
 }

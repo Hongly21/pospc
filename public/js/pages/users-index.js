@@ -52,6 +52,9 @@
         });
     }
 
+    window.deleteUser = deleteUser;
+    window.toggleField = toggleField;
+
     document.addEventListener('DOMContentLoaded', function() {
         $.ajaxSetup({
             headers: {
@@ -94,7 +97,5 @@
             });
         });
 
-        window.deleteUser = deleteUser;
-        window.toggleField = toggleField;
     });
 })();

@@ -15,6 +15,9 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "bakong-khqr": "^1.0.20"
+        "@popperjs/core": "^2.11.8",
+        "bakong-khqr": "^1.0.20",
+        "bootstrap": "^5.3.8",
+        "jquery": "^3.7.1"
     }
 }

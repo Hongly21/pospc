@@ -6,6 +6,8 @@
 @section('title', __('settings.title'))
 
 @section('content')
+    @include('partials.alerts')
+
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card border-0 shadow-sm">
@@ -14,9 +16,13 @@
                 </div>
                 <div class="card-body p-4">
 
-                    @if (session('success'))
+                    {{-- @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif --}}
 
                     <form action="{{ route('settings.update') }}" method="POST">
                         @csrf

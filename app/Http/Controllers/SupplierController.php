@@ -37,7 +37,7 @@ class SupplierController extends Controller
 
         $request->validate([
             'Name' => ['required', 'string', 'max:150', Rule::unique('suppliers', 'Name')],
-            'Contact' => ['required', 'string', 'max:100', Rule::unique('suppliers', 'Contact')],
+            'Contact' => ['required', 'digits_between:8,20', Rule::unique('suppliers', 'Contact')],
             'Address' => 'nullable|string|max:255',
         ], [
             'Name.unique' => 'Supplier name already exists.',
@@ -62,7 +62,7 @@ class SupplierController extends Controller
 
         $request->validate([
             'Name' => ['required', 'string', 'max:150', Rule::unique('suppliers', 'Name')->ignore($id, 'SupplierID')],
-            'Contact' => ['required', 'string', 'max:100', Rule::unique('suppliers', 'Contact')->ignore($id, 'SupplierID')],
+            'Contact' => ['required', 'digits_between:8,20', Rule::unique('suppliers', 'Contact')->ignore($id, 'SupplierID')],
             'Address' => 'nullable|string|max:255',
             'status' => 'required|boolean',
         ], [

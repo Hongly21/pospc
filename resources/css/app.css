@@ -1,3 +1,6 @@
+/* Bootstrap base components (modals, dropdowns, forms) — loaded before Tailwind so utilities can override */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

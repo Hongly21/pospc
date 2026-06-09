@@ -98,7 +98,7 @@
                                         @if ($product->Image)
                                             <img src="{{ asset('storage/' . $product->Image) }}"
                                                 class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48"
-                                                alt="{{ $product->Name }}">
+                                               >
                                         @else
                                             <div class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light square-48">
                                                 <i class="fas fa-box text-secondary fs-5"></i>
@@ -238,26 +238,30 @@
         </div>
     </div>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    @push('scripts')
+        <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-        window.inventoryPageConfig = {
-            routes: {
-                search: "{{ route('inventory.index') }}"
-            },
-            messages: {
-                searchPlaceholder: "{{ __('inventory.search_placeholder') }}",
-                selectCategory: "{{ __('inventory.select_category') }}",
-                selectStatus: "{{ __('inventory.select_status') }}",
-                statusNormal: "{{ __('inventory.stock_status_normal') }}",
-                statusLow: "{{ __('inventory.stock_status_low') }}",
-                statusOut: "{{ __('inventory.stock_status_out') }}"
-            }
-        };
-    </script>
+        <script>
+            window.inventoryPageConfig = {
+                routes: {
+                    search: "{{ route('inventory.index') }}"
+                },
+                messages: {
+                    searchPlaceholder: "{{ __('inventory.search_placeholder') }}",
+                    selectCategory: "{{ __('inventory.select_category') }}",
+                    selectStatus: "{{ __('inventory.select_status') }}",
+                    statusNormal: "{{ __('inventory.stock_status_normal') }}",
+                    statusLow: "{{ __('inventory.stock_status_low') }}",
+                    statusOut: "{{ __('inventory.stock_status_out') }}"
+                }
+            };
+        </script>
 
-    <script src="{{ asset('js/pages/inventory.js') }}"></script>
+        <script defer src="{{ asset('js/pages/inventory.js') }}"></script>
+    @endpush
 @endsection

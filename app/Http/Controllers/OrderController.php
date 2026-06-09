@@ -132,7 +132,6 @@ class OrderController extends Controller
                     ]);
                 }
 
-                // Use server-side price and tax rate from database, not from frontend
                 $product = Product::with(['tax', 'category.tax'])->findOrFail($item['id']);
                 $lineAmount = $product->SellPrice * $item['qty'];
                 $taxRate = $product->tax->Rate ?? ($product->category->tax->Rate ?? 0);
@@ -159,7 +158,6 @@ class OrderController extends Controller
                 'CustomerID'  => $request->customer_id,
                 'TotalAmount' => $calculatedTotal,
                 'TotalTax'    => round($totalTax, 2),
-                'PaymentType' => $request->payment_type,
                 'Status'      => $status,
                 'OrderDate'   => $now,
             ]);
@@ -213,10 +211,6 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
-
-    // =========================================================
-    // Remaining existing methods — unchanged
-    // =========================================================
 
     public function showReceipt($id)
     {

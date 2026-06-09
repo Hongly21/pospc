@@ -137,8 +137,7 @@
         if (config.showAddModalOnError) {
             const addModalEl = document.getElementById('addProductModal');
             if (addModalEl) {
-                const addModal = new bootstrap.Modal(addModalEl);
-                addModal.show();
+                bootstrap.Modal.getOrCreateInstance(addModalEl).show();
             }
         }
     });

@@ -4,30 +4,6 @@
     const route = config.routes?.chatbot || '';
     const csrfToken = config.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-    window.toggleDesktopSidebar = function() {
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-        const toggleIcon = document.querySelector('.sidebar-toggle-btn');
-
-        if (sidebar && mainContent) {
-            sidebar.classList.toggle('mini');
-            mainContent.classList.toggle('expanded');
-            localStorage.setItem(SIDEBAR_STATE_KEY, sidebar.classList.contains('mini') ? 'mini' : 'expanded');
-
-            if (sidebar.classList.contains('mini')) {
-                if (toggleIcon) {
-                    toggleIcon.classList.remove('fa-angles-left');
-                    toggleIcon.classList.add('fa-angles-right');
-                }
-            } else {
-                if (toggleIcon) {
-                    toggleIcon.classList.remove('fa-angles-right');
-                    toggleIcon.classList.add('fa-angles-left');
-                }
-            }
-        }
-    };
-
     const SIDEBAR_STATE_KEY = 'sidebarState';
 
     function applySavedSidebarState() {
@@ -75,18 +51,30 @@
             contentWrapper.style.minHeight = `calc(100vh - ${totalOffset}px)`;
         }
 
+        function hideGlobalLoader() {
+            const loader = document.getElementById('global-loader');
+            if (!loader) return;
+            loader.classList.add('loader-hidden');
+            loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
+            loader.style.pointerEvents = 'none';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 300);
+        }
+
         adjustContentWrapperHeight();
         window.addEventListener('resize', adjustContentWrapperHeight);
-
-        $(window).on('load', function() {
-            $('#global-loader').fadeOut(1000);
-        });
-
+        window.addEventListener('load', hideGlobalLoader);
+        document.addEventListener('DOMContentLoaded', hideGlobalLoader);
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                $('#global-loader').hide();
+                hideGlobalLoader();
             }
         });
+
+        // Fallback in case the browser misses the load/pageshow events
+        setTimeout(hideGlobalLoader, 1000);
 
         const $sidebar = $('.sidebar');
         const $sidebarBackdrop = $('.sidebar-backdrop');

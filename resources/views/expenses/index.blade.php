@@ -247,6 +247,6 @@
                 swalCancelBtn: "{{ __('cancel_btn') }}"
             };
         </script>
-        <script src="{{ asset('js/pages/expenses-index.js') }}"></script>
+        <script defer src="{{ asset('js/pages/expenses-index.js') }}"></script>
     @endpush
 @endsection

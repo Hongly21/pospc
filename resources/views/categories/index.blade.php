@@ -254,6 +254,6 @@
                 swalCancelBtn: "{{ __('categories.swal_cancel_btn') }}"
             };
         </script>
-        <script src="{{ asset('js/pages/categories-index.js') }}"></script>
+        <script defer src="{{ asset('js/pages/categories-index.js') }}"></script>
     @endpush
 @endsection

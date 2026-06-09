@@ -4,8 +4,6 @@
 
 @section('content')
     <div class="row h-100">
-        {{-- =================== LEFT: PRODUCT GRID =================== --}}
-        {{-- Changed to col-lg-8 and added mb-4 for tablet spacing --}}
         <div class="col-lg-8 mb-4 mb-lg-0">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
@@ -49,8 +47,16 @@
                                     data-tax-rate="{{ $product->tax ? $product->tax->Rate : $product->category->tax->Rate ?? 0 }}"
                                     data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
                                     <div class="card-body text-center p-3 p-sm-2">
-                                        <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                            class="img-fluid mb-2 pos-product-img">
+                                        <div class="product-image-wrapper mb-2">
+                                            @if ($product->Image)
+                                                <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
+                                                    class="img-fluid pos-product-img" loading="lazy">
+                                            @else
+                                                <div class="product-image-placeholder">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            @endif
+                                        </div>
                                         <h6 class="card-title fw-bold">{{ $product->Name }}</h6>
                                         @if ($product->attributes->isNotEmpty())
                                             <small class="text-muted d-block mb-1">
@@ -268,10 +274,10 @@
     @endpush
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         {{-- QR code renderer (qrcode.js) --}}
-        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
         <script>
             window.posIndexConfig = {
@@ -310,6 +316,6 @@
                 }
             };
         </script>
-        <script src="{{ asset('js/pages/pos-index.js') }}"></script>
+        <script defer src="{{ asset('js/pages/pos-index.js') }}"></script>
     @endpush
 @endsection

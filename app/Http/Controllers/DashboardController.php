@@ -130,10 +130,13 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 10. PAYMENT METHOD BREAKDOWN
-        $paymentCounts = Order::select('PaymentType', DB::raw('count(*) as total'))
-            ->groupBy('PaymentType')
-            ->pluck('total', 'PaymentType')
+        // 10. PAYMENT METHOD BREAKDOWN (from receipts, not orders)
+        $paymentCounts = DB::table('receipts')
+            ->join('orders', 'orders.OrderID', '=', 'receipts.OrderID')
+            ->whereDate('orders.OrderDate', '>=', $startDate)
+            ->select('receipts.PaymentMethod', DB::raw('count(*) as total'))
+            ->groupBy('receipts.PaymentMethod')
+            ->pluck('total', 'PaymentMethod')
             ->toArray();
 
         $cashCount = $paymentCounts['Cash'] ?? 0;

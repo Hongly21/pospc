@@ -15,14 +15,11 @@ return new class extends Migration
             $table->id('OrderID'); // Primary Key
             $table->dateTime('OrderDate');
 
-            $table->enum('Status', ['Pending', 'Paid', 'Cancelled', 'Partial', 'Unpaid'])->default('Paid');
+            $table->enum('Status', ['Paid','Partial'])->default('Paid');
 
             $table->decimal('TotalAmount', 10, 2);
 
-            // NEW: To store the grand total of all tax on this specific order
             $table->decimal('TotalTax', 10, 2)->default(0.00);
-
-            $table->enum('PaymentType', ['Cash', 'QR', 'Card']);
 
             $table->foreignId('UserID')->constrained('users', 'UserID');
             $table->unsignedBigInteger('CustomerID')->nullable();
