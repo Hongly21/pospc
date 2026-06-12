@@ -100,3 +100,8 @@ CMD php artisan config:clear && \
     (php artisan db:seed --class=RBACSeeder --force || true) && \
     (php artisan db:seed --class=AdminSeeder --force || true) && \
     /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+
+
+    # Increase PHP upload limits for production
+RUN echo "upload_max_filesize=20M" > /usr/local/etc/php/conf.d/uploads.ini && \
+    echo "post_max_size=20M" >> /usr/local/etc/php/conf.d/uploads.ini
