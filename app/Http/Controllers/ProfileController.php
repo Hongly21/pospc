@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use App\Services\CloudinaryService;
 
 class ProfileController extends Controller
 {
@@ -46,13 +47,18 @@ class ProfileController extends Controller
 
 
         if ($request->hasFile('user_image')) {
-            if ($user->UserImage && Storage::disk('cloudinary')->exists($user->UserImage)) {
-                Storage::disk('cloudinary')->delete($user->UserImage);
+            $cloudinaryService = new CloudinaryService();
+
+            if ($user->UserImage) {
+                // Extract public ID from the Cloudinary URL and delete it
+                $publicId = $cloudinaryService->getPublicIdFromUrl($user->UserImage);
+                if ($publicId) {
+                    $cloudinaryService->delete($publicId);
+                }
             }
 
             $file = $request->file('user_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('profile_images', $filename, 'cloudinary');
+            $path = $cloudinaryService->upload($file, 'profile_images');
 
             $user->UserImage = $path;
         }

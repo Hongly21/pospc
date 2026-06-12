@@ -8,10 +8,11 @@ use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB; // Required for database transactions
+use Illuminate\Support\Facades\DB;
 use App\Models\Tax;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Services\CloudinaryService;
 
 class ProductController extends Controller
 {
@@ -83,7 +84,8 @@ class ProductController extends Controller
             $imagePath = null;
             if ($request->hasFile('Image')) {
                 $file = $request->file('Image');
-                $imagePath = $file->store('products', 'cloudinary');
+                $cloudinaryService = new CloudinaryService();
+                $imagePath = $cloudinaryService->upload($file, 'products');
             }
 
             $product = Product::create([
@@ -163,12 +165,18 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             if ($request->hasFile('Image')) {
-                if ($product->Image && Storage::disk('cloudinary')->exists($product->Image)) {
-                    Storage::disk('cloudinary')->delete($product->Image);
+                $cloudinaryService = new CloudinaryService();
+
+                if ($product->Image) {
+                    // Extract public ID from the Cloudinary URL and delete it
+                    $publicId = $cloudinaryService->getPublicIdFromUrl($product->Image);
+                    if ($publicId) {
+                        $cloudinaryService->delete($publicId);
+                    }
                 }
 
                 $file = $request->file('Image');
-                $data['Image'] = $file->store('products', 'cloudinary');
+                $data['Image'] = $cloudinaryService->upload($file, 'products');
             }
 
             $product->update($data);
