@@ -144,7 +144,7 @@
                             id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="flex-shrink-0 d-flex align-items-center justify-content-center">
                                 @if (Auth::check() && Auth::user()->UserImage)
-                                    <img src="{{ asset('storage/' . Auth::user()->UserImage) }}"
+                                    <img src="{{ str_starts_with(Auth::user()->UserImage, 'http') ? Auth::user()->UserImage : asset('storage/' . Auth::user()->UserImage) }}"
                                         class="rounded-circle shadow-sm border border-2 border-white object-fit-cover"
                                         style="width: 42px; height: 42px; min-width: 42px;" alt="Profile">
                                 @else

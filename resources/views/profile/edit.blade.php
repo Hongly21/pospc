@@ -18,7 +18,7 @@
 
                         <div class="text-center mb-4">
                             @if ($user->UserImage)
-                                <img src="{{ asset('storage/' . $user->UserImage) }}" alt="Profile Picture"
+                                <img src="{{ str_starts_with($user->UserImage, 'http') ? $user->UserImage : asset('storage/' . $user->UserImage) }}" alt="Profile Picture"
                                     class="rounded-circle profile-avatar rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2 profile-avatar-placeholder">
                             @else
                                 <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2 profile-avatar-placeholder">

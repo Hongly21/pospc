@@ -102,7 +102,7 @@
                                 <td>
                                     <div class="d-flex align-items-center py-1">
                                         @if ($row->UserImage)
-                                            <img src="{{ asset('storage/' . $row->UserImage) }}" alt="User Image"
+                                            <img src="{{ str_starts_with($row->UserImage, 'http') ? $row->UserImage : asset('storage/' . $row->UserImage) }}" alt="User Image"
                                                 class="rounded-circle me-3 shadow-sm border border-primary-subtle user-avatar-sm object-fit-cover">
                                         @else
                                             <div
