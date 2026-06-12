@@ -49,12 +49,16 @@
                                     <div class="card-body text-center p-3 p-sm-2">
                                         <div class="product-image-wrapper mb-2">
                                             @if ($product->Image)
-                                                <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                                    class="img-fluid pos-product-img" loading="lazy">
+                                                @if(str_starts_with($product->Image, 'http'))
+                                                    <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
+                                                        class="img-fluid pos-product-img" loading="lazy">
+                                                @else
+                                                    <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
+                                                        class="img-fluid pos-product-img" loading="lazy">
+                                                @endif
                                             @else
-                                                <div class="product-image-placeholder">
-                                                    <i class="fas fa-image"></i>
-                                                </div>
+                                                <img src="{{ asset('images/no-image.png') }}" alt="No Image"
+                                                    class="img-fluid pos-product-img" loading="lazy">
                                             @endif
                                         </div>
                                         <h6 class="card-title fw-bold">{{ $product->Name }}</h6>

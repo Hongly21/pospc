@@ -204,7 +204,7 @@
     }
 
     function startPolling() {
-        let secondsLeft = 300;
+        let secondsLeft = 60;
         $('#qrCountdown').text(secondsLeft);
 
         qrCountdownTimer = setInterval(function() {

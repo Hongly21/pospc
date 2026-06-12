@@ -78,13 +78,16 @@
                                 <td>
                                     <div class="d-flex align-items-center py-1">
                                         @if ($product->Image)
-                                            <img src="{{ asset('storage/' . $product->Image) }}"
-                                                class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                            @if(str_starts_with($product->Image, 'http'))
+                                                <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
+                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                            @else
+                                                <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
+                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                            @endif
                                         @else
-                                            <div
-                                                class="bg-light rounded d-flex align-items-center justify-content-center me-3 shadow-sm border border-light square-48">
-                                                <i class="fas fa-box text-secondary fs-5"></i>
-                                            </div>
+                                            <img src="{{ asset('images/no-image.png') }}" alt="No Image"
+                                                class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
                                         @endif
                                         <div>
                                             <div class="fw-bold text-dark mb-1">{{ $product->Name }}</div>
@@ -300,7 +303,19 @@
                                                             <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
                                                                 <small
                                                                     class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
-                                                                <img src="{{ asset('storage/' . $product->Image) }}"
+                                                                @if(str_starts_with($product->Image, 'http'))
+                                                                    <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
+                                                                        width="50" class="rounded border shadow-sm">
+                                                                @else
+                                                                    <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
+                                                                        width="50" class="rounded border shadow-sm">
+                                                                @endif
+                                                            </div>
+                                                        @else
+                                                            <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
+                                                                <small
+                                                                    class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
+                                                                <img src="{{ asset('images/no-image.png') }}" alt="No Image"
                                                                     width="50" class="rounded border shadow-sm">
                                                             </div>
                                                         @endif

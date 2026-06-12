@@ -53,7 +53,13 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     @if($detail->product && $detail->product->Image)
-                                        <img src="{{ asset('storage/' . $detail->product->Image) }}" width="40" height="40" class="rounded me-2 border object-fit-cover">
+                                        @if(str_starts_with($detail->product->Image, 'http'))
+                                            <img src="{{ $detail->product->Image }}" alt="{{ $detail->product->Name ?? 'Product' }}" width="40" height="40" class="rounded me-2 border object-fit-cover">
+                                        @else
+                                            <img src="{{ asset('storage/' . $detail->product->Image) }}" alt="{{ $detail->product->Name ?? 'Product' }}" width="40" height="40" class="rounded me-2 border object-fit-cover">
+                                        @endif
+                                    @elseif($detail->product)
+                                        <img src="{{ asset('images/no-image.png') }}" alt="No Image" width="40" height="40" class="rounded me-2 border object-fit-cover">
                                     @endif
                                     {{ $detail->product->Name ?? __('Deleted Product') }}
                                 </div>

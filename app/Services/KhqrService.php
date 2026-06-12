@@ -18,7 +18,7 @@ class KhqrService
     {
         $this->baseUrl       = rtrim(config('khqr.base_url', 'https://api-bakong.nbc.gov.kh'), '/');
         $this->token         = config('khqr.token');
-        $this->bakongAccount = config('khqr.account');
+        $this->bakongAccount = config('khqr.account');       // e.g. hongly_boun@bkrt
         $this->merchantName  = config('khqr.merchant_name', 'My Shop');
         $this->storeLabel    = config('khqr.store_label', 'POS');
         $this->phone         = config('khqr.phone', '');
@@ -54,7 +54,7 @@ class KhqrService
             // Timestamps for dynamic QR (milliseconds)
             $nowMs     = (int)(microtime(true) * 1000);
             $createdTs = (string) $nowMs;
-            $expiredTs = (string) ($nowMs + 300000);               // expires in 5 minutes
+            $expiredTs = (string) ($nowMs + 120000);               // expires in 2 minutes
 
             // Format phone to international 855 format
             $intlPhone = $this->phone;
