@@ -42,4 +42,7 @@ class SettingController extends Controller
 
         return back()->with('success', __('settings.msg_updated'));
     }
+
+
+    
 }
