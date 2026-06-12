@@ -83,7 +83,7 @@ RUN php artisan storage:link || true
 
 # ៣. ចម្លងឯកសារកំណត់រចនាសម្ព័ន្ធ Nginx និង Supervisor ចូលទៅក្នុងប្រព័ន្ធកុងតឺន័រ
 COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/supervisor.conf /etc/superuser/conf.d/supervisord.conf
+COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 # កំណត់សិទ្ធិ (Permissions) ទៅលើ Folder សំខាន់ៗរបស់ Laravel
 RUN chmod -R 775 storage bootstrap/cache && \
@@ -99,4 +99,4 @@ CMD php artisan config:clear && \
     php artisan migrate --force && \
     (php artisan db:seed --class=RBACSeeder --force || true) && \
     (php artisan db:seed --class=AdminSeeder --force || true) && \
-    /usr/bin/supervisord -c /etc/superuser/conf.d/supervisord.conf
+    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
