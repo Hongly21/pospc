@@ -83,7 +83,7 @@ class ProductController extends Controller
             $imagePath = null;
             if ($request->hasFile('Image')) {
                 $file = $request->file('Image');
-                $imagePath = $file->store('products', 'public');
+                $imagePath = $file->store('products', 'cloudinary');
             }
 
             $product = Product::create([
@@ -163,12 +163,12 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             if ($request->hasFile('Image')) {
-                if ($product->Image && Storage::disk('public')->exists($product->Image)) {
-                    Storage::disk('public')->delete($product->Image);
+                if ($product->Image && Storage::disk('cloudinary')->exists($product->Image)) {
+                    Storage::disk('cloudinary')->delete($product->Image);
                 }
 
                 $file = $request->file('Image');
-                $data['Image'] = $file->store('products', 'public');
+                $data['Image'] = $file->store('products', 'cloudinary');
             }
 
             $product->update($data);

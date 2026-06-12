@@ -46,13 +46,13 @@ class ProfileController extends Controller
 
 
         if ($request->hasFile('user_image')) {
-            if ($user->UserImage && Storage::disk('public')->exists($user->UserImage)) {
-                Storage::disk('public')->delete($user->UserImage);
+            if ($user->UserImage && Storage::disk('cloudinary')->exists($user->UserImage)) {
+                Storage::disk('cloudinary')->delete($user->UserImage);
             }
 
             $file = $request->file('user_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('profile_images', $filename, 'public');
+            $path = $file->storeAs('profile_images', $filename, 'cloudinary');
 
             $user->UserImage = $path;
         }
