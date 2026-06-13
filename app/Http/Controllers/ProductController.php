@@ -85,7 +85,7 @@ class ProductController extends Controller
             if ($request->hasFile('Image')) {
                 $file = $request->file('Image');
                 $cloudinaryService = new CloudinaryService();
-                $imagePath = $cloudinaryService->upload($file, 'products');
+                $imagePath = $cloudinaryService->uploadWithFallback($file, 'products');
             }
 
             $product = Product::create([
@@ -168,15 +168,12 @@ class ProductController extends Controller
                 $cloudinaryService = new CloudinaryService();
 
                 if ($product->Image) {
-                    // Extract public ID from the Cloudinary URL and delete it
-                    $publicId = $cloudinaryService->getPublicIdFromUrl($product->Image);
-                    if ($publicId) {
-                        $cloudinaryService->delete($publicId);
-                    }
+                    // Delete old image (handles both Cloudinary and local files)
+                    $cloudinaryService->deleteFile($product->Image);
                 }
 
                 $file = $request->file('Image');
-                $data['Image'] = $cloudinaryService->upload($file, 'products');
+                $data['Image'] = $cloudinaryService->uploadWithFallback($file, 'products');
             }
 
             $product->update($data);

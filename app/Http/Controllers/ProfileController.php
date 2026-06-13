@@ -50,15 +50,12 @@ class ProfileController extends Controller
             $cloudinaryService = new CloudinaryService();
 
             if ($user->UserImage) {
-                // Extract public ID from the Cloudinary URL and delete it
-                $publicId = $cloudinaryService->getPublicIdFromUrl($user->UserImage);
-                if ($publicId) {
-                    $cloudinaryService->delete($publicId);
-                }
+                // Delete old image (handles both Cloudinary and local files)
+                $cloudinaryService->deleteFile($user->UserImage);
             }
 
             $file = $request->file('user_image');
-            $path = $cloudinaryService->upload($file, 'profile_images');
+            $path = $cloudinaryService->uploadWithFallback($file, 'profile_images');
 
             $user->UserImage = $path;
         }
