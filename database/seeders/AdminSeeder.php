@@ -10,11 +10,11 @@ class AdminSeeder extends Seeder
 {
     public function run()
     {
-        // Create the Admin User
+        // Create the Admin User using environment variables
         DB::table('users')->insert([
-            'Username' => 'Boun Hongly',
-            'Email' => 'hongly06082004@gmail.com',
-            'PasswordHash' => Hash::make('11111111'),
+            'Username' => env('ADMIN_USERNAME', 'Admin'),
+            'Email' => env('ADMIN_EMAIL'),
+            'PasswordHash' => Hash::make(env('ADMIN_PASSWORD')),
             'RoleID' => '1',
             'Status' => 'Approved',
             'CreatedAt' => now(),

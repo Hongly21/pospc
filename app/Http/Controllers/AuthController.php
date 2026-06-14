@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password; // <-- 1. Added this import!
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
@@ -16,7 +16,9 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-public function login(Request $request)
+
+    // login
+    public function login(Request $request)
     {
         $request->merge([
             'email' => strtolower(trim((string) $request->input('email'))),
@@ -29,7 +31,6 @@ public function login(Request $request)
 
         $user = User::with('role')->where('Email', $request->email)->first();
 
-        // ONLY triggers if the password is correct
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
 
             if ($user->Status === 'Pending') {
@@ -55,22 +56,22 @@ public function login(Request $request)
 
             $roleName = strtolower($user->role->RoleName ?? '');
 
-            // Determine where the user should go
+            // check role 
             $targetUrl = ($roleName === 'admin' || $roleName === 'manager')
-                            ? route('dashboard')
-                            : route('pos.index');
+                ? route('dashboard')
+                : route('pos.index');
 
-            // Return the login view with a success flag to trigger the SweetAlert
             return view('auth.login', [
                 'login_success' => true,
                 'redirect_url' => $targetUrl
             ]);
         }
 
-        // If password is wrong, return normal error
         return back()->withErrors(['email' => __('auth.invalid_credentials')]);
     }
 
+
+    // Register
     public function register(Request $request)
     {
         $request->merge([
@@ -78,7 +79,7 @@ public function login(Request $request)
             'email' => strtolower(trim((string) $request->input('email'))),
         ]);
 
-        // 2. Updated the validation array here!
+        // validation
         $request->validate([
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'Username')],
             'email' => ['required', 'email', Rule::unique('users', 'Email')],
@@ -87,7 +88,7 @@ public function login(Request $request)
                 'confirmed', // This checks that it matches the password_confirmation input
                 Password::min(8) // Must be at least 8 characters
                     ->letters()  // Must contain letters
-                    ->mixedCase()// Must contain uppercase and lowercase
+                    ->mixedCase() // Must contain uppercase and lowercase
                     ->numbers()  // Must contain numbers
                     ->symbols()  // Must contain symbols (like @, #, !, etc.)
             ]
@@ -108,11 +109,14 @@ public function login(Request $request)
         }
     }
 
+
     public function showRegister()
     {
         return view('auth.register');
     }
 
+
+    //logout
     public function logout(Request $request)
     {
         $user = Auth::user();

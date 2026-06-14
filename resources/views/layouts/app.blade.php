@@ -30,6 +30,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app-theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/loading-overlay.css') }}">
     <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}">
     @stack('styles')
 
@@ -38,6 +39,15 @@
 </head>
 
 <body>
+    <!-- Global loading overlay (Bootstrap spinner + full-screen backdrop) -->
+    <div id="global-loading-overlay" class="global-loading-overlay d-none" aria-hidden="true" aria-live="polite">
+        <div class="global-loading-overlay__content">
+            <div class="spinner-border text-light global-loading-overlay__spinner" role="status">
+                <span class="visually-hidden">{{ __('Loading...') }}</span>
+            </div>
+        </div>
+    </div>
+
     @include('layouts.sidebar')
     <div class="sidebar-backdrop"></div>
 
@@ -236,11 +246,6 @@
 
         <!-- Main Content Area -->
         <main class="content-wrapper">
-            <div id="global-loader" class="global-loader">
-                <div class="spinner-border text-primary global-loader-spinner" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
             @yield('content')
         </main>
     </div>
@@ -321,6 +326,7 @@
         });
     </script>
 
+    <script src="{{ asset('js/layouts/loading-overlay.js') }}" defer></script>
     <script src="{{ asset('js/layouts/app.js') }}" defer></script>
 </body>
 

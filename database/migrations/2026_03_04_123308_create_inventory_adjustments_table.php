@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('Quantity');
             $table->string('Reason')->nullable();
 
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 
@@ -32,3 +32,5 @@ return new class extends Migration
         Schema::dropIfExists('inventory_adjustments');
     }
 };
+
+

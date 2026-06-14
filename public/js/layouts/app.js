@@ -51,30 +51,8 @@
             contentWrapper.style.minHeight = `calc(100vh - ${totalOffset}px)`;
         }
 
-        function hideGlobalLoader() {
-            const loader = document.getElementById('global-loader');
-            if (!loader) return;
-            loader.classList.add('loader-hidden');
-            loader.style.opacity = '0';
-            loader.style.visibility = 'hidden';
-            loader.style.pointerEvents = 'none';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 300);
-        }
-
         adjustContentWrapperHeight();
         window.addEventListener('resize', adjustContentWrapperHeight);
-        window.addEventListener('load', hideGlobalLoader);
-        document.addEventListener('DOMContentLoaded', hideGlobalLoader);
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                hideGlobalLoader();
-            }
-        });
-
-        // Fallback in case the browser misses the load/pageshow events
-        setTimeout(hideGlobalLoader, 1000);
 
         const $sidebar = $('.sidebar');
         const $sidebarBackdrop = $('.sidebar-backdrop');
