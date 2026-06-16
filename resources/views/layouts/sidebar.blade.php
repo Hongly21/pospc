@@ -93,6 +93,11 @@
             <i class="fas fa-fw fa-chart-area icon "></i> <span class="nav-label">{{ __('Sales Reports') }}</span>
         </a>
 
+        <a href="{{ route('reports.dead_stock') }}" class="{{ request()->is('reports/dead-stock*') ? 'active' : '' }}"
+            data-tooltip="{{ __('dead_stock.nav_title') }}">
+            <i class="fas fa-fw fa-box-open icon"></i> <span class="nav-label">{{ __('dead_stock.nav_title') }}</span>
+        </a>
+
     @endif
 
     @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Manager'))

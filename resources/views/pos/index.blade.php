@@ -7,16 +7,17 @@
         <div class="col-lg-8 mb-4 mb-lg-0">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3">
-                    <form action="{{ route('pos.index') }}" method="GET" class="row g-2 align-items-center">
+                    <form action="{{ route('pos.index') }}" method="GET" id="posSearchForm"
+                        class="row g-2 align-items-center">
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                                <input type="text" name="search" class="form-control"
+                                <input type="text" name="search" id="posSearchInput" class="form-control"
                                     placeholder="{{ __('pos.search_placeholder') }}" value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-6 col-lg-4">
-                            <select name="CategoryID" class="form-select searchable-select">
+                            <select name="CategoryID" id="posCategoryFilter" class="form-select searchable-select">
                                 <option value="">{{ __('pos.all_categories') }}</option>
                                 @foreach ($categories as $cat)
                                     <option value="{{ $cat->CategoryID }}"
@@ -29,65 +30,16 @@
                         <div class="col-12 col-md-12 col-lg-4 d-flex gap-2 mt-2 ">
                             <button type="submit"
                                 class="btn btn-outline-primary px-4 flex-grow-1">{{ __('pos.search_btn') }}</button>
-                            @if (request()->filled('search') || request()->filled('CategoryID'))
-                                <a href="{{ route('pos.index') }}" class="btn btn-outline-danger">
-                                    <i class="fas fa-sync-alt"></i>
-                                </a>
-                            @endif
+                            <button type="button" id="posSearchReset"
+                                class="btn btn-outline-danger {{ request()->filled('search') || request()->filled('CategoryID') ? '' : 'd-none' }}">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
                 <div class="card-body overflow-auto pos-scrollable-area">
                     <div class="row g-3" id="productGrid">
-                        @foreach ($products as $product)
-                            <div class="col-6 col-sm-4 col-md-4 col-lg-3 product-card">
-                                <div class="card h-100 border-0 shadow-sm btn-add-cart" data-id="{{ $product->ProductID }}"
-                                    data-name="{{ $product->Name }}" data-price="{{ $product->SellPrice }}"
-                                    data-stock="{{ $product->inventory->Quantity }}"
-                                    data-tax-rate="{{ $product->tax ? $product->tax->Rate : $product->category->tax->Rate ?? 0 }}"
-                                    data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
-                                    <div class="card-body text-center p-3 p-sm-2">
-                                        <div class="product-image-wrapper mb-2">
-                                            @if ($product->Image)
-                                                @if(str_starts_with($product->Image, 'http'))
-                                                    <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
-                                                        class="img-fluid pos-product-img" loading="lazy">
-                                                @else
-                                                    <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                                        class="img-fluid pos-product-img" loading="lazy">
-                                                @endif
-                                            @else
-                                                <img src="{{ asset('images/no-image.png') }}" alt="No Image"
-                                                    class="img-fluid pos-product-img" loading="lazy">
-                                            @endif
-                                        </div>
-                                        <h6 class="card-title fw-bold">{{ $product->Name }}</h6>
-                                        @if ($product->attributes->isNotEmpty())
-                                            <small class="text-muted d-block mb-1">
-                                                @foreach ($product->attributes->take(2) as $attribute)
-                                                    <span>{{ $attribute->AttributeName }}:
-                                                        {{ $attribute->AttributeValue }}</span>
-                                                    @if (!$loop->last)
-                                                        ,
-                                                    @endif
-                                                @endforeach
-                                                @if ($product->attributes->count() > 2)
-                                                    <span>...</span>
-                                                @endif
-                                            </small>
-                                        @endif
-                                        <div class="text-primary">{{ __('pos.price') }}:
-                                            ${{ number_format($product->SellPrice, 2) }}</div>
-                                        @if ($product->tax || $product->category->tax)
-                                            <small class="text-muted d-block">{{ __('pos.tax_rate') }}:
-                                                {{ number_format($product->tax?->Rate ?? ($product->category->tax?->Rate ?? 0), 2) }}%</small>
-                                        @endif
-                                        <small class="text-muted">{{ __('pos.stock') }}:
-                                            {{ $product->inventory->Quantity }}</small>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                        @include('pos.partials.product-grid')
                     </div>
                 </div>
             </div>
@@ -286,6 +238,7 @@
         <script>
             window.posIndexConfig = {
                 routes: {
+                    search: "{{ route('pos.index') }}",
                     addCustomer: "{{ route('customers.store.ajax') }}",
                     khqrGenerate: "{{ route('pos.khqr.generate') }}",
                     khqrCheck: "{{ route('pos.khqr.check') }}",

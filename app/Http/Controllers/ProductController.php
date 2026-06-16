@@ -201,6 +201,18 @@ class ProductController extends Controller
         return redirect()->back()->with('success', __('products.msg_updated'));
     }
 
+    public function updateSellPrice(Request $request, $id)
+    {
+        $request->validate([
+            'SellPrice' => 'required|numeric|min:0',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->update(['SellPrice' => $request->SellPrice]);
+
+        return redirect()->back()->with('success', __('dead_stock.price_updated'));
+    }
+
     private function extractAndValidateAttributesFromRequest(Request $request): array
     {
         $rawAttributes = [];

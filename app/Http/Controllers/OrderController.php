@@ -42,7 +42,14 @@ class OrderController extends Controller
             $query->where('CategoryID', $request->CategoryID);
         }
 
-        $products   = $query->get();
+        $products = $query->get();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('pos.partials.product-grid', compact('products'))->render(),
+            ]);
+        }
+
         $categories = Category::where('status', 1)->get();
         $customers  = Customer::where('status', 1)->orderBy('CustomerID', 'desc')->get();
 

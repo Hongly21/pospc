@@ -103,6 +103,8 @@ Route::middleware(['auth', 'role:Admin,Manager'])->group(function () {
 
     // System Reports
     Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('/reports/dead-stock', [ReportController::class, 'deadStock'])->name('reports.dead_stock');
+    Route::post('/products/{id}/sell-price', [ProductController::class, 'updateSellPrice'])->name('products.update_sell_price');
 
     // Global Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');

@@ -8,7 +8,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.573);
     pointer-events: all;
     cursor: wait;
 }
@@ -22,6 +22,7 @@
 .global-loading-overlay__spinner {
     width: 3rem;
     height: 3rem;
+    
 }
 
 body.global-loading-active {

@@ -331,6 +331,22 @@
     "print_receipt": "Print Receipt",
     "no_data_found": "No data found!",
 
+    "dead_stock.nav_title": "Dead Stock Report",
+    "dead_stock.title": "Dead Stock / Slow-Moving Inventory",
+    "dead_stock.months_label": "No sales within (months)",
+    "dead_stock.cutoff_hint": "Products in stock with no sales since :date and added before that date.",
+    "dead_stock.dead_items": "Slow-Moving Items",
+    "dead_stock.total_capital": "Capital Tied Up",
+    "dead_stock.cost_price": "Cost Price",
+    "dead_stock.sell_price": "Sell Price",
+    "dead_stock.capital_tied_up": "Capital Tied Up",
+    "dead_stock.markdown_price": "Markdown Price",
+    "dead_stock.modal_title": "Clearance Price",
+    "dead_stock.modal_hint": "Set a reduced sell price to move this slow-moving item.",
+    "dead_stock.new_sell_price": "New Sell Price",
+    "dead_stock.save_price": "Update Price",
+    "dead_stock.price_updated": "Sell price updated successfully.",
+
 
 
     "_comment_expenses": "===== EXPENSES =====",

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\Expense; // Added to calculate expenses for the date range
 use Carbon\Carbon;
@@ -89,6 +90,58 @@ class ReportController extends Controller
             'totalDebt',
             'cogs',        // Passed to view
             'netProfit'    // Passed to view
+        ));
+    }
+
+    public function deadStock(Request $request)
+    {
+        $months = max(1, (int) $request->input('months', 5));
+        $cutoffDate = Carbon::now()->subMonths($months);
+
+        $products = Product::with('inventory')
+            ->whereHas('inventory', fn ($query) => $query->where('Quantity', '>', 0))
+            ->where('created_at', '<', $cutoffDate)
+            ->whereDoesntHave('orderDetails', function ($query) use ($cutoffDate) {
+                $query->whereHas('order', function ($orderQuery) use ($cutoffDate) {
+                    $orderQuery->whereDate('OrderDate', '>=', $cutoffDate);
+                });
+            })
+            ->orderBy('Name')
+            ->paginate(25)
+            ->appends(['months' => $months]);
+
+        $totalCapitalTiedUp = DB::table('products')
+            ->join('inventory', 'products.ProductID', '=', 'inventory.ProductID')
+            ->where('inventory.Quantity', '>', 0)
+            ->where('products.created_at', '<', $cutoffDate)
+            ->whereNotExists(function ($query) use ($cutoffDate) {
+                $query->select(DB::raw(1))
+                    ->from('orderdetails')
+                    ->join('orders', 'orderdetails.OrderID', '=', 'orders.OrderID')
+                    ->whereColumn('orderdetails.ProductID', 'products.ProductID')
+                    ->whereDate('orders.OrderDate', '>=', $cutoffDate);
+            })
+            ->sum(DB::raw('products.CostPrice * inventory.Quantity'));
+
+        $deadStockCount = DB::table('products')
+            ->join('inventory', 'inventory.ProductID', '=', 'products.ProductID')
+            ->where('inventory.Quantity', '>', 0)
+            ->where('products.created_at', '<', $cutoffDate)
+            ->whereNotExists(function ($query) use ($cutoffDate) {
+                $query->select(DB::raw(1))
+                    ->from('orderdetails')
+                    ->join('orders', 'orderdetails.OrderID', '=', 'orders.OrderID')
+                    ->whereColumn('orderdetails.ProductID', 'products.ProductID')
+                    ->whereDate('orders.OrderDate', '>=', $cutoffDate);
+            })
+            ->count();
+
+        return view('reports.dead_stock', compact(
+            'products',
+            'months',
+            'cutoffDate',
+            'totalCapitalTiedUp',
+            'deadStockCount'
         ));
     }
 }
