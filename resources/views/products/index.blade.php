@@ -64,7 +64,6 @@
                             <th class="ps-3 py-3">{{ __('products.tbl_id') }}</th>
                             <th class="py-3">{{ __('products.tbl_image_name') }}</th>
                             <th class="py-3">{{ __('products.tbl_category') }}</th>
-                            <th class="py-3">{{ __('products.tbl_tax') }}</th>
                             <th class="py-3">{{ __('products.tbl_price') }}</th>
                             <th class="py-3">{{ __('products.tbl_stock') }}</th>
                             <th class="text-center py-3">{{ __('products.tbl_status') }}</th>
@@ -104,17 +103,6 @@
                                     </div>
                                 </td>
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1">{{ $product->category->Name ?? __('products.uncategorized') }}</span></td>
-                                <td>
-                                    @if ($product->tax)
-                                        <div class="fw-bold text-dark">{{ $product->tax->Name }}</div>
-                                        <small class="text-muted">{{ number_format($product->tax->Rate, 2) }}%</small>
-                                    @elseif ($product->category?->tax)
-                                        <div class="fw-bold text-dark">{{ $product->category->tax->Name }}</div>
-                                        <small class="text-muted">{{ number_format($product->category->tax->Rate, 2) }}%</small>
-                                    @else
-                                        <span class="text-secondary">{{ __('products.no_tax') }}</span>
-                                    @endif
-                                </td>
                                 <td class="fw-medium text-success">${{ number_format($product->SellPrice, 2) }}</td>
                                 <td>
                                     <span
@@ -199,21 +187,6 @@
                                                             @endforeach
                                                         </select>
                                                         @error('CategoryID')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('products.lbl_tax') }}</label>
-                                                        <select name="TaxID" class="form-select @error('TaxID') is-invalid @enderror">
-                                                            <option value="">{{ __('products.select_tax') }}</option>
-                                                            @foreach ($taxes as $tax)
-                                                                <option value="{{ $tax->TaxID }}" {{ old('TaxID', $product->TaxID) == $tax->TaxID ? 'selected' : '' }}>
-                                                                    {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('TaxID')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
@@ -394,7 +367,7 @@
                             </div>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5 text-muted bg-white">
+                                <td colspan="7" class="text-center py-5 text-muted bg-white">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i>
                                         <h5 class="fw-medium text-dark">{{ __('products.no_data') }}</h5>
@@ -452,18 +425,6 @@
                                 @error('CategoryID')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold text-muted">{{ __('products.lbl_tax') }}</label>
-                                <select name="TaxID" class="form-select">
-                                    <option value="">{{ __('products.select_tax') }}</option>
-                                    @foreach ($taxes as $tax)
-                                        <option value="{{ $tax->TaxID }}" {{ old('TaxID') == $tax->TaxID ? 'selected' : '' }}>
-                                            {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
-                                        </option>
-                                    @endforeach
-                                </select>
                             </div>
 
                             <div class="col-6 col-md-6">

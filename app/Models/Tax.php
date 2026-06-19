@@ -16,13 +16,8 @@ class Tax extends Model
         'Status',
     ];
 
-    public function products()
+    public function receipts()
     {
-        return $this->hasMany(Product::class, 'TaxID', 'TaxID');
-    }
-
-    public function categories()
-    {
-        return $this->hasMany(Category::class, 'TaxID', 'TaxID');
+        return $this->hasMany(Receipt::class, 'TaxID', 'TaxID');
     }
 }

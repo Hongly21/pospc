@@ -31,7 +31,7 @@ class DashboardController extends Controller
         }
 
         $startDate = Carbon::now()->subMonths($selectedPeriod)->startOfDay();
-        $rangeLabel = __(' :period', ['period' => $periodOptions[$selectedPeriod]]);
+        $rangeLabel = $periodOptions[$selectedPeriod];
 
         // 1. SALES & REVENUE
         $totalRevenue = Order::whereDate('OrderDate', '>=', $startDate)->sum('TotalAmount');
@@ -51,46 +51,49 @@ class DashboardController extends Controller
         }
 
         // 3. EXPENSES & PURCHASES
-        // Total money sent to suppliers (Cash Outflow)
-        $totalPurchases = Purchase::whereDate('Date', '>=', $startDate)->sum('Total');
-
-        // General Shop Expenses (Electric, Rent, etc.)
         $totalExpenses = Expense::whereDate('expense_date', '>=', $startDate)->sum('amount');
 
-
         // 4. COST OF ITEMS SOLD (COGS) & TRUE PROFIT
-        // Calculates the original cost of ONLY the items that were successfully sold in this period
         $cogs = DB::table('orderdetails')
             ->join('orders', 'orders.OrderID', '=', 'orderdetails.OrderID')
             ->join('products', 'products.ProductID', '=', 'orderdetails.ProductID')
             ->whereDate('orders.OrderDate', '>=', $startDate)
             ->sum(DB::raw('orderdetails.Quantity * products.CostPrice'));
 
-        // TRUE PROFIT FORMULA: Revenue - General Expenses - Cost of Items Sold
         $netProfit = $totalRevenue - $totalExpenses - $cogs;
-
-        // Optional: Ensure profit doesn't show as negative if you prefer (though real businesses can have negative profit!)
-        if($netProfit < 0){
+        if ($netProfit < 0) {
             $netProfit = 0;
         }
 
+        // 5. UNIFIED STOCK ALERTS WITH FILTER & PAGINATION
+        $stockFilter = $request->query('stock_filter', 'all');
+        $stockQuery = Product::where('status', 1)->with('inventory');
 
-        // 5. INVENTORY ALERTS
-        $totalStock = Inventory::sum('Quantity');
-
-        $lowStockItems = Product::where('status', 1)->whereHas('inventory', function ($q) {
-            $q->whereColumn('Quantity', '<=', 'ReorderLevel');
-        })->with('inventory')->get();
-
-        $outOfStockItems = Product::where('status', 1)
-            ->whereHas('inventory', function ($q) {
+        if ($stockFilter === 'out') {
+            $stockQuery->whereHas('inventory', function ($q) {
                 $q->where('Quantity', '<=', 0);
-            })->with('inventory')->get();
+            });
+        } elseif ($stockFilter === 'low') {
+            $stockQuery->whereHas('inventory', function ($q) {
+                $q->whereColumn('Quantity', '<=', 'ReorderLevel')->where('Quantity', '>', 0);
+            });
+        } else { // 'all'
+            $stockQuery->whereHas('inventory', function ($q) {
+                $q->whereColumn('Quantity', '<=', 'ReorderLevel')
+                  ->orWhere('Quantity', '<=', 0);
+            });
+        }
 
-        // 6. USERS
+        // Paginate stock alerts (5 per page) and preserve sorting/filtering variables
+        $alertStockItems = $stockQuery->orderBy('Name', 'asc')
+            ->paginate(5, ['*'], 'stock_page')
+            ->withQueryString();
+
+        // Total Stock volume metric
+        $totalStock = Inventory::sum('Quantity');
         $totalUsers = User::count();
 
-        // 7. SALES CHART FOR SELECTED RANGE
+        // 6. SALES CHART FOR SELECTED RANGE
         $chartDates = [];
         $chartSales = [];
 
@@ -98,9 +101,7 @@ class DashboardController extends Controller
             for ($i = 29; $i >= 0; $i--) {
                 $date = Carbon::now()->subDays($i);
                 $chartDates[] = $date->format('d M');
-                $chartSales[] = Order::whereDate('OrderDate', $date)
-                    ->whereDate('OrderDate', '>=', $startDate)
-                    ->sum('TotalAmount');
+                $chartSales[] = Order::whereDate('OrderDate', $date)->sum('TotalAmount');
             }
         } else {
             for ($i = $selectedPeriod - 1; $i >= 0; $i--) {
@@ -108,13 +109,12 @@ class DashboardController extends Controller
                 $monthStart = $date->copy()->startOfMonth();
                 $monthEnd = $date->copy()->endOfMonth();
                 $chartDates[] = $date->format('M Y');
-                $chartSales[] = Order::whereBetween('OrderDate', [$monthStart, $monthEnd])
-                    ->sum('TotalAmount');
+                $chartSales[] = Order::whereBetween('OrderDate', [$monthStart, $monthEnd])->sum('TotalAmount');
             }
         }
 
-        // 8. TOP SELLING PRODUCTS
-        $topSellingProducts = OrderDetail::select('orderdetails.ProductID', DB::raw('SUM(orderdetails.Quantity) as quantity_sold'), DB::raw('SUM(orderdetails.Subtotal) as total_sales'))
+        // 7. TOP SELLING PRODUCTS
+        $topSellingProducts = OrderDetail::select('orderdetails.ProductID', DB::raw('SUM(orderdetails.Quantity) as quantity_sold'))
             ->with('product')
             ->join('orders', 'orders.OrderID', '=', 'orderdetails.OrderID')
             ->whereDate('orders.OrderDate', '>=', $startDate)
@@ -123,14 +123,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 9. RECENT TRANSACTIONS
+        // 8. RECENT TRANSACTIONS
         $recentTransactions = Order::with('customer')
             ->whereDate('OrderDate', '>=', $startDate)
             ->orderByDesc('OrderDate')
             ->take(5)
             ->get();
 
-        // 10. PAYMENT METHOD BREAKDOWN (from receipts, not orders)
+        // 9. PAYMENT METHOD BREAKDOWN
         $paymentCounts = DB::table('receipts')
             ->join('orders', 'orders.OrderID', '=', 'receipts.OrderID')
             ->whereDate('orders.OrderDate', '>=', $startDate)
@@ -147,11 +147,10 @@ class DashboardController extends Controller
             'selectedPeriod',
             'periodOptions',
             'rangeLabel',
-            'totalPurchases',
             'totalRevenue',
             'totalDebt',
             'totalExpenses',
-            'cogs',                 // Make sure to pass $cogs to the view!
+            'cogs',
             'netProfit',
             'totalStock',
             'totalUsers',
@@ -160,8 +159,8 @@ class DashboardController extends Controller
             'totalCategories',
             'topSellingProducts',
             'recentTransactions',
-            'lowStockItems',
-            'outOfStockItems',
+            'alertStockItems',
+            'stockFilter',
             'chartDates',
             'chartSales',
             'cashCount',

@@ -9,7 +9,6 @@ use App\Models\Inventory;
 use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use App\Models\Tax;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use App\Services\CloudinaryService;
@@ -37,11 +36,9 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->orderBy('ProductID', 'desc')->paginate(15);
+        $products = $query->orderBy('ProductID', 'desc')->paginate(10);
         $categories = Category::where('status', 1)->get();
-        $taxes = Tax::where('Status', 1)->get();
-
-        return view('products.index', compact('products', 'categories', 'taxes'));
+        return view('products.index', compact('products', 'categories'));
     }
 
     public function store(Request $request)
@@ -53,7 +50,6 @@ class ProductController extends Controller
         $request->validate([
             'Name' => ['required', 'string', 'max:255'],
             'CategoryID' => 'required|exists:categories,CategoryID',
-            'TaxID' => 'nullable|exists:taxes,TaxID',
             'CostPrice' => 'required|numeric|min:0',
             'SellPrice' => 'required|numeric|min:0',
             'StockQuantity' => 'required|integer|min:0',
@@ -78,7 +74,6 @@ class ProductController extends Controller
         $validatedAttributes = $this->extractAndValidateAttributesFromRequest($request);
 
         try {
-            // Start the transaction to ensure both Product and Inventory save safely
             DB::beginTransaction();
 
             $imagePath = null;
@@ -91,7 +86,6 @@ class ProductController extends Controller
             $product = Product::create([
                 'Name' => $request->Name,
                 'CategoryID' => $request->CategoryID,
-                'TaxID' => $request->TaxID,
                 'Brand' => $request->Brand,
                 'Model' => $request->Model,
                 'CostPrice' => $request->CostPrice,
@@ -118,7 +112,6 @@ class ProductController extends Controller
                 ProductAttribute::insert($attributesToInsert);
             }
 
-            // Everything succeeded, commit to the database
             DB::commit();
 
             return redirect()->route('products.index')->with('success', __('products.msg_created'));
@@ -142,7 +135,6 @@ class ProductController extends Controller
         $request->validate([
             'Name' => ['required', 'string', 'max:255'],
             'CategoryID' => 'required|exists:categories,CategoryID',
-            'TaxID' => 'nullable|exists:taxes,TaxID',
             'CostPrice' => 'required|numeric|min:0',
             'SellPrice' => 'required|numeric|min:0',
             'WarrantyMonths' => 'nullable|integer|min:0',
@@ -159,7 +151,6 @@ class ProductController extends Controller
         $validatedAttributes = $this->extractAndValidateAttributesFromRequest($request);
         $data = $request->except(['Image', 'StockQuantity', 'AttributesPayload', 'AttributeName', 'AttributeValue', 'Barcode']);
         $data['Barcode'] = $product->Barcode;
-        $data['TaxID'] = $request->TaxID;
 
         try {
             DB::beginTransaction();
@@ -168,7 +159,6 @@ class ProductController extends Controller
                 $cloudinaryService = new CloudinaryService();
 
                 if ($product->Image) {
-                    // Delete old image (handles both Cloudinary and local files)
                     $cloudinaryService->deleteFile($product->Image);
                 }
 

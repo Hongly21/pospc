@@ -3,7 +3,6 @@
         <div class="card h-100 border-0 shadow-sm btn-add-cart" data-id="{{ $product->ProductID }}"
             data-name="{{ $product->Name }}" data-price="{{ $product->SellPrice }}"
             data-stock="{{ $product->inventory->Quantity }}"
-            data-tax-rate="{{ $product->tax ? $product->tax->Rate : $product->category->tax->Rate ?? 0 }}"
             data-attributes="{{ $product->attributes->map(fn($a) => $a->AttributeName . ': ' . $a->AttributeValue)->implode(', ') }}">
             <div class="card-body text-center p-3 p-sm-2">
                 <div class="product-image-wrapper mb-2">
@@ -37,10 +36,6 @@
                 @endif
                 <div class="text-primary">{{ __('pos.price') }}:
                     ${{ number_format($product->SellPrice, 2) }}</div>
-                @if ($product->tax || $product->category->tax)
-                    <small class="text-muted d-block">{{ __('pos.tax_rate') }}:
-                        {{ number_format($product->tax?->Rate ?? ($product->category->tax?->Rate ?? 0), 2) }}%</small>
-                @endif
                 <small class="text-muted">{{ __('pos.stock') }}:
                     {{ $product->inventory->Quantity }}</small>
             </div>

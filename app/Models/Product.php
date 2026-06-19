@@ -12,7 +12,6 @@ class Product extends Model
     protected $fillable = [
         'Name',
         'CategoryID',
-        'TaxID',
         'Brand',
         'Model',
         'CostPrice',
@@ -27,16 +26,6 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'CategoryID', 'CategoryID');
-    }
-
-    public function tax()
-    {
-        return $this->belongsTo(Tax::class, 'TaxID', 'TaxID');
-    }
-
-    public function getEffectiveTaxAttribute()
-    {
-        return $this->tax ?: ($this->category?->tax ?? null);
     }
 
     public function inventory()

@@ -52,7 +52,6 @@
                         <tr>
                             <th class="ps-3 py-3">{{ __('categories.tbl_id') }}</th>
                             <th class="py-3">{{ __('categories.tbl_name') }}</th>
-                            <th class="py-3">{{ __('categories.tbl_tax') }}</th>
                             <th class="text-center py-3">{{ __('categories.tbl_status') }}</th>
                             <th class="text-end pe-3 py-3">{{ __('categories.tbl_actions') }}</th>
                         </tr>
@@ -62,14 +61,6 @@
                             <tr>
                                 <td class="ps-3 text-muted fw-medium">#{{ $category->CategoryID }}</td>
                                 <td class="fw-bold text-dark">{{ $category->Name }}</td>
-                                <td>
-                                    @if ($category->tax)
-                                        <div class="fw-bold text-dark">{{ $category->tax->Name }}</div>
-                                        <small class="text-muted">{{ number_format($category->tax->Rate, 2) }}%</small>
-                                    @else
-                                        <span class="text-secondary">{{ __('categories.no_tax') }}</span>
-                                    @endif
-                                </td>
                                 <td class="text-center">
                                     @if ($category->status == 1)
                                         <span
@@ -138,21 +129,6 @@
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label
-                                                            class="form-label small fw-bold text-muted">{{ __('categories.lbl_tax') }}</label>
-                                                        <select name="TaxID" class="form-select">
-                                                            <option value="">{{ __('categories.select_tax') }}
-                                                            </option>
-                                                            @foreach ($taxes as $tax)
-                                                                <option value="{{ $tax->TaxID }}"
-                                                                    {{ $category->TaxID == $tax->TaxID ? 'selected' : '' }}>
-                                                                    {{ $tax->Name }}
-                                                                    ({{ number_format($tax->Rate, 2) }}%)
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label
                                                             class="form-label small fw-bold text-primary">{{ __('categories.tbl_status') }}</label>
                                                         <select name="status"
                                                             class="form-select border-primary bg-primary bg-opacity-10">
@@ -178,7 +154,7 @@
                             </div>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center py-5 text-muted bg-white">
+                                <td colspan="3" class="text-center py-5 text-muted bg-white">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
                                         <h5 class="fw-medium text-dark">
@@ -220,18 +196,6 @@
                                 @error('Name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-muted">{{ __('categories.lbl_tax') }}</label>
-                                <select name="TaxID" class="form-select">
-                                    <option value="">{{ __('categories.select_tax') }}</option>
-                                    @foreach ($taxes as $tax)
-                                        <option value="{{ $tax->TaxID }}"
-                                            {{ old('TaxID') == $tax->TaxID ? 'selected' : '' }}>
-                                            {{ $tax->Name }} ({{ number_format($tax->Rate, 2) }}%)
-                                        </option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                     </div>

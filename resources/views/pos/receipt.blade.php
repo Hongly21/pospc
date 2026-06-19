@@ -17,6 +17,9 @@
         $actualPaidToBill = $totalPaid - $totalChange;
         $debt = max(0, $order->TotalAmount - $actualPaidToBill);
         $latestReceipt = $order->receipts->last();
+        $receiptTaxRate = $latestReceipt?->TaxRate ?? 0;
+        $receiptTaxAmount = $latestReceipt?->TaxAmount ?? $order->TotalTax ?? 0;
+        $subtotalWithoutTax = $order->TotalAmount - $receiptTaxAmount;
     @endphp
 
     <div class="invoice-container">
@@ -44,7 +47,6 @@
             </div>
         </div>
 
-        {{-- ── Customer + Order Info (merged, no redundant meta table) ── --}}
         <div class="customer-section">
             <div class="customer-info">
                 <div class="fw-bold text-uppercase receipt-section-title">{{ __('receipt.customer_info') }}</div>
@@ -93,11 +95,6 @@
             </tbody>
         </table>
 
-        @php
-            $totalTax = $order->TotalTax && $order->TotalTax > 0 ? $order->TotalTax : $order->details->sum(fn($detail) => $detail->tax_amount);
-            $subtotalWithoutTax = $order->TotalAmount - $totalTax;
-        @endphp
-
         {{-- ── Totals ── --}}
         <div class="summary-container">
             <div class="notes-box">
@@ -118,7 +115,7 @@
                 </tr>
                 <tr>
                     <td class="label">{{ __('receipt.total_tax') }}</td>
-                    <td class="text-end">${{ number_format($totalTax, 2) }}</td>
+                    <td class="text-end">${{ number_format($receiptTaxAmount, 2) }}</td>
                 </tr>
                 <tr>
                     <td class="label">{{ __('receipt.total_amount') }}</td>
@@ -140,6 +137,10 @@
                     </tr>
                 @endif
             </table>
+        </div>
+
+        <div class="text-center text-muted small mt-2">
+            {{ __('receipt.tax_percent') }}: {{ number_format($receiptTaxRate, 2) }}%
         </div>
 
         {{-- ── Payment History (shows each payment transaction) ── --}}
@@ -175,7 +176,7 @@
 
         <div class="footer-thanks">
             {{ __('receipt.footer_thanks') }} <br>
-            <span class="receipt-footer-note">{{ __('receipt.footer_thanks') }}</span>
+            {{-- <span class="receipt-footer-note">{{ __('receipt.footer_thanks') }}</span> --}}
         </div>
 
         <div class="text-center mt-2 no-print receipt-print-wrapper">

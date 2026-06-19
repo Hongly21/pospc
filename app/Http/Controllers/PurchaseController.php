@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseController extends Controller
 {
@@ -90,7 +91,7 @@ class PurchaseController extends Controller
 
         // Execute query with pagination
         $purchases = $query->orderBy('PurchaseID', 'desc')
-            ->paginate(15)
+            ->paginate(10)
             ->appends(request()->query());
 
         // Pass $totalSpent to the view as well
@@ -162,7 +163,12 @@ class PurchaseController extends Controller
             return redirect()->route('purchases.index')->with('success', __('purchases.msg_created'));
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage());
+            Log::error('Purchase creation failed', [
+                'message' => $e->getMessage(),
+                'user_id' => Auth::id(),
+            ]);
+
+            return back()->with('error', __('Something went wrong while saving the purchase.'))->withInput();
         }
     }
 

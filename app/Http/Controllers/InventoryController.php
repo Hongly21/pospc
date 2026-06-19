@@ -58,7 +58,7 @@ class InventoryController extends Controller
         }
 
         $products = $query->orderBy('Name')
-            ->paginate(15)
+            ->paginate(10)
             ->appends($request->query());
 
         $categories = \App\Models\Category::where('status', 1)->get();
@@ -241,10 +241,7 @@ class InventoryController extends Controller
                 ];
             });
 
-        // Convert all activity lists to base/support collections to avoid
-        // Eloquent Collection methods calling model helpers (e.g. getKey())
-        // when items are plain objects/arrays. This prevents errors when
-        // merging Eloquent collections with mapped stdClass objects.
+
         $sales = collect($sales);
         $purchases = collect($purchases);
         $adjustments = collect($adjustments);

@@ -72,7 +72,9 @@
                                                 }
                                             @endphp
 
-                                            <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}" data-status="{{ $statusKey }}" data-stock="{{ $qty }}" data-reorder="{{ $reorder }}">
+                                            <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}"
+                                                data-status="{{ $statusKey }}" data-stock="{{ $qty }}"
+                                                data-reorder="{{ $reorder }}">
                                                 {{ $p->Name }} - {{ $statusText }} ({{ $qty }})
                                             </option>
                                         @endforeach
@@ -96,8 +98,9 @@
                     <template id="purchaseRowTemplate">
                         <tr>
                             <td data-label="{{ __('Product') }}">
-                                <select name="items[__INDEX__][product_id]" class="form-select product-select searchable-select"
-                                    required onchange="updatePrice(this)">
+                                <select name="items[__INDEX__][product_id]"
+                                    class="form-select product-select searchable-select" required
+                                    onchange="updatePrice(this)">
                                     <option value="">{{ __('Select Product') }}</option>
 
                                     @foreach ($products as $p)
@@ -117,7 +120,9 @@
                                             }
                                         @endphp
 
-                                        <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}" data-status="{{ $statusKey }}" data-stock="{{ $qty }}" data-reorder="{{ $reorder }}">
+                                        <option value="{{ $p->ProductID }}" data-cost="{{ $p->CostPrice }}"
+                                            data-status="{{ $statusKey }}" data-stock="{{ $qty }}"
+                                            data-reorder="{{ $reorder }}">
                                             {{ $p->Name }} - {{ $statusText }} ({{ $qty }})
                                         </option>
                                     @endforeach
@@ -154,7 +159,8 @@
 
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
         <link rel="stylesheet" href="{{ asset('css/pages/purchases-create.css') }}" />
     @endpush
 

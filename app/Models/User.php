@@ -50,6 +50,21 @@ class User extends Authenticatable
         return strtolower($this->role->RoleName) === strtolower($roleName);
     }
 
+    public function hasAnyRole(array $roleNames)
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        foreach ($roleNames as $roleName) {
+            if (strtolower($this->role->RoleName) === strtolower($roleName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function hasPermission($permissionName)
     {
         if (!$this->role) return false;

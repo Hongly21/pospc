@@ -157,16 +157,22 @@
 
                                     @if ($row->Status == 'Pending')
                                         <div class="ms-2 d-inline-block">
-                                            <a href="{{ route('users.approve', $row->UserID) }}"
-                                                class="btn btn-sm btn-light text-success border px-2 py-0"
-                                                title="{{ __('approve') }}">
-                                                <i class="fas fa-check"></i>
-                                            </a>
-                                            <a href="{{ route('users.reject', $row->UserID) }}"
-                                                class="btn btn-sm btn-light text-danger border px-2 py-0"
-                                                title="{{ __('reject') }}">
-                                                <i class="fas fa-times"></i>
-                                            </a>
+                                            <form action="{{ route('users.approve', $row->UserID) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-light text-success border px-2 py-0"
+                                                    title="{{ __('approve') }}">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('users.reject', $row->UserID) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-light text-danger border px-2 py-0"
+                                                    title="{{ __('reject') }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     @endif
                                 </td>

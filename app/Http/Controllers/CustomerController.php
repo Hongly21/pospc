@@ -67,7 +67,7 @@ class CustomerController extends Controller
             }
         }
 
-        $customers = $query->orderBy('CustomerID', 'desc')->paginate(15);
+        $customers = $query->orderBy('CustomerID', 'desc')->paginate(10);
 
         return view('customers.index', compact('customers'));
     }

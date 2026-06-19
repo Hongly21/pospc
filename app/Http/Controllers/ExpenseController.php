@@ -23,7 +23,7 @@ class ExpenseController extends Controller
                 ->whereYear('expense_date', Carbon::parse($request->month)->year);
         }
 
-        $expenses = $query->paginate(15)->appends($request->query());
+        $expenses = $query->paginate(10)->appends($request->query());
         $totalExpense = $query->sum('amount');
 
         return view('expenses.index', compact('expenses', 'totalExpense'));

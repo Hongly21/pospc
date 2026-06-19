@@ -4,6 +4,29 @@
     const routes = config.routes || {};
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
+    function getSelectedTaxRate() {
+        const selectedOption = $('#tax_id option:selected');
+        return parseFloat(selectedOption.data('rate')) || 0;
+    }
+
+    function getSelectedTaxId() {
+        const taxId = $('#tax_id').val();
+        return taxId ? Number(taxId) : null;
+    }
+
+    function getCartSubtotal() {
+        return cart.reduce((total, item) => total + (parseFloat(item.price) * parseInt(item.qty)), 0);
+    }
+
+    function getCheckoutTotals() {
+        const subtotal = getCartSubtotal();
+        const rate = getSelectedTaxRate();
+        const taxAmount = subtotal * (rate / 100);
+        const grandTotal = subtotal + taxAmount;
+
+        return { subtotal, taxAmount, grandTotal, rate };
+    }
+
     function initSearch(element) {
         const $element = $(element);
         let placeholderText = messages.selectPlaceholder || 'Select';
@@ -11,11 +34,13 @@
         if (emptyOptionText) {
             placeholderText = emptyOptionText;
         }
+        const allowClear = $element.is('#tax_id');
 
         $element.select2({
             theme: 'bootstrap-5',
             width: '100%',
             placeholder: placeholderText,
+            allowClear,
             dropdownParent: $element.parent()
         });
     }
@@ -64,16 +89,17 @@
 
     function renderCart() {
         let html = '';
-        let total = 0;
         const isTabletOrSmaller = window.innerWidth <= 992;
+        const totals = getCheckoutTotals();
+        const taxRate = totals.rate;
+        const grandTotal = totals.grandTotal;
 
         cart.forEach((item, index) => {
             const base = item.price * item.qty;
-            const taxAmount = (base * item.taxRate) / 100;
+            const taxAmount = (base * taxRate) / 100;
             const sub = base + taxAmount;
-            total += sub;
             const attrHtml = item.attributes ? `<br><small class="text-muted" style="font-size:0.75rem;">${item.attributes}</small>` : '';
-            const taxHtml = item.taxRate ? `<br><small class="text-muted" style="font-size:0.75rem;">Tax: ${item.taxRate.toFixed(2)}% (+$${taxAmount.toFixed(2)})</small>` : '';
+            const taxHtml = taxRate ? `<br><small class="text-muted" style="font-size:0.75rem;">Tax: ${taxRate.toFixed(2)}% (+$${taxAmount.toFixed(2)})</small>` : '';
             const rowClass = item.id === lastUpdatedCartId ? 'cart-row-anim' : '';
 
             if (isTabletOrSmaller) {
@@ -111,9 +137,25 @@
         });
 
         $('#cartTable').html(html);
-        $('#cartTotal').text('$' + total.toFixed(2));
+        $('#summarySubtotal').text('$' + totals.subtotal.toFixed(2));
+        $('#summaryTaxAmount').text('$' + totals.taxAmount.toFixed(2));
+        $('#summaryGrandTotal').text('$' + grandTotal.toFixed(2));
+        $('#cartTotal').text('$' + grandTotal.toFixed(2));
         lastUpdatedCartId = null;
         updateProductCards(cart);
+    }
+
+    function resetPosAfterSale() {
+        cart = [];
+        currentTotal = 0;
+        lastUpdatedCartId = null;
+        qrMd5 = null;
+        qrConfirmed = false;
+        qrCheckFailures = 0;
+        $('#customer_id').val('');
+        $('#paymentType').val('Cash');
+        $('#tax_id').val('').trigger('change');
+        renderCart();
     }
 
     function processCheckout(paymentType, receivedAmount, customerId, paymentConfirmed) {
@@ -127,6 +169,7 @@
                 cart,
                 customer_id: customerId,
                 total_amount: currentTotal,
+                tax_id: getSelectedTaxId(),
                 payment_type: paymentType,
                 paid_amount: receivedAmount,
                 payment_confirmed: paymentConfirmed ? 1 : 0
@@ -135,6 +178,7 @@
                 if (res.status === 'success') {
                     cancelQrPolling();
                     bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
+                    resetPosAfterSale();
                     Swal.fire({
                         title: messages.success || 'Success',
                         text: res.message,
@@ -143,7 +187,6 @@
                         showConfirmButton: false
                     }).then(() => {
                         window.open('/pos/receipt/' + res.order_id, '_blank', 'width=620,height=800');
-                        location.reload();
                     });
                 } else {
                     Swal.fire(messages.error || 'Error', res.message, 'error');
@@ -162,6 +205,7 @@
     }
 
     function showQrError(msg) {
+        cancelQrPolling();
         $('#qrLoading').addClass('d-none');
         $('#qrDisplay').addClass('d-none');
         $('#qrError').removeClass('d-none');
@@ -205,6 +249,7 @@
 
     function startPolling() {
         let secondsLeft = 60;
+        qrCheckFailures = 0;
         $('#qrCountdown').text(secondsLeft);
 
         qrCountdownTimer = setInterval(function() {
@@ -220,13 +265,28 @@
             $.ajax({
                 url: routes.khqrCheck || '',
                 type: 'POST',
+                global: false,
                 data: {
                     _token: csrfToken,
                     md5: qrMd5
                 },
                 success(res) {
+                    if (res.error) {
+                        qrCheckFailures++;
+                        if (qrCheckFailures >= 3) {
+                            showQrError(res.error || (messages.serverErrorQr || 'Unable to check QR payment.'));
+                        }
+                        return;
+                    }
+
                     if (res.paid) {
                         onQrPaid();
+                    }
+                },
+                error() {
+                    qrCheckFailures++;
+                    if (qrCheckFailures >= 3) {
+                        showQrError(messages.serverErrorQr || 'Server error checking QR payment.');
                     }
                 }
             });
@@ -237,6 +297,7 @@
         cancelQrPolling();
         qrMd5 = null;
         qrConfirmed = false;
+        qrCheckFailures = 0;
 
         $('#qrAmountDisplay').text('$' + amount.toFixed(2));
         $('#qrLoading').removeClass('d-none');
@@ -274,6 +335,7 @@
     let qrPollingTimer = null;
     let qrCountdownTimer = null;
     let qrConfirmed = false;
+    let qrCheckFailures = 0;
     let searchDebounceTimer = null;
     let searchRequest = null;
 
@@ -357,7 +419,6 @@
         const name = card.data('name');
         const price = parseFloat(card.data('price'));
         const stock = parseInt(card.data('stock'));
-        const taxRate = parseFloat(card.data('tax-rate')) || 0;
         const attributes = card.data('attributes');
 
         lastUpdatedCartId = id;
@@ -365,7 +426,7 @@
         if (item) {
             item.qty++;
         } else {
-            cart.push({ id, name, price, qty: 1, stock, taxRate, attributes });
+            cart.push({ id, name, price, qty: 1, stock, attributes });
         }
         renderCart();
     }
@@ -434,6 +495,10 @@
             searchProducts();
         });
 
+        $('#tax_id').on('change', function() {
+            renderCart();
+        });
+
         $('#posSearchReset').on('click', function() {
             resetProductSearch();
         });
@@ -498,10 +563,15 @@
                 return;
             }
 
-            currentTotal = parseFloat($('#cartTotal').text().replace('$', ''));
+            const totals = getCheckoutTotals();
+            currentTotal = totals.grandTotal;
             qrConfirmed = false;
             const payType = getPayType();
+            const subtotal = totals.subtotal;
+            const taxTotal = totals.taxAmount;
 
+            $('#modalSubtotalDisplay').text('$' + subtotal.toFixed(2));
+            $('#modalTaxDisplay').text('$' + taxTotal.toFixed(2));
             $('#modalTotalDisplay').text('$' + currentTotal.toFixed(2));
             $('#cashPaymentSection').addClass('d-none');
             $('#qrPaymentSection').addClass('d-none');
@@ -510,9 +580,11 @@
             if (payType === 'QR') {
                 $('#qrPaymentSection').removeClass('d-none');
                 $('#btnConfirmPayment').prop('disabled', true);
+                $('#paymentSummary').css('display', 'none');
                 startKhqrFlow(currentTotal);
             } else {
                 $('#cashPaymentSection').removeClass('d-none');
+                $('#paymentSummary').css('display', 'block');
                 $('#txtReceivedAmount').val(currentTotal).trigger('keyup');
                 setTimeout(() => $('#txtReceivedAmount').select(), 500);
             }

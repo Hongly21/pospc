@@ -52,7 +52,7 @@
     "Total Debt": "ប្រាក់កំពុងជំពាក់",
     "General Expenses": "ចំណាយទូទៅ",
     "Estimated Profit": "ប្រាក់ចំណេញប៉ាន់ស្មាន",
-    "Weekly Revenue Graph": "ក្រាហ្វប្រាក់ចំណូលប្រចាំសប្តាហ៍",
+    "Weekly Revenue Graph": "ក្រាហ្វប្រាក់ចំណូល",
     "Revenue": "ប្រាក់ចំណូល",
     "Payment Methods": "វិធីសាស្រ្តទូទាត់ប្រាក់",
     "Cash": "ប្រាក់សុទ្ធ",
@@ -126,6 +126,7 @@
     "pos.qty_col": "ចំនួន",
     "pos.price_col": "តម្លៃ",
     "pos.total_label": "សរុប",
+    "pos.select_tax": "ជ្រើសរើសពន្ធ",
     "pos.method_label": "វិធីទូទាត់",
     "pos.cash": "ប្រាក់សុទ្ធ",
     "pos.qr_khqr": "ស្កេន QR (KHQR)",
@@ -199,6 +200,7 @@
     "cost_of_items_sold": "តម្លៃក្នុងដើមទំនិញ",
     "Total_Orders": "ចំនួនការលក់",
     "last":"ចុងក្រោយ",
+    "during":"រយះពេល",
 
 
     "expenses.msg_created": "បានបញ្ចូលចំណាយដោយជោគជ័យ!",
@@ -359,11 +361,11 @@
     "dead_stock.months_label": "គ្មានការលក់ក្នុងរយៈពេល (ខែ)",
     "dead_stock.cutoff_hint": "ផលិតផលមានស្តុក ដែលមិនមានការលក់តាំងពី :date និងបានបន្ថែមមុនកាលបរិច្ឆេទនោះ។",
     "dead_stock.dead_items": "ទំនិញលក់យឺត",
-    "dead_stock.total_capital": "ដើមទុនជាប់",
+    "dead_stock.total_capital": "តម្លដើមទុន",
     "dead_stock.cost_price": "តម្លៃដើម",
     "dead_stock.sell_price": "តម្លៃលក់",
     "dead_stock.capital_tied_up": "ដើមទុនជាប់",
-    "dead_stock.markdown_price": "បនמ្ថយតម្លៃ",
+    "dead_stock.markdown_price": "បញ្ចុះតម្លៃលក់",
     "dead_stock.modal_title": "តម្លៃបញ្ចុះ",
     "dead_stock.modal_hint": "កំណត់តម្លៃលក់ទាបដើម្បីលក់ទំនិញលក់យឺតនេះ។",
     "dead_stock.new_sell_price": "តម្លៃលក់ថ្មី",
@@ -529,6 +531,8 @@
     "products.msg_created": "ទំនិញបានបង្កើតដោយជោគជ័យ!",
     "products.msg_updated": "បានកែប្រែទំនិញដោយជោគជ័យ!",
     "products.msg_deleted": "ទំនិញត្រូវបានលុបដោយជោគជ័យ!",
+
+    "All Alerts":"ទាំងអស់",
 
     "_comment_categories": "===== ប្រភេទទំនិញ =====",
     "categories.page_title": "ការគ្រប់គ្រងប្រភេទទំនិញ",

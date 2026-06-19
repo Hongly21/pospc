@@ -28,8 +28,8 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-12 col-lg-4 d-flex gap-2 mt-2 ">
-                            <button type="submit"
-                                class="btn btn-outline-primary px-4 flex-grow-1">{{ __('pos.search_btn') }}</button>
+                            <button type="submit" class="btn btn-outline-primary px-2 flex-grow-1"><i
+                                    class="fas fa-search"></i></button>
                             <button type="button" id="posSearchReset"
                                 class="btn btn-outline-danger {{ request()->filled('search') || request()->filled('CategoryID') ? '' : 'd-none' }}">
                                 <i class="fas fa-sync-alt"></i>
@@ -53,10 +53,10 @@
                 </div>
                 <div class="card-body p-0 d-flex flex-column pos-cart-body pos-scrollable-area">
                     <div class="p-3 border-bottom bg-light">
-                        <label class="small fw-bold text-muted mb-1">{{ __('pos.customer_label') }}</label>
+                        {{-- <label class="small fw-bold text-muted mb-1">{{ __('pos.customer_label') }}</label> --}}
                         <div class="input-group flex-nowrap">
                             <select class="form-select searchable-select" id="customer_id">
-                                <option value="">{{ __('pos.general_customer') }}</option>
+                                <option value=""> {{ __('pos.general_customer') }}</option>
                                 @foreach ($customers as $customer)
                                     @if ($customer->has_debt)
                                         <option value="{{ $customer->CustomerID }}" class="debt-customer-option">
@@ -92,10 +92,34 @@
                         </table>
                     </div>
                     <div class="bg-white p-3 border-top shadow-sm">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">{{ __('pos.total_label') }}</span>
-                            <span class="fs-4 fw-bold text-primary" id="cartTotal">$0.00</span>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted mb-1">{{ __('receipt.total_tax') }}</label>
+                            <select name="tax_id" id="tax_id" class="form-select searchable-select">
+                                <option value="">{{ __('pos.select_tax') }}</option>
+                                @foreach ($taxes as $tax)
+                                    <option value="{{ $tax->TaxID }}" data-rate="{{ $tax->Rate }}"
+                                        {{ old('tax_id') == $tax->TaxID ? 'selected' : '' }}>
+                                        {{ $tax->Name }} {{ number_format($tax->Rate, 2) }}%
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                        {{--
+                        <div class=" bg-white alert alert-light border mb-3 py-2">
+                            <div class="d-flex justify-content-between small text-muted ">
+                                <span>{{ __('receipt.subtotal') }}</span>
+                                <strong id="summarySubtotal">$0.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>{{ __('receipt.total_tax') }}</span>
+                                <strong id="summaryTaxAmount">$0.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold mt-2">
+                                <span>{{ __('receipt.total_amount') }}</span>
+                                <strong id="summaryGrandTotal">$0.00</strong>
+                            </div>
+                        </div> --}}
+
                         <div class="mb-3">
                             <label class="small fw-bold text-muted mb-1">{{ __('pos.method_label') }}</label>
                             <select class="form-select" id="paymentType">
@@ -148,6 +172,21 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnClosePaymentModal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class=" bg-white alert alert-light border mb-3" id="paymentSummary">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>{{ __('pos.total_label') }}</span>
+                            <strong id="modalSubtotalDisplay">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-1">
+                            <span>{{ __('receipt.total_tax') }}</span>
+                            <strong id="modalTaxDisplay">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold mt-2">
+                            <span>{{ __('receipt.total_amount') }}</span>
+                            <strong id="modalTotalDisplay">$0.00</strong>
+                        </div>
+                    </div>
+
                     {{-- CASH section --}}
                     <div id="cashPaymentSection" class="d-none">
                         <div class="form-group mb-3">
@@ -269,7 +308,7 @@
                     qrRenderFailed: "{{ __('pos.qr_render_failed') }}",
                     somethingWentWrong: "{{ __('pos.something_went_wrong') }}",
                     debtAmountLabel: "{{ __('pos.debt_amount') }} $",
-                    changeAmountLabel: "{{ __('pos.change_amount') }} $"
+                    changeAmountLabel: "{{ __('pos.change_amount') }} $",
                 }
             };
         </script>

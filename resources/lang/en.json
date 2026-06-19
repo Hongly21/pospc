@@ -46,6 +46,7 @@
     "last": "Last",
     "Total_Amount_Spent": "Total Amount Spent",
     "no_data": "No data found",
+    "during":"During",
 
 
 
@@ -73,7 +74,7 @@
     "Total Debt": "Total Debt",
     "General Expenses": "General Expenses",
     "Estimated Profit": "Estimated Profit",
-    "Weekly Revenue Graph": "Weekly Revenue Graph",
+    "Weekly Revenue Graph": " Revenue Graph",
     "Revenue": "Revenue",
     "Payment Methods": "Payment Methods",
     "Cash": "Cash",
@@ -100,6 +101,7 @@
     "Clear Filter": "Clear Filter",
     "INV #": "INV #",
     "Date": "Date",
+    "pos.select_tax": "Select Tax Rate",
     "Customer": "Customer",
     "Total": "Total",
     "Payment": "Payment",
@@ -638,6 +640,7 @@
     "Low_Stock_Alert": "Low Stock Alerts",
     "product_low_on_stock": "is low on stock",
     "View_All": "View All",
+    "All Alerts":"All Alert",
 
 
 
@@ -671,7 +674,7 @@
     "receipt.phone": "Phone:",
     "receipt.order_info": "Order Information:",
     "receipt.seller": "Seller:",
-    "receipt.payment_method": "Payment Method:",
+    "receipt.payment_method": "Payment",
     "receipt.status": "Status:",
     "receipt.description": "Description (Product)",
     "receipt.qty": "Qty",

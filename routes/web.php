@@ -39,7 +39,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/pos', [OrderController::class, 'index'])->name('pos.index');
     Route::post('/pos/store', [OrderController::class, 'store'])->name('pos.store');
@@ -111,8 +111,8 @@ Route::middleware(['auth', 'role:Admin,Manager'])->group(function () {
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // User Approvals
-    Route::get('/users/approve/{id}', [UserController::class, 'approve'])->name('users.approve');
-    Route::get('/users/reject/{id}', [UserController::class, 'reject'])->name('users.reject');
+    Route::post('/users/approve/{id}', [UserController::class, 'approve'])->name('users.approve');
+    Route::post('/users/reject/{id}', [UserController::class, 'reject'])->name('users.reject');
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

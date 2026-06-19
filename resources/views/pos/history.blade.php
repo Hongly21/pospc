@@ -94,7 +94,7 @@
                                 <td class="text-center">
                                     <button
                                         onclick="window.open('{{ route('pos.receipt', $order->OrderID) }}', '_blank', 'width=620,height=800')"
-                                        class="btn btn-sm btn-outline-primary mb-1">
+                                        class="btn btn-sm btn-outline-secondary text-dark mb-1">
                                         <i class="fas fa-print fa-sm "></i> {{ __('Print Receipt') }}
                                     </button>
 

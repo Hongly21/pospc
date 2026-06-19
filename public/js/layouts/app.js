@@ -237,7 +237,12 @@ function confirmLogout(event) {
         cancelButtonText: sidebarLabels.cancelButton || 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = sidebarLabels.logoutRoute || '/logout';
+            const logoutForm = document.getElementById('logout-form');
+            if (logoutForm) {
+                logoutForm.submit();
+            } else {
+                window.location.href = sidebarLabels.logoutRoute || '/logout';
+            }
         }
     });
 }

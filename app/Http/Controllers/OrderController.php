@@ -14,7 +14,9 @@ use App\Models\Customer;
 use App\Models\Receipt;
 use Carbon\Carbon;
 use App\Models\Category;
+use App\Models\Tax;
 use App\Services\KhqrService;   // ← NEW
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -22,10 +24,12 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
+        $taxes = Tax::where('Status', 1)->orderBy('TaxID', 'desc')->get();
+
         $query = Product::where('status', 1)
             ->whereHas('inventory', function ($q) {
                 $q->where('Quantity', '>', 0);
-            })->with(['inventory', 'category.tax', 'attributes', 'tax']);
+            })->with(['inventory', 'category', 'attributes']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -65,7 +69,7 @@ class OrderController extends Controller
             $customer->has_debt = $totalDebt > 0;
         }
 
-        return view('pos.index', compact('products', 'customers', 'categories'));
+        return view('pos.index', compact('products', 'customers', 'categories', 'taxes'));
     }
 
     public function generateKhqr(Request $request)
@@ -114,6 +118,7 @@ class OrderController extends Controller
             'payment_type'       => 'required|in:Cash,QR,Card',
             'cart'               => 'required|array',
             'customer_id'        => 'nullable|exists:customers,CustomerID',
+            'tax_id'             => ['nullable', Rule::exists('taxes', 'TaxID')->where('Status', 1)],
             'paid_amount'        => 'nullable|numeric|min:0',
             'payment_confirmed'  => 'nullable|boolean',
         ]);
@@ -129,6 +134,10 @@ class OrderController extends Controller
             DB::beginTransaction();
             $calculatedTotal = 0;
             $totalTax = 0;
+            $selectedTax = $request->filled('tax_id')
+                ? Tax::where('Status', 1)->find($request->tax_id)
+                : null;
+            $taxRate = $selectedTax?->Rate ?? 0;
             foreach ($request->cart as $item) {
                 $inventory = Inventory::where('ProductID', $item['id'])->lockForUpdate()->first();
                 if (!$inventory || $inventory->Quantity < $item['qty']) {
@@ -139,9 +148,8 @@ class OrderController extends Controller
                     ]);
                 }
 
-                $product = Product::with(['tax', 'category.tax'])->findOrFail($item['id']);
+                $product = Product::findOrFail($item['id']);
                 $lineAmount = $product->SellPrice * $item['qty'];
-                $taxRate = $product->tax->Rate ?? ($product->category->tax->Rate ?? 0);
                 $taxAmount = round($lineAmount * ($taxRate / 100), 2);
                 $calculatedTotal += round($lineAmount + $taxAmount, 2);
                 $totalTax += $taxAmount;
@@ -170,8 +178,13 @@ class OrderController extends Controller
             ]);
 
             if ($paidAmount > 0) {
+                $receiptTaxSnapshot = $this->resolveReceiptTaxSnapshot($selectedTax);
+
                 Receipt::create([
                     'OrderID'       => $order->OrderID,
+                    'TaxID'         => $receiptTaxSnapshot['TaxID'],
+                    'TaxRate'       => $receiptTaxSnapshot['TaxRate'],
+                    'TaxAmount'     => round($totalTax, 2),
                     'ReceiptNo'     => 'REC-' . strtoupper(uniqid()) . '-' . random_int(100, 999),
                     'PaymentMethod' => $request->payment_type,
                     'PaidAmount'    => $paidAmount,
@@ -181,9 +194,8 @@ class OrderController extends Controller
             }
 
             foreach ($request->cart as $item) {
-                $product = Product::with(['tax', 'category.tax'])->findOrFail($item['id']);
+                $product = Product::findOrFail($item['id']);
                 $lineAmount = $product->SellPrice * $item['qty'];
-                $taxRate = $product->tax->Rate ?? ($product->category->tax->Rate ?? 0);
                 $taxAmount = round($lineAmount * ($taxRate / 100), 2);
 
                 OrderDetail::create([
@@ -305,9 +317,18 @@ class OrderController extends Controller
             $payAmount     = $request->paid_amount;
             $appliedAmount = min($payAmount, $remaining);
             $changeAmount  = max(0, $payAmount - $remaining);
+            $latestReceipt = Receipt::where('OrderID', $order->OrderID)->orderBy('ReceiptID', 'desc')->first();
+            $receiptTaxSnapshot = [
+                'TaxID' => $latestReceipt?->TaxID,
+                'TaxRate' => $latestReceipt?->TaxRate ?? 0,
+                'TaxAmount' => $latestReceipt?->TaxAmount ?? 0,
+            ];
 
             Receipt::create([
                 'OrderID'       => $order->OrderID,
+                'TaxID'         => $receiptTaxSnapshot['TaxID'],
+                'TaxRate'       => $receiptTaxSnapshot['TaxRate'],
+                'TaxAmount'     => $receiptTaxSnapshot['TaxAmount'],
                 'ReceiptNo'     => 'REC-' . strtoupper(uniqid()) . '-' . random_int(100, 999),
                 'PaymentMethod' => $request->payment_method,
                 'PaidAmount'    => $payAmount,
@@ -330,5 +351,13 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    private function resolveReceiptTaxSnapshot(?Tax $tax): array
+    {
+        return [
+            'TaxID' => $tax?->TaxID,
+            'TaxRate' => $tax?->Rate ?? 0,
+        ];
     }
 }

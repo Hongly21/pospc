@@ -68,7 +68,7 @@ class ReportController extends Controller
         $netProfit = $totalRevenue - $totalExpenses - $cogs;
         // -----------------------------------------------------
 
-        $orders = $query->paginate(15)->appends([
+        $orders = $query->paginate(10)->appends([
             'start_date'  => $startDate,
             'end_date'    => $endDate,
             'customer_id' => $customerId,

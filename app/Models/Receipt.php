@@ -16,6 +16,9 @@ class Receipt extends Model
 
     protected $fillable = [
         'OrderID',
+        'TaxID',
+        'TaxRate',
+        'TaxAmount',
         'ReceiptNo',
         'PaymentMethod',
         'PaidAmount',
@@ -23,9 +26,21 @@ class Receipt extends Model
         'CreatedAt'
     ];
 
+    protected $casts = [
+        'TaxRate' => 'float',
+        'TaxAmount' => 'float',
+        'PaidAmount' => 'float',
+        'ChangeAmount' => 'float',
+    ];
+
 
     public function order()
     {
         return $this->belongsTo(Order::class, 'OrderID', 'OrderID');
+    }
+
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class, 'TaxID', 'TaxID');
     }
 }

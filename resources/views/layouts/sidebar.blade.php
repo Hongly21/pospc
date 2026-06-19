@@ -129,11 +129,11 @@
     @endif
 
     {{-- Dark Mode Toggle --}}
-    <div class="dark-mode-toggle" onclick="toggleDarkMode()" data-tooltip="{{ __('Dark Mode') }}">
+    {{-- <div class="dark-mode-toggle" onclick="toggleDarkMode()" data-tooltip="{{ __('Dark Mode') }}">
         <span>
             <i class="fas fa-moon icon" id="dark-mode-icon"></i>
             <span class="nav-label" id="dark-mode-label">{{ __('Dark Mode') }}</span>
         </span>
         <div class="theme-switch" id="theme-switch"></div>
-    </div>
+    </div> --}}
 </div>

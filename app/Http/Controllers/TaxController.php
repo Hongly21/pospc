@@ -6,7 +6,7 @@ use App\Models\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Log;
 
 class TaxController extends Controller
 {
@@ -22,7 +22,7 @@ class TaxController extends Controller
             $query->where('Name', 'LIKE', '%' . $request->search . '%');
         }
 
-        $taxes = $query->orderBy('TaxID', 'desc')->paginate(15);
+        $taxes = $query->orderBy('TaxID', 'desc')->paginate(10);
 
         return view('taxes.index', compact('taxes'));
     }
@@ -31,13 +31,8 @@ class TaxController extends Controller
     public function store(Request $request)
     {
         // SECURITY: Only Admin/Manager can create taxes
-        if (!Auth::user()->hasAnyRole(['Admin', 'Manager'])) {
-            AuditLogger::log(
-                'unauthorized_tax_creation_attempt',
-                'Tax',
-                [],
-                'failed'
-            );
+        if (!$this->userHasAnyRole(['Admin', 'Manager'])) {
+            Log::warning('unauthorized_tax_creation_attempt', ['model' => 'Tax']);
             abort(403, 'Unauthorized: Only admins and managers can create taxes');
         }
 
@@ -59,12 +54,7 @@ class TaxController extends Controller
             'Status' => $request->Status,
         ]);
 
-        AuditLogger::log(
-            'tax_created',
-            'Tax',
-            ['tax_id' => $tax->TaxID, 'name' => $tax->Name, 'rate' => $tax->Rate],
-            'success'
-        );
+        Log::info('tax_created', ['model' => 'Tax', 'tax_id' => $tax->TaxID, 'name' => $tax->Name, 'rate' => $tax->Rate]);
 
         return redirect()->route('taxes.index')->with('success', __('taxes.msg_created'));
     }
@@ -72,13 +62,8 @@ class TaxController extends Controller
     public function update(Request $request, $id)
     {
         // SECURITY: Only Admin/Manager can update taxes
-        if (!Auth::user()->hasAnyRole(['Admin', 'Manager'])) {
-            AuditLogger::log(
-                'unauthorized_tax_update_attempt',
-                'Tax',
-                ['tax_id' => $id],
-                'failed'
-            );
+        if (!$this->userHasAnyRole(['Admin', 'Manager'])) {
+            Log::warning('unauthorized_tax_update_attempt', ['model' => 'Tax', 'tax_id' => $id]);
             abort(403, 'Unauthorized: Only admins and managers can update taxes');
         }
 
@@ -102,12 +87,7 @@ class TaxController extends Controller
             'Status' => $request->Status,
         ]);
 
-        AuditLogger::log(
-            'tax_updated',
-            'Tax',
-            ['tax_id' => $tax->TaxID, 'name' => $tax->Name, 'rate' => $tax->Rate],
-            'success'
-        );
+        Log::info('tax_updated', ['model' => 'Tax', 'tax_id' => $tax->TaxID, 'name' => $tax->Name, 'rate' => $tax->Rate]);
 
         return redirect()->back()->with('success', __('taxes.msg_updated'));
     }
@@ -115,37 +95,35 @@ class TaxController extends Controller
     public function destroy($id)
     {
         // SECURITY: Only Admin can delete taxes
-        if (!Auth::user()->hasRole('Admin')) {
-            AuditLogger::log(
-                'unauthorized_tax_deletion_attempt',
-                'Tax',
-                ['tax_id' => $id],
-                'failed'
-            );
+        if (!$this->userHasRole('Admin')) {
+            Log::warning('unauthorized_tax_deletion_attempt', ['model' => 'Tax', 'tax_id' => $id]);
             abort(403, 'Unauthorized: Only admins can delete taxes');
         }
 
         $tax = Tax::findOrFail($id);
 
-        if ($tax->products()->exists() || $tax->categories()->exists()) {
-            AuditLogger::log(
-                'tax_deletion_prevented',
-                'Tax',
-                ['tax_id' => $id, 'reason' => 'has_dependencies'],
-                'failed'
-            );
-            return redirect()->back()->with('error', __('taxes.msg_cannot_delete'));
-        }
-
         $tax->delete();
 
-        AuditLogger::log(
-            'tax_deleted',
-            'Tax',
-            ['tax_id' => $id, 'name' => $tax->Name],
-            'success'
-        );
+        Log::info('tax_deleted', ['model' => 'Tax', 'tax_id' => $id, 'name' => $tax->Name]);
 
         return redirect()->back()->with('success', __('taxes.msg_deleted'));
+    }
+
+    private function userHasRole(string $roleName): bool
+    {
+        $user = Auth::user();
+
+        return $user?->role?->RoleName !== null && strtolower($user->role->RoleName) === strtolower($roleName);
+    }
+
+    private function userHasAnyRole(array $roleNames): bool
+    {
+        foreach ($roleNames as $roleName) {
+            if ($this->userHasRole($roleName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

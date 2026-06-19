@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Tax;
 use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
@@ -21,10 +20,8 @@ class CategoryController extends Controller
             $query->where('Name', 'LIKE', '%' . $request->search . '%');
         }
 
-        $categories = $query->orderBy('CategoryID', 'desc')->paginate(15);
-        $taxes = Tax::where('Status', 1)->get();
-
-        return view('categories.index', compact('categories', 'taxes'));
+        $categories = $query->orderBy('CategoryID', 'desc')->paginate(10);
+        return view('categories.index', compact('categories'));
     }
 
     public function store(Request $request)
@@ -35,14 +32,12 @@ class CategoryController extends Controller
 
         $request->validate([
             'Name' => ['required', 'string', 'max:255', Rule::unique('categories', 'Name')],
-            'TaxID' => 'nullable|exists:taxes,TaxID',
         ], [
             'Name.unique' => 'Category name already exists.',
         ]);
 
         Category::create([
             'Name' => $request->Name,
-            'TaxID' => $request->TaxID,
         ]);
 
         return redirect()->back()->with('success', __('categories.msg_created'));
@@ -58,7 +53,6 @@ class CategoryController extends Controller
 
         $request->validate([
             'Name' => ['required', 'string', 'max:255', Rule::unique('categories', 'Name')->ignore($id, 'CategoryID')],
-            'TaxID' => 'nullable|exists:taxes,TaxID',
             'status' => 'required|boolean',
         ], [
             'Name.unique' => 'Category name already exists.',
@@ -66,7 +60,6 @@ class CategoryController extends Controller
 
         $category->update([
             'Name' => $request->Name,
-            'TaxID' => $request->TaxID,
             'status' => $request->status,
         ]);
 

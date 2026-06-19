@@ -83,6 +83,39 @@ window.calcRow = function(element) {
     calcTotal();
 };
 
+// NEW FUNCTION: Disables products that are already selected in other rows
+function updateProductDropdowns() {
+    // 1. Get all currently selected product IDs
+    let selectedProducts = [];
+    document.querySelectorAll('.product-select').forEach(select => {
+        if (select.value) {
+            selectedProducts.push(select.value);
+        }
+    });
+
+    // 2. Loop through every dropdown to update the options
+    document.querySelectorAll('.product-select').forEach(select => {
+        let currentValue = select.value;
+
+        Array.from(select.options).forEach(option => {
+            if (option.value === "") return; // Skip the "Select Product" placeholder
+
+            // If the option is in the selected list AND it is not the current dropdown's value, disable it
+            if (selectedProducts.includes(option.value) && option.value !== currentValue) {
+                option.disabled = true;
+            } else {
+                option.disabled = false;
+            }
+        });
+
+        // 3. Re-initialize Select2 so it visually updates the grayed-out options
+        if ($(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2('destroy');
+            initSearch(select);
+        }
+    });
+}
+
 window.updatePrice = function(select) {
     const cost = select.options[select.selectedIndex].getAttribute('data-cost');
     const row = select.closest('tr');
@@ -93,6 +126,9 @@ window.updatePrice = function(select) {
             calcRow(costInput);
         }
     }
+
+    // Call our new function every time a product is selected
+    updateProductDropdowns();
 };
 
 function addPurchaseRow() {
@@ -115,6 +151,9 @@ function addPurchaseRow() {
     }
 
     window.purchaseRowIndex = currentRowIdx + 1;
+
+    // Run the check when a new row is added so it doesn't show already selected items
+    updateProductDropdowns();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -136,6 +175,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (row && rows.length > 1) {
                 row.remove();
                 calcTotal();
+
+                // Run the check when a row is removed to free up that product for other rows
+                updateProductDropdowns();
             }
         }
     });

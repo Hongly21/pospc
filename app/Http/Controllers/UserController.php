@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
-use Illuminate\Validation\Rules\Password; // <-- Added this import!
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -31,7 +31,6 @@ class UserController extends Controller
             $query->where('Status', $request->status);
         }
 
-        // Admin-only filter: recent logins (24h / 7d / 30d)
         if ($request->filled('recent_login') && Auth::user() && Auth::user()->hasRole('Admin')) {
             $recent = $request->recent_login;
             if ($recent === '24h') {
@@ -43,7 +42,7 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->orderBy('UserID', 'desc')->paginate(15)->appends($request->query());
+        $users = $query->orderBy('UserID', 'desc')->paginate(10)->appends($request->query());
 
         $roles = Role::all();
 
