@@ -144,227 +144,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-
-                            {{-- Edit Product Modal --}}
-                            <div class="modal fade" id="editProductModal{{ $product->ProductID }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit text-primary me-2"></i>
-                                                {{ __('products.modal_edit_title') }} {{ $product->Name }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <form action="{{ route('products.update', $product->ProductID) }}" method="POST"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
-
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_name') }}</label>
-                                                        <input type="text" name="Name"
-                                                            class="form-control @error('Name') is-invalid @enderror"
-                                                            value="{{ old('Name', $product->Name) }}" maxlength="255" required>
-                                                        @error('Name')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }}</label>
-                                                        <select name="CategoryID" class="form-select searchable-select @error('CategoryID') is-invalid @enderror"
-                                                            required>
-                                                            @foreach ($categories as $cat)
-                                                                <option value="{{ $cat->CategoryID }}"
-                                                                    {{ old('CategoryID', $product->CategoryID) == $cat->CategoryID ? 'selected' : '' }}>
-                                                                    {{ $cat->Name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('CategoryID')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-6 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_brand') }}</label>
-                                                        <input type="text" name="Brand"
-                                                            class="form-control"
-                                                            value="{{ $product->Brand }}">
-                                                    </div>
-                                                    <div class="col-6 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_model') }}</label>
-                                                        <input type="text" name="Model"
-                                                            class="form-control"
-                                                            value="{{ $product->Model }}">
-                                                    </div>
-
-                                                    <div class="col-6 col-md-4">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_cost') }}</label>
-                                                        <input type="number" step="0.01" min="0" name="CostPrice"
-                                                            class="form-control @error('CostPrice') is-invalid @enderror"
-                                                            value="{{ old('CostPrice', $product->CostPrice) }}" required>
-                                                        @error('CostPrice')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-6 col-md-4">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_price') }}</label>
-                                                        <input type="number" step="0.01" min="0" name="SellPrice"
-                                                            class="form-control @error('SellPrice') is-invalid @enderror"
-                                                            value="{{ old('SellPrice', $product->SellPrice) }}" required>
-                                                        @error('SellPrice')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-12 col-md-4">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_warranty') }}</label>
-                                                        <input type="number" min="0" name="WarrantyMonths"
-                                                            class="form-control @error('WarrantyMonths') is-invalid @enderror"
-                                                            value="{{ old('WarrantyMonths', $product->WarrantyMonths) }}">
-                                                        @error('WarrantyMonths')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-6 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_barcode') }}</label>
-                                                        <input type="text"
-                                                            class="form-control"
-                                                            value="{{ $product->Barcode }}"
-                                                            disabled>
-                                                        <small class="text-muted">Barcode cannot be changed after creation.</small>
-                                                    </div>
-
-                                                    <div class="col-6 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-primary">{{ __('products.status') }}</label>
-                                                        <select name="Status"
-                                                            class="form-select border-primary bg-primary bg-opacity-10 @error('Status') is-invalid @enderror" required>
-                                                            <option value="1"
-                                                                {{ old('Status', $product->Status) == 1 ? 'selected' : '' }}>
-                                                                {{ __('active') }}</option>
-                                                            <option value="0"
-                                                                {{ old('Status', $product->Status) == 0 ? 'selected' : '' }}>
-                                                                {{ __('inactive') }}</option>
-                                                        </select>
-                                                        @error('Status')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-md-12">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_image') }}</label>
-                                                        <input type="file" name="Image"
-                                                            class="form-control @error('Image') is-invalid @enderror" accept="image/*">
-                                                        @error('Image')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                        @if ($product->Image)
-                                                            <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
-                                                                <small
-                                                                    class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
-                                                                @if(str_starts_with($product->Image, 'http'))
-                                                                    <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
-                                                                        width="50" class="rounded border shadow-sm">
-                                                                @else
-                                                                    <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                                                        width="50" class="rounded border shadow-sm">
-                                                                @endif
-                                                            </div>
-                                                        @else
-                                                            <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
-                                                                <small
-                                                                    class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
-                                                                <img src="{{ asset('images/no-image.png') }}" alt="No Image"
-                                                                    width="50" class="rounded border shadow-sm">
-                                                            </div>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="col-md-12">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('products.lbl_description') }}</label>
-                                                        <textarea name="Description" class="form-control @error('Description') is-invalid @enderror" rows="2" maxlength="1000">{{ old('Description', $product->Description) }}</textarea>
-                                                        @error('Description')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="col-12">
-                                                        <div class="card border border-light-subtle shadow-sm mt-2">
-                                                            <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
-                                                                <span class="fw-bold text-dark small"><i class="fas fa-tags text-primary me-1"></i> {{ __('products.lbl_attributes') }}</span>
-                                                                <button type="button" class="btn btn-sm btn-primary py-0 px-2 btn-add-attribute" title="{{ __('products.btn_add_attribute') }}"><i class="fas fa-plus small"></i></button>
-                                                            </div>
-                                                            <div class="card-body p-2 bg-white">
-                                                                <div class="attribute-rows">
-                                                                    @forelse ($product->attributes as $attribute)
-                                                                        <div class="row g-2 align-items-center mb-2 attribute-row">
-                                                                            <div class="col-5">
-                                                                                <input type="text" name="AttributeName[]"
-                                                                                    class="form-control form-control-sm bg-light border-0"
-                                                                                    placeholder="{{ __('products.lbl_attribute_name') }}"
-                                                                                    value="{{ $attribute->AttributeName }}">
-                                                                            </div>
-                                                                            <div class="col-5">
-                                                                                <input type="text" name="AttributeValue[]"
-                                                                                    class="form-control form-control-sm bg-light border-0"
-                                                                                    placeholder="{{ __('products.lbl_attribute_value') }}"
-                                                                                    value="{{ $attribute->AttributeValue }}">
-                                                                            </div>
-                                                                            <div class="col-2 text-end">
-                                                                                <button type="button"
-                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
-                                                                            </div>
-                                                                        </div>
-                                                                    @empty
-                                                                        <div class="row g-2 align-items-center mb-2 attribute-row">
-                                                                            <div class="col-5">
-                                                                                <input type="text" name="AttributeName[]"
-                                                                                    class="form-control form-control-sm bg-light border-0"
-                                                                                    placeholder="{{ __('products.lbl_attribute_name') }}">
-                                                                            </div>
-                                                                            <div class="col-5">
-                                                                                <input type="text" name="AttributeValue[]"
-                                                                                    class="form-control form-control-sm bg-light border-0"
-                                                                                    placeholder="{{ __('products.lbl_attribute_value') }}">
-                                                                            </div>
-                                                                            <div class="col-2 text-end">
-                                                                                <button type="button"
-                                                                                    class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
-                                                                            </div>
-                                                                        </div>
-                                                                    @endforelse
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4"
-                                                    data-bs-dismiss="modal">{{ __('products.btn_cancel') }}</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary fw-bold px-4">{{ __('products.btn_save') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted bg-white">
@@ -553,6 +332,228 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit Product Modals --}}
+    @foreach ($products as $product)
+        <div class="modal fade" id="editProductModal{{ $product->ProductID }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit text-primary me-2"></i>
+                            {{ __('products.modal_edit_title') }} {{ $product->Name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form action="{{ route('products.update', $product->ProductID) }}" method="POST"
+                        enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_name') }}</label>
+                                    <input type="text" name="Name"
+                                        class="form-control @error('Name') is-invalid @enderror"
+                                        value="{{ old('Name', $product->Name) }}" maxlength="255" required>
+                                    @error('Name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_category') }}</label>
+                                    <select name="CategoryID" class="form-select searchable-select @error('CategoryID') is-invalid @enderror"
+                                        required>
+                                        @foreach ($categories as $cat)
+                                            <option value="{{ $cat->CategoryID }}"
+                                                {{ old('CategoryID', $product->CategoryID) == $cat->CategoryID ? 'selected' : '' }}>
+                                                {{ $cat->Name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('CategoryID')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_brand') }}</label>
+                                    <input type="text" name="Brand"
+                                        class="form-control"
+                                        value="{{ $product->Brand }}">
+                                </div>
+                                <div class="col-6 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_model') }}</label>
+                                    <input type="text" name="Model"
+                                        class="form-control"
+                                        value="{{ $product->Model }}">
+                                </div>
+
+                                <div class="col-6 col-md-4">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_cost') }}</label>
+                                    <input type="number" step="0.01" min="0" name="CostPrice"
+                                        class="form-control @error('CostPrice') is-invalid @enderror"
+                                        value="{{ old('CostPrice', $product->CostPrice) }}" required>
+                                    @error('CostPrice')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_price') }}</label>
+                                    <input type="number" step="0.01" min="0" name="SellPrice"
+                                        class="form-control @error('SellPrice') is-invalid @enderror"
+                                        value="{{ old('SellPrice', $product->SellPrice) }}" required>
+                                    @error('SellPrice')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_warranty') }}</label>
+                                    <input type="number" min="0" name="WarrantyMonths"
+                                        class="form-control @error('WarrantyMonths') is-invalid @enderror"
+                                        value="{{ old('WarrantyMonths', $product->WarrantyMonths) }}">
+                                    @error('WarrantyMonths')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_barcode') }}</label>
+                                    <input type="text"
+                                        class="form-control"
+                                        value="{{ $product->Barcode }}"
+                                        disabled>
+                                    <small class="text-muted">Barcode cannot be changed after creation.</small>
+                                </div>
+
+                                <div class="col-6 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-primary">{{ __('products.status') }}</label>
+                                    <select name="Status"
+                                        class="form-select border-primary bg-primary bg-opacity-10 @error('Status') is-invalid @enderror" required>
+                                        <option value="1"
+                                            {{ old('Status', $product->Status) == 1 ? 'selected' : '' }}>
+                                            {{ __('active') }}</option>
+                                        <option value="0"
+                                            {{ old('Status', $product->Status) == 0 ? 'selected' : '' }}>
+                                            {{ __('inactive') }}</option>
+                                    </select>
+                                    @error('Status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_image') }}</label>
+                                    <input type="file" name="Image"
+                                        class="form-control @error('Image') is-invalid @enderror" accept="image/*">
+                                    @error('Image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    @if ($product->Image)
+                                        <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
+                                            <small
+                                                class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
+                                            @if(str_starts_with($product->Image, 'http'))
+                                                <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
+                                                    width="50" class="rounded border shadow-sm">
+                                            @else
+                                                <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
+                                                    width="50" class="rounded border shadow-sm">
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="mt-2 p-2 bg-light rounded d-inline-block border border-light-subtle">
+                                            <small
+                                                class="text-muted d-block mb-1">{{ __('products.lbl_current_image') }}:</small>
+                                            <img src="{{ asset('images/no-image.png') }}" alt="No Image"
+                                                width="50" class="rounded border shadow-sm">
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('products.lbl_description') }}</label>
+                                    <textarea name="Description" class="form-control @error('Description') is-invalid @enderror" rows="2" maxlength="1000">{{ old('Description', $product->Description) }}</textarea>
+                                    @error('Description')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="card border border-light-subtle shadow-sm mt-2">
+                                        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold text-dark small"><i class="fas fa-tags text-primary me-1"></i> {{ __('products.lbl_attributes') }}</span>
+                                            <button type="button" class="btn btn-sm btn-primary py-0 px-2 btn-add-attribute" title="{{ __('products.btn_add_attribute') }}"><i class="fas fa-plus small"></i></button>
+                                        </div>
+                                        <div class="card-body p-2 bg-white">
+                                            <div class="attribute-rows">
+                                                @forelse ($product->attributes as $attribute)
+                                                    <div class="row g-2 align-items-center mb-2 attribute-row">
+                                                        <div class="col-5">
+                                                            <input type="text" name="AttributeName[]"
+                                                                class="form-control form-control-sm bg-light border-0"
+                                                                placeholder="{{ __('products.lbl_attribute_name') }}"
+                                                                value="{{ $attribute->AttributeName }}">
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <input type="text" name="AttributeValue[]"
+                                                                class="form-control form-control-sm bg-light border-0"
+                                                                placeholder="{{ __('products.lbl_attribute_value') }}"
+                                                                value="{{ $attribute->AttributeValue }}">
+                                                        </div>
+                                                        <div class="col-2 text-end">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <div class="row g-2 align-items-center mb-2 attribute-row">
+                                                        <div class="col-5">
+                                                            <input type="text" name="AttributeName[]"
+                                                                class="form-control form-control-sm bg-light border-0"
+                                                                placeholder="{{ __('products.lbl_attribute_name') }}">
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <input type="text" name="AttributeValue[]"
+                                                                class="form-control form-control-sm bg-light border-0"
+                                                                placeholder="{{ __('products.lbl_attribute_value') }}">
+                                                        </div>
+                                                        <div class="col-2 text-end">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-light text-danger w-100 border-0 btn-remove-attribute"><i class="fas fa-trash-alt"></i></button>
+                                                        </div>
+                                                    </div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                                data-bs-dismiss="modal">{{ __('products.btn_cancel') }}</button>
+                            <button type="submit"
+                                class="btn btn-primary fw-bold px-4">{{ __('products.btn_save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />

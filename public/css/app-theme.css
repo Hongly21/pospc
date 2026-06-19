@@ -1515,29 +1515,6 @@ body {
     }
 }
 
-@media (max-width: 767.98px) {
-    .modal-dialog {
-        margin: 0.5rem auto !important;
-        max-width: calc(100vw - 1rem) !important;
-    }
-
-    .modal-content {
-        max-height: calc(100dvh - 1rem);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modal-body {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .modal-header,
-    .modal-footer {
-        flex-shrink: 0;
-    }
-}
-
 /* ============================================
    Custom Component Styles
    ============================================ */
