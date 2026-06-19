@@ -235,7 +235,7 @@ class OrderController extends Controller
     {
         $order   = Order::with(['details.product.attributes', 'user', 'customer', 'receipts'])->findOrFail($id);
 
-        if (Auth::user()->RoleID != 1 && $order->UserID != Auth::id()) {
+        if (!Auth::user()->hasAnyRole(['Admin', 'Manager']) && $order->UserID != Auth::id()) {
             abort(403);
         }
 
@@ -247,7 +247,7 @@ class OrderController extends Controller
     {
         $query = Order::with(['customer', 'user', 'receipts'])->orderBy('OrderID', 'desc');
 
-        if (Auth::user()->RoleID != 1) {
+        if (!Auth::user()->hasAnyRole(['Admin', 'Manager'])) {
             $query->where('UserID', Auth::id());
         }
 
