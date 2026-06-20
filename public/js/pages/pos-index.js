@@ -152,51 +152,67 @@
         qrMd5 = null;
         qrConfirmed = false;
         qrCheckFailures = 0;
+        checkoutInProgress = false;
         $('#customer_id').val('');
         $('#paymentType').val('Cash');
         $('#tax_id').val('').trigger('change');
         renderCart();
     }
 
+    function ajaxJson(url, payload) {
+        return $.ajax({
+            url,
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            data: JSON.stringify(payload)
+        });
+    }
+
     function processCheckout(paymentType, receivedAmount, customerId, paymentConfirmed) {
+        if (checkoutInProgress) {
+            return;
+        }
+        checkoutInProgress = true;
         $('#btnConfirmPayment').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> ' + (messages.processing || 'Processing'));
 
-        $.ajax({
-            url: routes.checkout || '',
-            type: 'POST',
-            data: {
-                _token: csrfToken,
-                cart,
-                customer_id: customerId,
-                total_amount: currentTotal,
-                tax_id: getSelectedTaxId(),
-                payment_type: paymentType,
-                paid_amount: receivedAmount,
-                payment_confirmed: paymentConfirmed ? 1 : 0
-            },
-            success(res) {
-                if (res.status === 'success') {
-                    cancelQrPolling();
-                    bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
-                    resetPosAfterSale();
-                    Swal.fire({
-                        title: messages.success || 'Success',
-                        text: res.message,
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.open('/pos/receipt/' + res.order_id, '_blank', 'width=620,height=800');
-                    });
-                } else {
-                    Swal.fire(messages.error || 'Error', res.message, 'error');
-                    $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
-                }
-            },
-            error() {
-                Swal.fire(messages.error || 'Error', messages.somethingWentWrong || 'Something went wrong', 'error');
+        ajaxJson(routes.checkout || '', {
+            cart,
+            customer_id: customerId || null,
+            total_amount: currentTotal,
+            tax_id: getSelectedTaxId(),
+            payment_type: paymentType,
+            paid_amount: receivedAmount,
+            payment_confirmed: paymentConfirmed ? 1 : 0
+        }).done(function(res) {
+            if (res.status === 'success') {
+                cancelQrPolling();
+                bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
+                resetPosAfterSale();
+                Swal.fire({
+                    title: messages.success || 'Success',
+                    text: res.message,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.open('/pos/receipt/' + res.order_id, '_blank', 'width=620,height=800');
+                });
+            } else {
+                checkoutInProgress = false;
+                Swal.fire(messages.error || 'Error', res.message, 'error');
                 $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
             }
+        }).fail(function(xhr) {
+            checkoutInProgress = false;
+            const message = xhr.responseJSON?.message || messages.somethingWentWrong || 'Something went wrong';
+            Swal.fire(messages.error || 'Error', message, 'error');
+            $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
         });
     }
 
@@ -222,7 +238,12 @@
     }
 
     function cancelQrPolling() {
-        clearInterval(qrCountdownTimer);
+        if (qrPollingTimer) {
+            clearInterval(qrPollingTimer);
+        }
+        if (qrCountdownTimer) {
+            clearInterval(qrCountdownTimer);
+        }
         qrPollingTimer = null;
         qrCountdownTimer = null;
     }
@@ -237,6 +258,9 @@
     }
 
     function onQrPaid() {
+        if (qrConfirmed || checkoutInProgress) {
+            return;
+        }
         cancelQrPolling();
         qrConfirmed = true;
         $('#qrWaiting').addClass('d-none');
@@ -305,26 +329,22 @@
         $('#qrWaiting').removeClass('d-none');
         $('#qrPaid,#qrExpired').addClass('d-none');
 
-        $.ajax({
-            url: routes.khqrGenerate || '',
-            type: 'POST',
-            data: {
-                _token: csrfToken,
-                amount: amount,
-                currency: 'USD'
-            },
-            success(res) {
-                if (res.status === 'success') {
-                    qrMd5 = res.md5;
-                    renderQrCanvas(res.qr);
-                    startPolling();
-                } else {
-                    showQrError(res.message || (messages.cannotGenerateQr || 'Unable to generate QR code.'));
-                }
-            },
-            error() {
-                showQrError(messages.serverErrorQr || 'Server error generating QR.');
+        ajaxJson(routes.khqrGenerate || '', {
+            amount: amount,
+            currency: 'USD',
+            cart,
+            customer_id: $('#customer_id').val() || null,
+            tax_id: getSelectedTaxId()
+        }).done(function(res) {
+            if (res.status === 'success') {
+                qrMd5 = res.md5;
+                renderQrCanvas(res.qr);
+                startPolling();
+            } else {
+                showQrError(res.message || (messages.cannotGenerateQr || 'Unable to generate QR code.'));
             }
+        }).fail(function(xhr) {
+            showQrError(xhr.responseJSON?.message || messages.serverErrorQr || 'Server error generating QR.');
         });
     }
 
@@ -336,6 +356,7 @@
     let qrCountdownTimer = null;
     let qrConfirmed = false;
     let qrCheckFailures = 0;
+    let checkoutInProgress = false;
     let searchDebounceTimer = null;
     let searchRequest = null;
 
@@ -652,6 +673,7 @@
 
         $('#paymentModal').on('hide.bs.modal', function() {
             cancelQrPolling();
+            checkoutInProgress = false;
             $('#txtReceivedAmount').blur();
         });
     });
