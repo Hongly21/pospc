@@ -101,86 +101,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-                            {{-- Edit Modal --}}
-                            <div class="modal fade" id="updateSupplierModal{{ $supplier->SupplierID }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i
-                                                    class="fas fa-edit text-primary me-2"></i>{{ __('suppliers.edit_title') }}
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('suppliers.update', $supplier->SupplierID) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    {{-- <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('suppliers.name') }}</label>
-                                                        <input type="text" class="form-control" name="Name"
-                                                            value="{{ $supplier->Name }}" required>
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('suppliers.contact') }}</label>
-                                                        <input type="text" class="form-control" name="Contact"
-                                                            value="{{ $supplier->Contact }}" required>
-                                                    </div> --}}
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">
-                                                            {{ __('suppliers.name') }}
-                                                        </label>
-
-                                                        <input type="text" class="form-control" name="Name"
-                                                            value="{{ $supplier->Name }}" maxlength="100" required>
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">
-                                                            {{ __('suppliers.contact') }}
-                                                        </label>
-
-                                                        <input type="text" class="form-control" name="Contact"
-                                                            value="{{ $supplier->Contact }}" required maxlength="20"
-                                                            pattern="[0-9]{8,20}"
-                                                            title="Please enter only numbers (8-20 digits)"
-                                                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-                                                    </div>
-                                                    <div class="col-12 col-md-12">
-                                                        <label
-                                                            class="form-label small fw-bold text-primary">{{ __('suppliers.status') }}</label>
-                                                        <select class="form-select border-primary bg-primary bg-opacity-10"
-                                                            name="status" required>
-                                                            <option value="1"
-                                                                {{ $supplier->status == 1 ? 'selected' : '' }}>
-                                                                {{ __('suppliers.active') }}</option>
-                                                            <option value="0"
-                                                                {{ $supplier->status == 0 ? 'selected' : '' }}>
-                                                                {{ __('suppliers.inactive') }}</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-12 col-md-12">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('suppliers.address') }}</label>
-                                                        <input type="text" class="form-control" name="Address"
-                                                            value="{{ $supplier->Address }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4"
-                                                    data-bs-dismiss="modal">{{ __('suppliers.cancel') }}</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary fw-bold px-4">{{ __('suppliers.update') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted bg-white">
@@ -262,6 +182,75 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit Modals --}}
+    @foreach ($suppliers as $supplier)
+        <div class="modal fade" id="updateSupplierModal{{ $supplier->SupplierID }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark"><i
+                                class="fas fa-edit text-primary me-2"></i>{{ __('suppliers.edit_title') }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('suppliers.update', $supplier->SupplierID) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">
+                                        {{ __('suppliers.name') }}
+                                    </label>
+
+                                    <input type="text" class="form-control" name="Name"
+                                        value="{{ $supplier->Name }}" maxlength="100" required>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">
+                                        {{ __('suppliers.contact') }}
+                                    </label>
+
+                                    <input type="text" class="form-control" name="Contact"
+                                        value="{{ $supplier->Contact }}" required maxlength="20"
+                                        pattern="[0-9]{8,20}"
+                                        title="Please enter only numbers (8-20 digits)"
+                                        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                                </div>
+                                <div class="col-12 col-md-12">
+                                    <label
+                                        class="form-label small fw-bold text-primary">{{ __('suppliers.status') }}</label>
+                                    <select class="form-select border-primary bg-primary bg-opacity-10"
+                                        name="status" required>
+                                        <option value="1"
+                                            {{ $supplier->status == 1 ? 'selected' : '' }}>
+                                            {{ __('suppliers.active') }}</option>
+                                        <option value="0"
+                                            {{ $supplier->status == 0 ? 'selected' : '' }}>
+                                            {{ __('suppliers.inactive') }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-12">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('suppliers.address') }}</label>
+                                    <input type="text" class="form-control" name="Address"
+                                        value="{{ $supplier->Address }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                                data-bs-dismiss="modal">{{ __('suppliers.cancel') }}</button>
+                            <button type="submit"
+                                class="btn btn-primary fw-bold px-4">{{ __('suppliers.update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     @push('scripts')
         <script>

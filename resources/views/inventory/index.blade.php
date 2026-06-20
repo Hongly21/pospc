@@ -18,9 +18,11 @@
 
         <div class="card-body bg-light rounded-bottom">
             {{-- Filter Form --}}
-            <form action="{{ route('inventory.index') }}" method="GET" class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
+            <form action="{{ route('inventory.index') }}" method="GET"
+                class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
                 <div class="col-12 col-md-4">
-                    <select name="product_search" id="product_search" class="form-select form-select-sm bg-light searchable-select" style="width: 100%;">
+                    <select name="product_search" id="product_search"
+                        class="form-select form-select-sm bg-light searchable-select" style="width: 100%;">
                         <option value="">{{ __('inventory.search_placeholder') }}</option>
                         @foreach ($allProducts ?? [] as $product)
                             @php
@@ -28,16 +30,14 @@
                                 $reorderLevel = $product->inventory->ReorderLevel ?? 0;
                                 if ($quantity == 0) {
                                     $stockStatus = 'out';
-                                    $statusLabel = __('inventory.stock_status_out');
                                 } elseif ($quantity <= $reorderLevel) {
                                     $stockStatus = 'low';
-                                    $statusLabel = __('inventory.stock_status_low');
                                 } else {
                                     $stockStatus = 'normal';
-                                    $statusLabel = __('inventory.stock_status_normal');
                                 }
                             @endphp
-                            <option value="{{ $product->ProductID }}" data-stock="{{ $quantity }}" data-status="{{ $stockStatus }}">
+                            <option value="{{ $product->ProductID }}" data-stock="{{ $quantity }}"
+                                data-status="{{ $stockStatus }}">
                                 {{ $product->Name }} - {{ $product->category->Name ?? 'N/A' }} ({{ $quantity }})
                             </option>
                         @endforeach
@@ -59,9 +59,12 @@
                 <div class="col-12 col-md-2">
                     <select name="stock_status" class="form-select form-select-sm bg-light">
                         <option value="">{{ __('inventory.stock_status_all') }}</option>
-                        <option value="normal" {{ request('stock_status') === 'normal' ? 'selected' : '' }}>{{ __('inventory.stock_status_normal') }}</option>
-                        <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>{{ __('inventory.stock_status_low') }}</option>
-                        <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>{{ __('inventory.stock_status_out') }}</option>
+                        <option value="normal" {{ request('stock_status') === 'normal' ? 'selected' : '' }}>
+                            {{ __('inventory.stock_status_normal') }}</option>
+                        <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>
+                            {{ __('inventory.stock_status_low') }}</option>
+                        <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>
+                            {{ __('inventory.stock_status_out') }}</option>
                     </select>
                 </div>
 
@@ -92,134 +95,80 @@
                     </thead>
                     <tbody class="border-top-0">
                         @forelse($products as $product)
+                            @php
+                                $quantity = $product->inventory->Quantity ?? 0;
+                                $reorderLevel = $product->inventory->ReorderLevel ?? 0;
+                                if ($quantity == 0) {
+                                    $statusClass = 'bg-danger';
+                                } elseif ($quantity <= $reorderLevel) {
+                                    $statusClass = 'bg-warning text-dark';
+                                } else {
+                                    $statusClass = 'bg-success';
+                                }
+                            @endphp
                             <tr>
                                 <td class="ps-3 fw-bold text-dark">
                                     <div class="d-flex align-items-center py-1">
                                         @if ($product->Image)
-                                            @if(str_starts_with($product->Image, 'http'))
+                                            @if (str_starts_with($product->Image, 'http'))
                                                 <img src="{{ $product->Image }}" alt="{{ $product->Name }}"
-                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light"
+                                                    width="48" height="48">
+                                                </span>
                                             @else
-                                                <img src="{{ asset('storage/' . $product->Image) }}" alt="{{ $product->Name }}"
-                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                                <img src="{{ asset('storage/' . $product->Image) }}"
+                                                    alt="{{ $product->Name }}"
+                                                    class="rounded me-3 object-fit-cover shadow-sm border border-light"
+                                                    width="48" height="48">
                                             @endif
                                         @else
                                             <img src="{{ asset('images/no-image.png') }}" alt="No Image"
-                                                class="rounded me-3 object-fit-cover shadow-sm border border-light" width="48" height="48">
+                                                class="rounded me-3 object-fit-cover shadow-sm border border-light"
+                                                width="48" height="48">
                                         @endif
                                         <div>
                                             <div class="fw-bold text-dark mb-1">{{ $product->Name }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1">{{ $product->category->Name ?? '-' }}</span></td>
                                 <td>
-                                    @php
-                                        $quantity = $product->inventory->Quantity ?? 0;
-                                        $reorderLevel = $product->inventory->ReorderLevel ?? 0;
-                                        if ($quantity == 0) {
-                                            $statusClass = 'bg-danger';
-                                        } elseif ($quantity <= $reorderLevel) {
-                                            $statusClass = 'bg-warning text-dark';
-                                        } else {
-                                            $statusClass = 'bg-success';
-                                        }
-                                    @endphp
+                                    <span
+                                        class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1">
+                                        {{ $product->category->Name ?? '-' }}
+                                    </span>
+                                </td>
+                                <td>
                                     <span class="badge rounded-pill {{ $statusClass }} px-2 py-1">
                                         {{ __('inventory.qty') }}: {{ $quantity }}
                                     </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-warning text-dark px-2 py-1 border border-warning-subtle">
-                                        {{ $product->inventory->ReorderLevel ?? 0 }}
+                                        {{ $reorderLevel }}
                                     </span>
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group shadow-sm">
-                                        {{-- Edit Reorder Level Button --}}
+                                        {{-- Edit Reorder Level Button (Uses Data Attributes) --}}
                                         <button class="btn btn-sm btn-light text-warning border" data-bs-toggle="modal"
-                                            data-bs-target="#adjustStockreorderModal{{ $product->ProductID }}" title="{{ __('inventory.btn_change_reorder') }}">
+                                            data-bs-target="#globalReorderModal"
+                                            data-product-id="{{ $product->ProductID }}"
+                                            data-reorder-level="{{ $reorderLevel }}"
+                                            title="{{ __('inventory.btn_change_reorder') }}">
                                             <i class="fas fa-sliders-h"></i>
                                         </button>
 
-                                        {{-- Adjust Stock Button --}}
+                                        {{-- Adjust Stock Button (Uses Data Attributes) --}}
                                         <button class="btn btn-sm btn-light text-primary border" data-bs-toggle="modal"
-                                            data-bs-target="#adjustStockModal{{ $product->ProductID }}" title="{{ __('inventory.btn_adjust_stock') }}">
+                                            data-bs-target="#globalAdjustStockModal"
+                                            data-product-id="{{ $product->ProductID }}"
+                                            data-current-qty="{{ $quantity }}"
+                                            title="{{ __('inventory.btn_adjust_stock') }}">
                                             <i class="fas fa-boxes"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-
-                            {{-- Adjust Stock Modal --}}
-                            <div class="modal fade" id="adjustStockModal{{ $product->ProductID }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i class="fas fa-boxes text-primary me-2"></i>{{ __('inventory.modal_adjust_title') }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('inventory.update') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->ProductID }}">
-                                            <div class="modal-body p-4">
-                                                <div class="alert alert-info border-info-subtle bg-info bg-opacity-10 text-info-emphasis mb-4">
-                                                    {{ __('inventory.current_stock') }}: <strong>{{ $product->inventory->Quantity ?? 0 }}</strong>
-                                                </div>
-                                                <div class="row g-3">
-                                                    <div class="col-12">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('inventory.modal_action_label') }} <span class="text-danger">*</span></label>
-                                                        <select name="action" class="form-select">
-                                                            <option value="add">{{ __('inventory.modal_add_stock') }} (+)</option>
-                                                            <option value="subtract">{{ __('inventory.modal_subtract_stock') }} (-)</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('inventory.modal_qty_label') }} <span class="text-danger">*</span></label>
-                                                        <input type="number" name="quantity" class="form-control" min="1" required>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('inventory.modal_reason_label') }}</label>
-                                                        <input type="text" name="reason" class="form-control" placeholder="{{ __('inventory.modal_reason_placeholder') }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('inventory.btn_cancel') }}</button>
-                                                <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('inventory.btn_save') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Reorder Level Modal --}}
-                            <div class="modal fade" id="adjustStockreorderModal{{ $product->ProductID }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i class="fas fa-exclamation-triangle text-warning me-2"></i>{{ __('inventory.btn_change_reorder') }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('inventory.updatereorder') }}" method="GET">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->ProductID }}">
-                                            <div class="modal-body p-4">
-                                                <div class="mb-3">
-                                                    <label class="form-label small fw-bold text-muted">{{ __('inventory.reorder_level') }} <span class="text-danger">*</span></label>
-                                                    <input type="number" name="reorder_level" class="form-control"
-                                                           value="{{ $product->inventory->ReorderLevel ?? 0 }}" min="0" required>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('inventory.btn_cancel') }}</button>
-                                                <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('inventory.btn_save') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted bg-white">
@@ -233,17 +182,110 @@
                     </tbody>
                 </table>
             </div>
+
             <div class="d-flex justify-content-start mt-4">
-                @if(method_exists($products, 'links'))
+                @if (method_exists($products, 'links'))
                     {{ $products->appends(request()->query())->links() }}
                 @endif
             </div>
         </div>
     </div>
 
+    {{-- ========================================================================= --}}
+    {{-- SHARED MODALS (Moved outside loop structure for DOM cleaner layout) --}}
+    {{-- ========================================================================= --}}
+
+    {{-- Shared Adjust Stock Modal --}}
+    <div class="modal fade" id="globalAdjustStockModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-bottom-0">
+                    <h5 class="modal-title fw-bold text-dark">
+                        <i class="fas fa-boxes text-primary me-2"></i>{{ __('inventory.modal_adjust_title') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('inventory.update') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_id" id="adjust_product_id">
+                    <div class="modal-body p-4">
+                        <div class="alert alert-info border-info-subtle bg-info bg-opacity-10 text-info-emphasis mb-4">
+                            {{ __('inventory.current_stock') }}: <strong id="adjust_current_qty_label">0</strong>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">
+                                    {{ __('inventory.modal_action_label') }} <span class="text-danger">*</span>
+                                </label>
+                                <select name="action" class="form-select">
+                                    <option value="add">{{ __('inventory.modal_add_stock') }} (+)</option>
+                                    <option value="subtract">{{ __('inventory.modal_subtract_stock') }} (-)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">
+                                    {{ __('inventory.modal_qty_label') }} <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="quantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-12">
+                                <label
+                                    class="form-label small fw-bold text-muted">{{ __('inventory.modal_reason_label') }}</label>
+                                <input type="text" name="reason" class="form-control"
+                                    placeholder="{{ __('inventory.modal_reason_placeholder') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                            data-bs-dismiss="modal">{{ __('inventory.btn_cancel') }}</button>
+                        <button type="submit"
+                            class="btn btn-primary fw-bold px-4">{{ __('inventory.btn_save') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Shared Reorder Level Modal --}}
+    <div class="modal fade" id="globalReorderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-bottom-0">
+                    <h5 class="modal-title fw-bold text-dark">
+                        <i
+                            class="fas fa-exclamation-triangle text-warning me-2"></i>{{ __('inventory.btn_change_reorder') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                {{-- Kept as GET request based on your previous original route code --}}
+                <form action="{{ route('inventory.updatereorder') }}" method="GET">
+                    @csrf
+                    <input type="hidden" name="product_id" id="reorder_product_id">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">
+                                {{ __('inventory.reorder_level') }} <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" name="reorder_level" id="reorder_level_input" class="form-control"
+                                min="0" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                            data-bs-dismiss="modal">{{ __('inventory.btn_cancel') }}</button>
+                        <button type="submit"
+                            class="btn btn-primary fw-bold px-4">{{ __('inventory.btn_save') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
 
     @push('scripts')
@@ -263,6 +305,35 @@
                     statusOut: "{{ __('inventory.stock_status_out') }}"
                 }
             };
+
+            // JavaScript events to catch modal triggers and populate row information safely
+            document.addEventListener('DOMContentLoaded', function() {
+                // 1. Handle Adjust Stock Modal
+                const adjustModal = document.getElementById('globalAdjustStockModal');
+                if (adjustModal) {
+                    adjustModal.addEventListener('show.bs.modal', function(event) {
+                        const button = event.relatedTarget;
+                        const productId = button.getAttribute('data-product-id');
+                        const currentQty = button.getAttribute('data-current-qty');
+
+                        document.getElementById('adjust_product_id').value = productId;
+                        document.getElementById('adjust_current_qty_label').textContent = currentQty;
+                    });
+                }
+
+                // 2. Handle Reorder Level Modal
+                const reorderModal = document.getElementById('globalReorderModal');
+                if (reorderModal) {
+                    reorderModal.addEventListener('show.bs.modal', function(event) {
+                        const button = event.relatedTarget;
+                        const productId = button.getAttribute('data-product-id');
+                        const reorderLevel = button.getAttribute('data-reorder-level');
+
+                        document.getElementById('reorder_product_id').value = productId;
+                        document.getElementById('reorder_level_input').value = reorderLevel;
+                    });
+                }
+            });
         </script>
 
         <script defer src="{{ asset('js/pages/inventory.js') }}"></script>

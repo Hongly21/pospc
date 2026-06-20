@@ -77,9 +77,7 @@
                     @endif
 
                 </div>
-                {{-- <div class="col-12 col-md-1 d-flex gap-2 align-items-end">
 
-                </div> --}}
             </form>
 
             <div class="table-responsive bg-white rounded shadow-sm border border-light-subtle">
@@ -102,7 +100,8 @@
                                 <td>
                                     <div class="d-flex align-items-center py-1">
                                         @if ($row->UserImage)
-                                            <img src="{{ str_starts_with($row->UserImage, 'http') ? $row->UserImage : asset('storage/' . $row->UserImage) }}" alt="User Image"
+                                            <img src="{{ str_starts_with($row->UserImage, 'http') ? $row->UserImage : asset('storage/' . $row->UserImage) }}"
+                                                alt="User Image"
                                                 class="rounded-circle me-3 shadow-sm border border-primary-subtle user-avatar-sm object-fit-cover">
                                         @else
                                             <div
@@ -157,7 +156,8 @@
 
                                     @if ($row->Status == 'Pending')
                                         <div class="ms-2 d-inline-block">
-                                            <form action="{{ route('users.approve', $row->UserID) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('users.approve', $row->UserID) }}" method="POST"
+                                                class="d-inline">
                                                 @csrf
                                                 <button type="submit"
                                                     class="btn btn-sm btn-light text-success border px-2 py-0"
@@ -165,7 +165,8 @@
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('users.reject', $row->UserID) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('users.reject', $row->UserID) }}" method="POST"
+                                                class="d-inline">
                                                 @csrf
                                                 <button type="submit"
                                                     class="btn btn-sm btn-light text-danger border px-2 py-0"
@@ -246,130 +247,30 @@
                                         @endif
                                     </div>
                                 </td>
-                            </tr>
-                            {{-- {{-- update modal}} --}}
-                            <div class="modal fade" id="editUserModal{{ $row->UserID }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i
-                                                    class="fas fa-user-edit text-primary me-2"></i>{{ __('edit_user') }} -
-                                                {{ $row->Username }}
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('users.update') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $row->UserID }}">
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('name') }}</label>
-                                                        <input type="text" class="form-control" name="name"
-                                                            value="{{ $row->Username }}">
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('email') }}</label>
-                                                        <input type="email" class="form-control bg-light"
-                                                            name="Email" value="{{ $row->Email }}" readonly>
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-primary">{{ __('role') }}</label>
-
-                                                        {{-- <select class="form-select border-primary bg-primary bg-opacity-10"
-                                                            name="role_id">
-                                                            @foreach ($roles as $role)
-                                                                <option value="{{ $role->RoleID }}"
-                                                                    {{ $role->RoleID == $row->RoleID ? 'selected' : '' }}>
-                                                                    {{ __($role->RoleName) }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select> --}}
-
-                                                        @if (Auth::user()->RoleID != 1)
-                                                            <select
-                                                                class="form-select border-primary bg-primary bg-opacity-10"
-                                                                name="role_id" required>
-                                                                <option value="{{ $row->RoleID }}">
-                                                                    {{ __('choose_role') }}</option>
-                                                                @foreach ($roles as $role)
-                                                                    @if ($role->RoleID != 1)
-                                                                        <option value="{{ $role->RoleID }}">
-                                                                            {{ __($role->RoleName) }}</option>
-                                                                    @endif
-                                                                @endforeach
-                                                            </select>
-                                                        @else
-                                                            <select
-                                                                class="form-select border-primary bg-primary bg-opacity-10"
-                                                                name="role_id" required>
-                                                                <option value="{{ $row->RoleID }}">
-                                                                    {{ __('choose_role') }}</option>
-                                                                @foreach ($roles as $role)
-                                                                    <option value="{{ $role->RoleID }}">
-                                                                        {{ __($role->RoleName) }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('new_password') }}
-                                                            <small
-                                                                class="text-muted fw-normal">({{ __('optional') }})</small></label>
-                                                        <div class="input-group">
-                                                            <input type="password" class="form-control border-end-0"
-                                                                name="password" id="edit-password-{{ $row->UserID }}"
-                                                                placeholder="{{ __('leave_blank') }}">
-                                                            <span class="input-group-text bg-white cursor-pointer"
-                                                                onclick="toggleField('edit-password-{{ $row->UserID }}', 'edit-pwd-icon-{{ $row->UserID }}')">
-                                                                <i class="fas fa-eye text-muted"
-                                                                    id="edit-pwd-icon-{{ $row->UserID }}"></i>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4"
-                                                    data-bs-dismiss="modal">{{ __('cancel') }}</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary fw-bold px-4">{{ __('update_user') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-5 text-muted bg-white">
-                                    <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                        <i class="fas fa-users fa-3x mb-3 text-secondary opacity-50"></i>
-                                        <h5 class="fw-medium text-dark">{{ __('no_records_found') ?? 'No users found.' }}
-                                        </h5>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+@empty
+    <tr>
+        <td colspan="7" class="text-center py-5 text-muted bg-white">
+            <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                <i class="fas fa-users fa-3x mb-3 text-secondary opacity-50"></i>
+                <h5 class="fw-medium text-dark">{{ __('no_records_found') ?? 'No users found.' }}
+                </h5>
             </div>
+        </td>
+    </tr>
+    @endforelse
+    </tbody>
+    </table>
+    </div>
 
-            <div class="mt-4">
-                {{-- User pagination if exists --}}
-                @if (method_exists($users, 'links'))
-                    <div class="d-flex justify-content-start mt-3">
-                        {{ $users->links() }}
-                    </div>
-                @endif
+    <div class="mt-4">
+        {{-- User pagination if exists --}}
+        @if (method_exists($users, 'links'))
+            <div class="d-flex justify-content-start mt-3">
+                {{ $users->links() }}
             </div>
-        </div>
+        @endif
+    </div>
+    </div>
     </div>
 
     {{-- add modal --}}
@@ -462,6 +363,90 @@
             </div>
         </div>
     </div>
+
+    {{-- edit modals --}}
+    @foreach ($users as $row)
+        <div class="modal fade" id="editUserModal{{ $row->UserID }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark"><i
+                                class="fas fa-user-edit text-primary me-2"></i>{{ __('edit_user') }} -
+                            {{ $row->Username }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('users.update') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $row->UserID }}">
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('name') }}</label>
+                                    <input type="text" class="form-control" name="name"
+                                        value="{{ $row->Username }}">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('email') }}</label>
+                                    <input type="email" class="form-control bg-light" name="Email"
+                                        value="{{ $row->Email }}" readonly>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-primary">{{ __('role') }}</label>
+
+                                    @if (Auth::user()->RoleID != 1)
+                                        <select class="form-select border-primary bg-primary bg-opacity-10" name="role_id"
+                                            required>
+                                            <option value="{{ $row->RoleID }}">
+                                                {{ __('choose_role') }}</option>
+                                            @foreach ($roles as $role)
+                                                @if ($role->RoleID != 1)
+                                                    <option value="{{ $role->RoleID }}">
+                                                        {{ __($role->RoleName) }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <select class="form-select border-primary bg-primary bg-opacity-10" name="role_id"
+                                            required>
+                                            <option value="{{ $row->RoleID }}">
+                                                {{ __('choose_role') }}</option>
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->RoleID }}">
+                                                    {{ __($role->RoleName) }}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-primary">{{ __('new_password') }}
+                                        <small class="text-muted fw-normal">({{ __('optional') }})</small></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control border-end-0" name="password"
+                                            id="edit-password-{{ $row->UserID }}"
+                                            placeholder="{{ __('leave_blank') }}">
+                                        <span class="input-group-text bg-white cursor-pointer"
+                                            onclick="toggleField('edit-password-{{ $row->UserID }}', 'edit-pwd-icon-{{ $row->UserID }}')">
+                                            <i class="fas fa-eye text-muted" id="edit-pwd-icon-{{ $row->UserID }}"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                                data-bs-dismiss="modal">{{ __('cancel') }}</button>
+                            <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('update_user') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
     @push('scripts')
         <script>
             window.usersPageConfig = {

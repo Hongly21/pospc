@@ -1,18 +1,24 @@
 @extends('layouts.app')
+
 @section('title', __('customer_information'))
+
 @section('content')
     @include('partials.alerts')
 
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white border-bottom pt-3 pb-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-users text-primary me-2"></i>{{ __('customer_information') }}</h5>
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-users text-primary me-2"></i>{{ __('customer_information') }}
+            </h5>
             <button type="button" class="btn btn-primary btn-sm fw-medium px-3 shadow-sm" data-bs-toggle="modal"
                 data-bs-target="#addCustomerModal">
                 <i class="fas fa-plus me-1"></i> {{ __('add_new_customer') }}
             </button>
         </div>
         <div class="card-body bg-light rounded-bottom">
-            <form action="{{ route('customers.index') }}" method="GET" class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
+            {{-- Search & Filter Form --}}
+            <form action="{{ route('customers.index') }}" method="GET"
+                class="row g-2 align-items-center mb-4 bg-white p-2 rounded shadow-sm mx-0">
                 <div class="col-12 col-md-4">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
@@ -46,6 +52,7 @@
                 </div>
             </form>
 
+            {{-- Table --}}
             <div class="table-responsive bg-white rounded shadow-sm border border-light-subtle">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light text-secondary small text-uppercase">
@@ -66,9 +73,10 @@
                                 <td class="fw-bold text-dark">{{ $customer->Name }}</td>
                                 <td>{{ $customer->PhoneNumber ?? 'N/A' }}</td>
                                 <td class="text-center">
-                                    <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2 py-1">{{ $customer->Points ?? 0 }}</span>
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2 py-1">
+                                        {{ $customer->Points ?? 0 }}
+                                    </span>
                                 </td>
-
                                 <td class="text-end pe-4 fw-medium">
                                     @php
                                         $debt = 0;
@@ -90,122 +98,30 @@
                                 </td>
                                 <td class="text-center">
                                     @if ($customer->status == 1)
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1"><i class="fas fa-check-circle me-1"></i> {{ __('active') }}</span>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1">
+                                            <i class="fas fa-check-circle me-1"></i> {{ __('active') }}
+                                        </span>
                                     @else
-                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle px-2 py-1"><i class="fas fa-times-circle me-1"></i> {{ __('inactive') }}</span>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle px-2 py-1">
+                                            <i class="fas fa-times-circle me-1"></i> {{ __('inactive') }}
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group shadow-sm">
                                         <button type="button" class="btn btn-sm btn-light text-warning border"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editCustomerModal{{ $customer->CustomerID }}">
+                                            data-bs-toggle="modal" data-bs-target="#editCustomerModal{{ $customer->CustomerID }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
 
-                                        <button type="button"
-                                            class="btn btn-sm border btn-light text-{{ $customer->status == 1 ? 'danger' : 'success' }}"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#statusCustomerModal{{ $customer->CustomerID }}"
+                                        <button type="button" class="btn btn-sm border btn-light text-{{ $customer->status == 1 ? 'danger' : 'success' }}"
+                                            data-bs-toggle="modal" data-bs-target="#statusCustomerModal{{ $customer->CustomerID }}"
                                             title="{{ __('status') }}">
                                             <i class="fas fa-{{ $customer->status == 1 ? 'ban' : 'check-circle' }}"></i>
                                         </button>
                                     </div>
-
-                                    {{-- edit status modal --}}
-                                    <div class="modal fade" id="statusCustomerModal{{ $customer->CustomerID }}"
-                                        tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-sm modal-dialog-centered text-start">
-                                            <div class="modal-content border-0 shadow">
-                                                <div class="modal-header bg-light border-bottom-0">
-                                                    <h6 class="modal-title fw-bold text-dark"><i
-                                                            class="fas fa-exchange-alt text-primary me-2"></i>
-                                                        {{ __('confirm_status_change') }}</h6>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body p-4 text-center mt-3">
-                                                    <p class="mb-2 text-muted">{{ __('confirm_message') }}
-                                                        <b class="text-dark">{{ $customer->Name }}</b>
-                                                    </p>
-                                                    <p class="small fw-bold text-muted">{{ __('status') }}: <span
-                                                            class="badge bg-{{ $customer->status == 1 ? 'danger' : 'success' }} bg-opacity-10 text-{{ $customer->status == 1 ? 'danger' : 'success' }} border border-{{ $customer->status == 1 ? 'danger' : 'success' }}-subtle px-2 py-1 fs-6">{{ $customer->status == 1 ? __('inactive') : __('active') }}</span>
-                                                        ?</p>
-                                                </div>
-                                                <div class="modal-footer bg-light border-top-0 justify-content-center">
-                                                    <form
-                                                        action="{{ route('customers.destroy', $customer->CustomerID) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="button"
-                                                            class="btn btn-outline-secondary fw-bold px-4"
-                                                            data-bs-dismiss="modal">{{ __('no_cancel') }}</button>
-                                                        <button type="submit"
-                                                            class="btn btn-{{ $customer->status == 1 ? 'danger' : 'success' }} fw-bold px-4">{{ __('yes_agree') }}</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </td>
                             </tr>
-
-                            {{-- edit customer modal --}}
-                            <div class="modal fade" id="editCustomerModal{{ $customer->CustomerID }}" tabindex="-1"
-                                aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content border-0 shadow text-start">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title text-dark fw-bold"><i
-                                                    class="fas fa-user-edit text-primary me-2"></i> {{ __('edit_customer') }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('customers.update', $customer->CustomerID) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('customer_name') }} <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="text" name="name" class="form-control"
-                                                            value="{{ $customer->Name }}" required>
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('phone_number') }} <span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="text" name="phone" class="form-control"
-                                                            value="{{ $customer->PhoneNumber }}" required>
-                                                    </div>
-                                                    <div class="col-12 col-md-12">
-                                                        <label class="form-label small fw-bold text-primary">{{ __('status') }}</label>
-                                                        <select name="status" class="form-select border-primary bg-primary bg-opacity-10">
-                                                            <option value="1"
-                                                                {{ $customer->status == 1 ? 'selected' : '' }}>{{ __('active') }}
-                                                            </option>
-                                                            <option value="0"
-                                                                {{ $customer->status == 0 ? 'selected' : '' }}>{{ __('inactive') }}</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('address') }}</label>
-                                                        <textarea name="address" class="form-control" rows="2">{{ $customer->Address }}</textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4"
-                                                    data-bs-dismiss="modal">{{ __('close') }}</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary fw-bold px-4">{{ __('update') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted bg-white">
@@ -220,24 +136,24 @@
                 </table>
             </div>
 
+            {{-- Pagination Links --}}
             <div class="mt-4 d-flex justify-content-start">
-                {{-- Pagination --}}
-                @if(method_exists($customers, 'links'))
+                @if (method_exists($customers, 'links'))
                     {{ $customers->appends(request()->query())->links() }}
                 @endif
             </div>
         </div>
     </div>
 
-
-    {{-- add modal --}}
+    {{-- Add Customer Modal --}}
     <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light border-bottom-0">
-                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-user-plus text-primary me-2"></i> {{ __('add_new_customer') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold text-dark">
+                        <i class="fas fa-user-plus text-primary me-2"></i>{{ __('add_new_customer') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('customers.store') }}" method="POST">
                     @csrf
@@ -245,13 +161,19 @@
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('customer_name') }} <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control" required>
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold text-muted">{{ __('phone_number') }} <span class="text-danger">*</span></label>
-                                <input type="text" name="phone" class="form-control" required>
+                                <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}" required>
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="col-12 col-md-12">
+                            <div class="col-12">
                                 <label class="form-label small fw-bold text-primary">{{ __('status') }}</label>
                                 <select name="status" class="form-select border-primary bg-primary bg-opacity-10">
                                     <option value="1" selected>{{ __('active') }}</option>
@@ -260,7 +182,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">{{ __('address') }}</label>
-                                <textarea name="address" class="form-control" rows="2" placeholder=""></textarea>
+                                <textarea name="address" class="form-control" rows="2" placeholder="">{{ old('address') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -272,4 +194,83 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit & Status Action Modals Loop --}}
+    @foreach ($customers as $customer)
+        {{-- Status Confirmation Modal --}}
+        <div class="modal fade" id="statusCustomerModal{{ $customer->CustomerID }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered text-start">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h6 class="modal-title fw-bold text-dark">
+                            <i class="fas fa-exchange-alt text-primary me-2"></i>{{ __('confirm_status_change') }}
+                        </h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center mt-3">
+                        <p class="mb-2 text-muted">{{ __('confirm_message') }} <b class="text-dark">{{ $customer->Name }}</b></p>
+                        <p class="small fw-bold text-muted">
+                            {{ __('status') }}:
+                            <span class="badge bg-{{ $customer->status == 1 ? 'danger' : 'success' }} bg-opacity-10 text-{{ $customer->status == 1 ? 'danger' : 'success' }} border border-{{ $customer->status == 1 ? 'danger' : 'success' }}-subtle px-2 py-1 fs-6">
+                                {{ $customer->status == 1 ? __('inactive') : __('active') }}
+                            </span>?
+                        </p>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0 justify-content-center">
+                        <form action="{{ route('customers.destroy', $customer->CustomerID) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('no_cancel') }}</button>
+                            <button type="submit" class="btn btn-{{ $customer->status == 1 ? 'danger' : 'success' }} fw-bold px-4">{{ __('yes_agree') }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Edit Customer Modal --}}
+        <div class="modal fade" id="editCustomerModal{{ $customer->CustomerID }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow text-start">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title text-dark fw-bold">
+                            <i class="fas fa-user-edit text-primary me-2"></i>{{ __('edit_customer') }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('customers.update', $customer->CustomerID) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('customer_name') }} <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" value="{{ $customer->Name }}" required>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('phone_number') }} <span class="text-danger">*</span></label>
+                                    <input type="text" name="phone" class="form-control" value="{{ $customer->PhoneNumber }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-primary">{{ __('status') }}</label>
+                                    <select name="status" class="form-select border-primary bg-primary bg-opacity-10">
+                                        <option value="1" {{ $customer->status == 1 ? 'selected' : '' }}>{{ __('active') }}</option>
+                                        <option value="0" {{ $customer->status == 0 ? 'selected' : '' }}>{{ __('inactive') }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted">{{ __('address') }}</label>
+                                    <textarea name="address" class="form-control" rows="2">{{ $customer->Address }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('close') }}</button>
+                            <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 @endsection

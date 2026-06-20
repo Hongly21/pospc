@@ -125,6 +125,7 @@
         </div>
     </div>
 
+    {{-- Markdown Price Modal --}}
     <div class="modal fade no-print" id="markdownPriceModal" tabindex="-1" aria-labelledby="markdownPriceModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

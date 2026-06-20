@@ -100,58 +100,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-                            {{-- Edit Modal --}}
-                            <div class="modal fade" id="editCategoryModal{{ $category->CategoryID }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i
-                                                    class="fas fa-edit text-primary me-2"></i>{{ __('categories.edit_category') }}
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('categories.update', $category->CategoryID) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-muted">{{ __('categories.category_name') }}</label>
-                                                        <input type="text" name="Name"
-                                                            class="form-control @error('Name') is-invalid @enderror"
-                                                            value="{{ $category->Name }}" required>
-                                                        @error('Name')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label
-                                                            class="form-label small fw-bold text-primary">{{ __('categories.tbl_status') }}</label>
-                                                        <select name="status"
-                                                            class="form-select border-primary bg-primary bg-opacity-10">
-                                                            <option value="1"
-                                                                {{ $category->status == 1 ? 'selected' : '' }}>
-                                                                {{ __('categories.status_active') }}</option>
-                                                            <option value="0"
-                                                                {{ $category->status == 0 ? 'selected' : '' }}>
-                                                                {{ __('categories.status_inactive') }}</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4"
-                                                    data-bs-dismiss="modal">{{ __('categories.cancel') }}</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary fw-bold px-4">{{ __('categories.save') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="3" class="text-center py-5 text-muted bg-white">
@@ -167,7 +115,7 @@
                 </table>
             </div>
             <div class="mt-4 d-flex justify-content-start">
-                @if(method_exists($categories, 'links'))
+                @if (method_exists($categories, 'links'))
                     {{ $categories->appends(request()->query())->links() }}
                 @endif
             </div>
@@ -208,6 +156,56 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit Modals --}}
+    @foreach ($categories as $category)
+        <div class="modal fade" id="editCategoryModal{{ $category->CategoryID }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark"><i
+                                class="fas fa-edit text-primary me-2"></i>{{ __('categories.edit_category') }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('categories.update', $category->CategoryID) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-muted">{{ __('categories.category_name') }}</label>
+                                    <input type="text" name="Name"
+                                        class="form-control @error('Name') is-invalid @enderror"
+                                        value="{{ $category->Name }}" required>
+                                    @error('Name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label
+                                        class="form-label small fw-bold text-primary">{{ __('categories.tbl_status') }}</label>
+                                    <select name="status" class="form-select border-primary bg-primary bg-opacity-10">
+                                        <option value="1" {{ $category->status == 1 ? 'selected' : '' }}>
+                                            {{ __('categories.status_active') }}</option>
+                                        <option value="0" {{ $category->status == 0 ? 'selected' : '' }}>
+                                            {{ __('categories.status_inactive') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4"
+                                data-bs-dismiss="modal">{{ __('categories.cancel') }}</button>
+                            <button type="submit"
+                                class="btn btn-primary fw-bold px-4">{{ __('categories.save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     @push('scripts')
         <script>

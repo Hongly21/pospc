@@ -81,48 +81,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-                            <div class="modal fade" id="editTaxModal{{ $tax->TaxID }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-light border-bottom-0">
-                                            <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit text-primary me-2"></i>{{ __('taxes.edit_tax') }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('taxes.update', $tax->TaxID) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body p-4">
-                                                <div class="row g-3">
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_name') }}</label>
-                                                        <input type="text" name="Name" class="form-control" value="{{ $tax->Name }}" required>
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_rate') }}</label>
-                                                        <input type="number" step="0.01" name="Rate" class="form-control" value="{{ $tax->Rate }}" required>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_description') }}</label>
-                                                        <textarea name="Description" class="form-control" rows="3">{{ $tax->Description }}</textarea>
-                                                    </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label small fw-bold text-primary">{{ __('taxes.tbl_status') }}</label>
-                                                        <select name="Status" class="form-select border-primary bg-primary bg-opacity-10">
-                                                            <option value="1" {{ $tax->Status == 1 ? 'selected' : '' }}>{{ __('taxes.status_active') }}</option>
-                                                            <option value="0" {{ $tax->Status == 0 ? 'selected' : '' }}>{{ __('taxes.status_inactive') }}</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light border-top-0">
-                                                <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('taxes.cancel') }}</button>
-                                                <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('taxes.save') }}</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted bg-white">
@@ -146,6 +104,8 @@
             </div>
         </div>
     </div>
+
+    {{-- add modal --}}
 
     <div class="modal fade" id="addTaxModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -193,6 +153,51 @@
             </div>
         </div>
     </div>
+
+    {{-- Edit Modals --}}
+    @foreach ($taxes as $tax)
+        <div class="modal fade" id="editTaxModal{{ $tax->TaxID }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit text-primary me-2"></i>{{ __('taxes.edit_tax') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('taxes.update', $tax->TaxID) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_name') }}</label>
+                                    <input type="text" name="Name" class="form-control" value="{{ $tax->Name }}" required>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_rate') }}</label>
+                                    <input type="number" step="0.01" name="Rate" class="form-control" value="{{ $tax->Rate }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted">{{ __('taxes.tax_description') }}</label>
+                                    <textarea name="Description" class="form-control" rows="3">{{ $tax->Description }}</textarea>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-primary">{{ __('taxes.tbl_status') }}</label>
+                                    <select name="Status" class="form-select border-primary bg-primary bg-opacity-10">
+                                        <option value="1" {{ $tax->Status == 1 ? 'selected' : '' }}>{{ __('taxes.status_active') }}</option>
+                                        <option value="0" {{ $tax->Status == 0 ? 'selected' : '' }}>{{ __('taxes.status_inactive') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0">
+                            <button type="button" class="btn btn-outline-secondary fw-bold px-4" data-bs-dismiss="modal">{{ __('taxes.cancel') }}</button>
+                            <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('taxes.save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     @push('scripts')
         <script>
