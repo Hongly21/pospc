@@ -151,6 +151,7 @@
         lastUpdatedCartId = null;
         qrMd5 = null;
         qrConfirmed = false;
+        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
         $('#customer_id').val('');
         $('#paymentType').val('Cash');
@@ -212,6 +213,18 @@
         $('#qrErrorMsg').text(msg);
     }
 
+    function showQrVerificationUnavailable(msg) {
+        qrVerificationUnavailable = true;
+        $('#btnConfirmPayment').prop('disabled', false);
+        $('#qrLoading').addClass('d-none');
+        $('#qrDisplay').removeClass('d-none');
+        $('#qrWaiting').addClass('d-none');
+        $('#qrPaid').addClass('d-none');
+        $('#qrExpired').addClass('d-none');
+        $('#qrError').removeClass('d-none');
+        $('#qrErrorMsg').text(msg);
+    }
+
     function renderQrCanvas(qrString) {
         $('#qrLoading').addClass('d-none');
         $('#qrDisplay').removeClass('d-none');
@@ -232,6 +245,8 @@
 
     function expireQr() {
         cancelQrPolling();
+        qrVerificationUnavailable = true;
+        $('#btnConfirmPayment').prop('disabled', false);
         $('#qrWaiting').addClass('d-none');
         $('#qrExpired').removeClass('d-none');
     }
@@ -274,7 +289,7 @@
                     if (res.error) {
                         qrCheckFailures++;
                         if (qrCheckFailures >= 3) {
-                            showQrError(res.error || (messages.serverErrorQr || 'Unable to check QR payment.'));
+                            showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
                         }
                         return;
                     }
@@ -286,7 +301,7 @@
                 error() {
                     qrCheckFailures++;
                     if (qrCheckFailures >= 3) {
-                        showQrError(messages.serverErrorQr || 'Server error checking QR payment.');
+                        showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
                     }
                 }
             });
@@ -297,6 +312,7 @@
         cancelQrPolling();
         qrMd5 = null;
         qrConfirmed = false;
+        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
 
         $('#qrAmountDisplay').text('$' + amount.toFixed(2));
@@ -335,6 +351,7 @@
     let qrPollingTimer = null;
     let qrCountdownTimer = null;
     let qrConfirmed = false;
+    let qrVerificationUnavailable = false;
     let qrCheckFailures = 0;
     let searchDebounceTimer = null;
     let searchRequest = null;
@@ -616,8 +633,24 @@
             const customerId = $('#customer_id').val();
 
             if (payType === 'QR') {
-                if (!qrConfirmed) {
+                if (!qrConfirmed && !qrVerificationUnavailable) {
                     showToast({ icon: 'warning', title: messages.waitKhqrPayment || 'Please wait for QR payment confirmation.' });
+                    return;
+                }
+
+                if (!qrConfirmed && qrVerificationUnavailable) {
+                    Swal.fire({
+                        title: messages.warning || 'Warning',
+                        text: messages.qrManualConfirm || 'Automatic QR verification is unavailable. Only confirm if the payment has already been received.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: messages.confirm || 'Confirm',
+                        cancelButtonText: messages.cancel || 'Cancel'
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            processCheckout('QR', currentTotal, customerId, true);
+                        }
+                    });
                     return;
                 }
                 processCheckout('QR', currentTotal, customerId, true);
