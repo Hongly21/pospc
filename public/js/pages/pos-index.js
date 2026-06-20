@@ -151,7 +151,6 @@
         lastUpdatedCartId = null;
         qrMd5 = null;
         qrConfirmed = false;
-        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
         $('#customer_id').val('');
         $('#paymentType').val('Cash');
@@ -213,18 +212,6 @@
         $('#qrErrorMsg').text(msg);
     }
 
-    function showQrVerificationUnavailable(msg) {
-        qrVerificationUnavailable = true;
-        $('#btnConfirmPayment').prop('disabled', false);
-        $('#qrLoading').addClass('d-none');
-        $('#qrDisplay').removeClass('d-none');
-        $('#qrWaiting').addClass('d-none');
-        $('#qrPaid').addClass('d-none');
-        $('#qrExpired').addClass('d-none');
-        $('#qrError').removeClass('d-none');
-        $('#qrErrorMsg').text(msg);
-    }
-
     function renderQrCanvas(qrString) {
         $('#qrLoading').addClass('d-none');
         $('#qrDisplay').removeClass('d-none');
@@ -235,7 +222,6 @@
     }
 
     function cancelQrPolling() {
-        clearInterval(qrPollingTimer);
         clearInterval(qrCountdownTimer);
         qrPollingTimer = null;
         qrCountdownTimer = null;
@@ -245,7 +231,6 @@
 
     function expireQr() {
         cancelQrPolling();
-        qrVerificationUnavailable = true;
         $('#btnConfirmPayment').prop('disabled', false);
         $('#qrWaiting').addClass('d-none');
         $('#qrExpired').removeClass('d-none');
@@ -263,7 +248,7 @@
     }
 
     function startPolling() {
-        let secondsLeft = 60;
+        let secondsLeft = 120;
         qrCheckFailures = 0;
         $('#qrCountdown').text(secondsLeft);
 
@@ -288,8 +273,8 @@
                 success(res) {
                     if (res.error) {
                         qrCheckFailures++;
-                        if (qrCheckFailures >= 3) {
-                            showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
+                        if (qrCheckFailures >= 10) {
+                            showQrError(res.error || (messages.serverErrorQr || 'Server error checking QR payment.'));
                         }
                         return;
                     }
@@ -300,19 +285,18 @@
                 },
                 error() {
                     qrCheckFailures++;
-                    if (qrCheckFailures >= 3) {
-                        showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
+                    if (qrCheckFailures >= 10) {
+                        showQrError(messages.serverErrorQr || 'Server error checking QR payment.');
                     }
                 }
             });
-        }, 3000);
+        }, 5000);
     }
 
     function startKhqrFlow(amount) {
         cancelQrPolling();
         qrMd5 = null;
         qrConfirmed = false;
-        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
 
         $('#qrAmountDisplay').text('$' + amount.toFixed(2));
@@ -351,7 +335,6 @@
     let qrPollingTimer = null;
     let qrCountdownTimer = null;
     let qrConfirmed = false;
-    let qrVerificationUnavailable = false;
     let qrCheckFailures = 0;
     let searchDebounceTimer = null;
     let searchRequest = null;
@@ -633,24 +616,8 @@
             const customerId = $('#customer_id').val();
 
             if (payType === 'QR') {
-                if (!qrConfirmed && !qrVerificationUnavailable) {
+                if (!qrConfirmed) {
                     showToast({ icon: 'warning', title: messages.waitKhqrPayment || 'Please wait for QR payment confirmation.' });
-                    return;
-                }
-
-                if (!qrConfirmed && qrVerificationUnavailable) {
-                    Swal.fire({
-                        title: messages.warning || 'Warning',
-                        text: messages.qrManualConfirm || 'Automatic QR verification is unavailable. Only confirm if the payment has already been received.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: messages.confirm || 'Confirm',
-                        cancelButtonText: messages.cancel || 'Cancel'
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
-                            processCheckout('QR', currentTotal, customerId, true);
-                        }
-                    });
                     return;
                 }
                 processCheckout('QR', currentTotal, customerId, true);
