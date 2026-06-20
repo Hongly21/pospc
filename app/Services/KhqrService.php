@@ -117,8 +117,7 @@ class KhqrService
     {
         try {
             $response = Http::withToken($this->token)
-                ->retry(2, 1000)
-                ->timeout(20)
+                ->timeout(10)
                 ->post("{$this->baseUrl}/v1/check_transaction_by_md5", [
                     'md5' => $md5,
                 ]);

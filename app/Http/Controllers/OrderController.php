@@ -15,8 +15,7 @@ use App\Models\Receipt;
 use Carbon\Carbon;
 use App\Models\Category;
 use App\Models\Tax;
-use App\Services\KhqrService;
-use Illuminate\Support\Facades\Log;
+use App\Services\KhqrService;   // ← NEW
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -76,11 +75,8 @@ class OrderController extends Controller
     public function generateKhqr(Request $request)
     {
         $request->validate([
-            'amount'      => 'required|numeric|min:0.01',
-            'currency'    => 'nullable|in:USD,KHR',
-            'cart'        => 'required|array|min:1',
-            'customer_id' => 'nullable|exists:customers,CustomerID',
-            'tax_id'      => ['nullable', Rule::exists('taxes', 'TaxID')->where('Status', 1)],
+            'amount'   => 'required|numeric|min:0.01',
+            'currency' => 'nullable|in:USD,KHR',
         ]);
 
         $khqr   = new KhqrService();
@@ -91,17 +87,6 @@ class OrderController extends Controller
         );
 
         if ($result['success']) {
-            session([
-                'pending_qr_checkout' => [
-                    'md5'         => $result['md5'],
-                    'amount'      => (float) $request->amount,
-                    'cart'        => $request->cart,
-                    'customer_id' => $request->filled('customer_id') ? (int) $request->customer_id : null,
-                    'tax_id'      => $request->filled('tax_id') ? (int) $request->tax_id : null,
-                    'created_at'  => now()->timestamp,
-                ],
-            ]);
-
             return response()->json([
                 'status' => 'success',
                 'qr'     => $result['qr'],
@@ -129,16 +114,9 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->payment_type === 'QR') {
-            $qrError = $this->prepareQrCheckout($request);
-            if ($qrError !== null) {
-                return $qrError;
-            }
-        }
-
         $request->validate([
             'payment_type'       => 'required|in:Cash,QR,Card',
-            'cart'               => 'required|array|min:1',
+            'cart'               => 'required|array',
             'customer_id'        => 'nullable|exists:customers,CustomerID',
             'tax_id'             => ['nullable', Rule::exists('taxes', 'TaxID')->where('Status', 1)],
             'paid_amount'        => 'nullable|numeric|min:0',
@@ -146,6 +124,13 @@ class OrderController extends Controller
         ]);
 
         $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
+
+        if ($request->payment_type === 'QR' && !$request->payment_confirmed) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => __('pos.qr_payment_not_confirmed'),
+            ]);
+        }
 
         try {
             DB::beginTransaction();
@@ -185,18 +170,8 @@ class OrderController extends Controller
 
             $now = Carbon::now()->setTimezone(config('app.timezone'));
 
-            $userId = Auth::id();
-            if (! $userId) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => __('pos.session_expired_relogin'),
-                ], 401);
-            }
-
             $order = Order::create([
-                'UserID'      => $userId,
+                'UserID'      => Auth::id() ?? 1,
                 'CustomerID'  => $customerId,
                 'TotalAmount' => $calculatedTotal,
                 'TotalTax'    => round($totalTax, 2),
@@ -246,15 +221,6 @@ class OrderController extends Controller
 
             DB::commit();
 
-            if ($request->payment_type === 'QR') {
-                session([
-                    'pending_qr_checkout' => array_merge(
-                        session('pending_qr_checkout', []),
-                        ['order_id' => $order->OrderID]
-                    ),
-                ]);
-            }
-
             return response()->json([
                 'status'         => 'success',
                 'message'        => __('pos.sale_complete'),
@@ -263,12 +229,6 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('POS checkout failed', [
-                'payment_type' => $request->payment_type,
-                'user_id'      => Auth::id(),
-                'error'        => $e->getMessage(),
-            ]);
-
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
@@ -401,60 +361,5 @@ class OrderController extends Controller
             'TaxID' => $tax?->TaxID,
             'TaxRate' => $tax?->Rate ?? 0,
         ];
-    }
-
-    /**
-     * Verify Bakong payment server-side and restore checkout payload from session.
-     * Production proxies can strip nested form fields from the POST body, so the
-     * session copy created during QR generation is the reliable source of truth.
-     */
-    private function prepareQrCheckout(Request $request): ?\Illuminate\Http\JsonResponse
-    {
-        if (! $request->boolean('payment_confirmed')) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => __('pos.qr_payment_not_confirmed'),
-            ], 422);
-        }
-
-        $pending = session('pending_qr_checkout');
-        if (! is_array($pending) || empty($pending['md5'])) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => __('pos.qr_session_expired'),
-            ], 422);
-        }
-
-        if (! empty($pending['order_id'])) {
-            return response()->json([
-                'status'   => 'success',
-                'message'  => __('pos.sale_complete'),
-                'order_id' => $pending['order_id'],
-            ]);
-        }
-
-        $khqr   = new KhqrService();
-        $result = $khqr->checkPayment($pending['md5']);
-        if (empty($result['paid'])) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => __('pos.qr_payment_not_confirmed'),
-            ], 422);
-        }
-
-        $cart = $request->input('cart');
-        if (! is_array($cart) || count($cart) === 0) {
-            $request->merge(['cart' => $pending['cart'] ?? []]);
-        }
-
-        if (! $request->filled('customer_id') && ! empty($pending['customer_id'])) {
-            $request->merge(['customer_id' => $pending['customer_id']]);
-        }
-
-        if (! $request->filled('tax_id') && ! empty($pending['tax_id'])) {
-            $request->merge(['tax_id' => $pending['tax_id']]);
-        }
-
-        return null;
     }
 }

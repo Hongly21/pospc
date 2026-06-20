@@ -12,9 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Trust Render/Railway reverse proxies so HTTPS, sessions, and cookies work correctly.
-        $middleware->trustProxies(at: '*');
-
         // 2. Register the 'role' alias so your routes can use it
         $middleware->web(append: [
             \App\Http\Middleware\LanguageMiddleware::class,

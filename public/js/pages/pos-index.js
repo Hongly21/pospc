@@ -151,68 +151,53 @@
         lastUpdatedCartId = null;
         qrMd5 = null;
         qrConfirmed = false;
+        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
-        checkoutInProgress = false;
         $('#customer_id').val('');
         $('#paymentType').val('Cash');
         $('#tax_id').val('').trigger('change');
         renderCart();
     }
 
-    function ajaxJson(url, payload) {
-        return $.ajax({
-            url,
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'json',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            data: JSON.stringify(payload)
-        });
-    }
-
     function processCheckout(paymentType, receivedAmount, customerId, paymentConfirmed) {
-        if (checkoutInProgress) {
-            return;
-        }
-        checkoutInProgress = true;
         $('#btnConfirmPayment').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> ' + (messages.processing || 'Processing'));
 
-        ajaxJson(routes.checkout || '', {
-            cart,
-            customer_id: customerId || null,
-            total_amount: currentTotal,
-            tax_id: getSelectedTaxId(),
-            payment_type: paymentType,
-            paid_amount: receivedAmount,
-            payment_confirmed: paymentConfirmed ? 1 : 0
-        }).done(function(res) {
-            if (res.status === 'success') {
-                cancelQrPolling();
-                bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
-                resetPosAfterSale();
-                Swal.fire({
-                    title: messages.success || 'Success',
-                    text: res.message,
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.open('/pos/receipt/' + res.order_id, '_blank', 'width=620,height=800');
-                });
-            } else {
-                checkoutInProgress = false;
-                Swal.fire(messages.error || 'Error', res.message, 'error');
+        $.ajax({
+            url: routes.checkout || '',
+            type: 'POST',
+            data: {
+                _token: csrfToken,
+                cart,
+                customer_id: customerId,
+                total_amount: currentTotal,
+                tax_id: getSelectedTaxId(),
+                payment_type: paymentType,
+                paid_amount: receivedAmount,
+                payment_confirmed: paymentConfirmed ? 1 : 0
+            },
+            success(res) {
+                if (res.status === 'success') {
+                    cancelQrPolling();
+                    bootstrap.Modal.getInstance(document.getElementById('paymentModal'))?.hide();
+                    resetPosAfterSale();
+                    Swal.fire({
+                        title: messages.success || 'Success',
+                        text: res.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.open('/pos/receipt/' + res.order_id, '_blank', 'width=620,height=800');
+                    });
+                } else {
+                    Swal.fire(messages.error || 'Error', res.message, 'error');
+                    $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
+                }
+            },
+            error() {
+                Swal.fire(messages.error || 'Error', messages.somethingWentWrong || 'Something went wrong', 'error');
                 $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
             }
-        }).fail(function(xhr) {
-            checkoutInProgress = false;
-            const message = xhr.responseJSON?.message || messages.somethingWentWrong || 'Something went wrong';
-            Swal.fire(messages.error || 'Error', message, 'error');
-            $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check me-2"></i> ' + (messages.confirm || 'Confirm'));
         });
     }
 
@@ -228,6 +213,18 @@
         $('#qrErrorMsg').text(msg);
     }
 
+    function showQrVerificationUnavailable(msg) {
+        qrVerificationUnavailable = true;
+        $('#btnConfirmPayment').prop('disabled', false);
+        $('#qrLoading').addClass('d-none');
+        $('#qrDisplay').removeClass('d-none');
+        $('#qrWaiting').addClass('d-none');
+        $('#qrPaid').addClass('d-none');
+        $('#qrExpired').addClass('d-none');
+        $('#qrError').removeClass('d-none');
+        $('#qrErrorMsg').text(msg);
+    }
+
     function renderQrCanvas(qrString) {
         $('#qrLoading').addClass('d-none');
         $('#qrDisplay').removeClass('d-none');
@@ -238,12 +235,8 @@
     }
 
     function cancelQrPolling() {
-        if (qrPollingTimer) {
-            clearInterval(qrPollingTimer);
-        }
-        if (qrCountdownTimer) {
-            clearInterval(qrCountdownTimer);
-        }
+        clearInterval(qrPollingTimer);
+        clearInterval(qrCountdownTimer);
         qrPollingTimer = null;
         qrCountdownTimer = null;
     }
@@ -252,15 +245,13 @@
 
     function expireQr() {
         cancelQrPolling();
+        qrVerificationUnavailable = true;
         $('#btnConfirmPayment').prop('disabled', false);
         $('#qrWaiting').addClass('d-none');
         $('#qrExpired').removeClass('d-none');
     }
 
     function onQrPaid() {
-        if (qrConfirmed || checkoutInProgress) {
-            return;
-        }
         cancelQrPolling();
         qrConfirmed = true;
         $('#qrWaiting').addClass('d-none');
@@ -272,7 +263,7 @@
     }
 
     function startPolling() {
-        let secondsLeft = 120;
+        let secondsLeft = 60;
         qrCheckFailures = 0;
         $('#qrCountdown').text(secondsLeft);
 
@@ -297,8 +288,8 @@
                 success(res) {
                     if (res.error) {
                         qrCheckFailures++;
-                        if (qrCheckFailures >= 10) {
-                            showQrError(res.error || (messages.serverErrorQr || 'Server error checking QR payment.'));
+                        if (qrCheckFailures >= 3) {
+                            showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
                         }
                         return;
                     }
@@ -309,18 +300,19 @@
                 },
                 error() {
                     qrCheckFailures++;
-                    if (qrCheckFailures >= 10) {
-                        showQrError(messages.serverErrorQr || 'Server error checking QR payment.');
+                    if (qrCheckFailures >= 3) {
+                        showQrVerificationUnavailable(messages.qrManualConfirm || 'Automatic QR verification is unavailable. If you already paid, click Confirm to save the order.');
                     }
                 }
             });
-        }, 5000);
+        }, 3000);
     }
 
     function startKhqrFlow(amount) {
         cancelQrPolling();
         qrMd5 = null;
         qrConfirmed = false;
+        qrVerificationUnavailable = false;
         qrCheckFailures = 0;
 
         $('#qrAmountDisplay').text('$' + amount.toFixed(2));
@@ -329,22 +321,26 @@
         $('#qrWaiting').removeClass('d-none');
         $('#qrPaid,#qrExpired').addClass('d-none');
 
-        ajaxJson(routes.khqrGenerate || '', {
-            amount: amount,
-            currency: 'USD',
-            cart,
-            customer_id: $('#customer_id').val() || null,
-            tax_id: getSelectedTaxId()
-        }).done(function(res) {
-            if (res.status === 'success') {
-                qrMd5 = res.md5;
-                renderQrCanvas(res.qr);
-                startPolling();
-            } else {
-                showQrError(res.message || (messages.cannotGenerateQr || 'Unable to generate QR code.'));
+        $.ajax({
+            url: routes.khqrGenerate || '',
+            type: 'POST',
+            data: {
+                _token: csrfToken,
+                amount: amount,
+                currency: 'USD'
+            },
+            success(res) {
+                if (res.status === 'success') {
+                    qrMd5 = res.md5;
+                    renderQrCanvas(res.qr);
+                    startPolling();
+                } else {
+                    showQrError(res.message || (messages.cannotGenerateQr || 'Unable to generate QR code.'));
+                }
+            },
+            error() {
+                showQrError(messages.serverErrorQr || 'Server error generating QR.');
             }
-        }).fail(function(xhr) {
-            showQrError(xhr.responseJSON?.message || messages.serverErrorQr || 'Server error generating QR.');
         });
     }
 
@@ -355,8 +351,8 @@
     let qrPollingTimer = null;
     let qrCountdownTimer = null;
     let qrConfirmed = false;
+    let qrVerificationUnavailable = false;
     let qrCheckFailures = 0;
-    let checkoutInProgress = false;
     let searchDebounceTimer = null;
     let searchRequest = null;
 
@@ -637,8 +633,24 @@
             const customerId = $('#customer_id').val();
 
             if (payType === 'QR') {
-                if (!qrConfirmed) {
+                if (!qrConfirmed && !qrVerificationUnavailable) {
                     showToast({ icon: 'warning', title: messages.waitKhqrPayment || 'Please wait for QR payment confirmation.' });
+                    return;
+                }
+
+                if (!qrConfirmed && qrVerificationUnavailable) {
+                    Swal.fire({
+                        title: messages.warning || 'Warning',
+                        text: messages.qrManualConfirm || 'Automatic QR verification is unavailable. Only confirm if the payment has already been received.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: messages.confirm || 'Confirm',
+                        cancelButtonText: messages.cancel || 'Cancel'
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            processCheckout('QR', currentTotal, customerId, true);
+                        }
+                    });
                     return;
                 }
                 processCheckout('QR', currentTotal, customerId, true);
@@ -673,7 +685,6 @@
 
         $('#paymentModal').on('hide.bs.modal', function() {
             cancelQrPolling();
-            checkoutInProgress = false;
             $('#txtReceivedAmount').blur();
         });
     });
