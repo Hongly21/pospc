@@ -223,7 +223,8 @@
                                             </button>
                                         @else
                                             <button type="button" class="btn btn-sm btn-light text-warning border"
-                                                data-bs-toggle="modal" data-bs-target="#editUserModal{{ $row->UserID }}">
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editUserModal{{ $row->UserID }}">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                         @endif
@@ -247,30 +248,30 @@
                                         @endif
                                     </div>
                                 </td>
-@empty
-    <tr>
-        <td colspan="7" class="text-center py-5 text-muted bg-white">
-            <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                <i class="fas fa-users fa-3x mb-3 text-secondary opacity-50"></i>
-                <h5 class="fw-medium text-dark">{{ __('no_records_found') ?? 'No users found.' }}
-                </h5>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted bg-white">
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                                        <i class="fas fa-users fa-3x mb-3 text-secondary opacity-50"></i>
+                                        <h5 class="fw-medium text-dark">{{ __('no_records_found') ?? 'No users found.' }}
+                                        </h5>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        </td>
-    </tr>
-    @endforelse
-    </tbody>
-    </table>
-    </div>
 
-    <div class="mt-4">
-        {{-- User pagination if exists --}}
-        @if (method_exists($users, 'links'))
-            <div class="d-flex justify-content-start mt-3">
-                {{ $users->links() }}
+            <div class="mt-4">
+                {{-- User pagination if exists --}}
+                @if (method_exists($users, 'links'))
+                    <div class="d-flex justify-content-start mt-3">
+                        {{ $users->links() }}
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
-    </div>
+        </div>
     </div>
 
     {{-- add modal --}}

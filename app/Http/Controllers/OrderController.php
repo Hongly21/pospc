@@ -123,6 +123,8 @@ class OrderController extends Controller
             'payment_confirmed'  => 'nullable|boolean',
         ]);
 
+        $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
+
         if ($request->payment_type === 'QR' && !$request->payment_confirmed) {
             return response()->json([
                 'status'  => 'error',
@@ -170,7 +172,7 @@ class OrderController extends Controller
 
             $order = Order::create([
                 'UserID'      => Auth::id() ?? 1,
-                'CustomerID'  => $request->customer_id,
+                'CustomerID'  => $customerId,
                 'TotalAmount' => $calculatedTotal,
                 'TotalTax'    => round($totalTax, 2),
                 'Status'      => $status,
@@ -209,9 +211,9 @@ class OrderController extends Controller
                 Inventory::where('ProductID', $item['id'])->decrement('Quantity', $item['qty']);
             }
 
-            if ($request->customer_id) {
+            if ($customerId) {
                 $points   = floor($calculatedTotal / 10);
-                $customer = Customer::find($request->customer_id);
+                $customer = Customer::find($customerId);
                 if ($customer) {
                     $customer->increment('Points', $points);
                 }
