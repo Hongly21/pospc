@@ -16,12 +16,12 @@ class KhqrService
 
     public function __construct()
     {
-        $this->baseUrl       = rtrim(config('khqr.base_url', 'https://api-bakong.nbc.gov.kh'), '/');
-        $this->token         = config('khqr.token');
-        $this->bakongAccount = config('khqr.account');       // e.g. hongly_boun@bkrt
-        $this->merchantName  = config('khqr.merchant_name', 'My Shop');
-        $this->storeLabel    = config('khqr.store_label', 'POS');
-        $this->phone         = config('khqr.phone', '');
+        $this->baseUrl       = rtrim(config('khqr.base_url') ?: env('KHQR_BASE_URL', 'https://api-bakong.nbc.gov.kh'), '/');
+        $this->token         = (string) (config('khqr.token') ?: env('KHQR_TOKEN', ''));
+        $this->bakongAccount = (string) (config('khqr.account') ?: env('KHQR_ACCOUNT', ''));       // e.g. hongly_boun@bkrt
+        $this->merchantName  = (string) (config('khqr.merchant_name') ?: env('KHQR_MERCHANT_NAME', 'My Shop'));
+        $this->storeLabel    = (string) (config('khqr.store_label') ?: env('KHQR_STORE_LABEL', 'POS'));
+        $this->phone         = (string) (config('khqr.phone') ?: env('KHQR_PHONE', ''));
     }
 
     /**
